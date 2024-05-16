@@ -1,0 +1,49 @@
+
+import NodeJsVsCodeHubs from './_shared/nodejs-vscode/admin/account-admin.mdx';
+import NodeJsVsCodeEndpoints from './_shared/nodejs-vscode/admin/endpoints.mdx';
+
+# Administrador de Conta
+
+Agora, é hora de implementar nosso servidor para suportar o acesso de administrador de conta, nesta etapa, vamos 
+continuar estendendo nosso servidor com base em [APIs de administração de conta](https://aps.autodesk.com/en/docs/acc/v1/overview/field-guide/admin/)
+para FETCH e CRIAR os dados de Projetos e Usuários ACC:
+
+## Projetos & Usuários
+
+First, let's add a couple of helper methods for getting and importing projects and users:
+
+<NodeJsVsCodeHubs />
+
+## Pontos de extremidade do servidor
+
+Em seguida, vamos expor a nova funcionalidade ao código do lado do cliente por meio de outro
+conjunto de pontos de extremidade.
+
+<NodeJsVsCodeEndpoints />
+
+## Experimente
+
+E é isso para o lado do servidor. Hora de experimentar!
+
+Inicie (ou reinicie) o aplicativo a partir do Visual Studio Code como de costume, 
+- Use o ID(removendo **b.**) de um hub ACC como você obtém na etapa anterior no endereço: http://localhost:8080/api/admin/projects?accountId={your-account-id}.
+Nesse caso, o aplicativo de servidor deve responder com uma lista JSON de todos os projetos
+disponível no hub especificado.
+- Use o ID do projeto como você obtém na etapa anterior, tente ligar para o endereço: 
+http://localhost:8080/api/admin/project/users?projectId={your-project-id}, o aplicativo de servidor deve
+responder com uma lista JSON de todos os usuários deste projeto.
+
+
+
+:::info
+
+Você pode obter uma lista de projetos diferente pelos 2 pontos de extremidade diferentes, aqui estão os explicativos:
+- Com a API de Gerenciamento de Dados, ele retornará todos os projetos que o usuário atual está envolvido.
+- Com a API de Administração de Conta, ela retornará todos os projetos na conta se o usuário atual for Administrador de Conta.
+
+
+:::
+
+
+
+![Account Admin Response](./_shared/account-admin.webp)

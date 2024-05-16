@@ -1,0 +1,59 @@
+import ActivityBundleConfigureImg from "./_shared/_images/activity-bundle-configure.webp";
+import VsCodeFolderExplorerImg from "./_shared/_images/vscode_nodejsfs.webp";
+import BundleNet6 from "./_shared/dotnet-vs2022/setup/upload-bundle.mdx";
+import BundleNodeJS from "./_shared/nodejs-vscode/setup/upload-bundle.mdx";
+import AutoCADPlugin from "./_shared/_plugins/autocad-plugin.mdx";
+import InventorPlugin from "./_shared/_plugins/inventor-plugin.mdx";
+import RevitPlugin from "./_shared/_plugins/revit-plugin.mdx";
+import MaxPlugin from "./_shared/_plugins/max-plugin.mdx";
+import EngineTabs from "@site/src/components/EngineTabs.js";
+import EnvTabs from "@site/src/components/EnvTabs.js";
+
+# Criar Plugin
+
+O Design Automation usa '.bundle' exatamente como a [Autodesk App Store](https://www.autodesk.com/developer-network/app-store), o que significa que você precisa criar um PackageContents.xml e um ZIP com a DLL (e outros arquivos necessários). Para obter informações detalhadas sobre como criá-los, visite Autodesk App Store Developer Center.
+
+Nesta seção, criaremos um plugin básico que atualizará o parâmetro width e height e salvará o arquivo resultante. Também os arquivos de suporte (PackageContents.xml) e a estrutura de pastas para colocá-los. Finalmente, crie um arquivo .ZIP pronto para carregar no Design Automation.
+
+Na pasta raiz, crie uma pasta 'bundles'.
+
+<img src={VsCodeFolderExplorerImg} style={{ width: 300 }} />
+
+### Pré-requisitos
+
+- 7zip: use para criar o .ZIP com arquivos bundle, instale a partir daqui. Este tutorial pressupõe que o 7zip está instalado na pasta padrão: 'C:\Arquivos de Programas\7-Zip\7z.exe'.
+
+### Pré-requisitos adicionais
+
+Para a próxima sessão, você pode usar o plugin de pré-compilação. Ou se você decidir construí-lo, você precisará
+
+- **Visual Studio**: Visual Studio 2019 ou mais recente é necessário, visite [este link](https://visualstudio.microsoft.com/vs/).
+
+- **AutoCAD, Inventor, Revit ou 3ds Max**: Para desenvolver, testar e depurar seu plugin Design Automation: [AutoCAD](https://www.autodesk.com/products/autocad/overview) | [Inventor] (https://www.autodesk.com/products/inventor/overview) | [Revit] (https://www.autodesk.com/products/revit/overview) | [3ds Max] (https://www.autodesk.com/products/3ds-max/overview).
+
+---
+
+Para a próxima etapa, escolha o **Engine**, que é o aplicativo da Autodesk onde o plug-in será executado. Você precisará do respectivo aplicativo instalado para compilar, depurar e testar localmente.
+
+### Escolha o motor
+
+<EngineTabs
+  AutoCAD={AutoCADPlugin}
+  Inventor={InventorPlugin}
+  Revit={RevitPlugin}
+  Max={MaxPlugin}
+/>
+
+### Carregar Pacote de Plugins
+
+Agora que o pacote ZIP está pronto, vamos fazer o upload para o Design Automation.
+
+<EnvTabs
+  NodeJsVsCode={BundleNodeJS}
+  DotNetVsCode={BundleNet6}
+  DotNetVs2022={BundleNet6}
+/>
+
+Se você executar o webapp agora e clicar em Configurar (canto superior direito), verá seu AppBundle e uma lista de todos os mecanismos disponíveis. Os botões ainda não funcionam... vamos em frente.
+
+<img src={ActivityBundleConfigureImg} style={{ width: 800 }} />

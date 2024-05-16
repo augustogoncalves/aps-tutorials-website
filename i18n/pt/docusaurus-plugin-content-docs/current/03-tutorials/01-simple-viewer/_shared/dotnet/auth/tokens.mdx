@@ -1,0 +1,114 @@
+Crie um arquivo 'APS.cs' na subpasta 'Modelos'. É aí que vamos implementar
+toda a lógica específica do APS que será usada em diferentes áreas da nossa aplicação de servidor. Vamos
+Comece adicionando o seguinte código ao arquivo:
+
+```csharp title="Models/APS.cs"
+using Autodesk.SDKManager;
+public partial class APS
+{
+    private readonly SDKManager _sdkManager;
+    private readonly string _clientId;
+    private readonly string _clientSecret;
+    private readonly string _bucket;
+    public APS(string clientId, string clientSecret, string bucket = null)
+    {
+        _sdkManager = SdkManagerBuilder.Create().Build();
+        _clientId = clientId;
+        _clientSecret = clientSecret;
+        _bucket = string.IsNullOrEmpty(bucket) ? string.Format("{0}-basic-app", _clientId.ToLower()) : bucket;
+    }
+}
+```
+
+Observe que a classe 'APS' é declarada como 'parcial'. Vamos prorrogá-lo
+em outros arquivos '*.cs' mais tarde. Um singleton 'APS' será então fornecido ao nosso servidor
+através do ASP. NET's [injeção de dependência](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/dependency-injection?view=aspnetcore-6.0).
+
+Em seguida, crie outro arquivo na mesma subpasta 'Modelos' e chame-o de 'APS. Auth.cs'.
+Aqui vamos implementar toda a lógica de autenticação. Preencha o arquivo com o seguinte código:
+
+```csharp title="Models/APS.Auth.cs"
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Autodesk.Authentication;
+using Autodesk.Authentication.Model;
+public record Token(string AccessToken, DateTime ExpiresAt);
+public partial class APS
+{
+    private Token _internalTokenCache;
+    private Token _publicTokenCache;
+    private async Task<Token> GetToken(List<Scopes> scopes)
+    {
+        var authenticationClient = new AuthenticationClient(_sdkManager);
+        var auth = await authenticationClient.GetTwoLeggedTokenAsync(_clientId, _clientSecret, scopes);
+        return new Token(auth.AccessToken, DateTime.UtcNow.AddSeconds((double)auth.ExpiresIn));
+    }
+    public async Task<Token> GetPublicToken()
+    {
+        if (_publicTokenCache == null || _publicTokenCache.ExpiresAt < DateTime.UtcNow)
+            _publicTokenCache = await GetToken(new List<Scopes> { Scopes.ViewablesRead });
+        return _publicTokenCache;
+    }
+    private async Task<Token> GetInternalToken()
+    {
+        if (_internalTokenCache == null || _internalTokenCache.ExpiresAt < DateTime.UtcNow)
+            _internalTokenCache = await GetToken(new List<Scopes> { Scopes.BucketCreate, Scopes.BucketRead, Scopes.DataRead, Scopes.DataWrite, Scopes.DataCreate });
+        return _internalTokenCache;
+    }
+}
+```
+
+Esta parte da classe 'APS' fornece dois métodos auxiliares - um para uso interno
+(dando-nos acesso de leitura/gravação aos buckets e objetos de Gerenciamento de Dados) e um para uso público
+(permitindo apenas o acesso às saídas de tradução do serviço Model Derivative).
+
+Em seguida, vamos atualizar nosso arquivo 'Startup.cs' para fazer uma instância singleton da classe 'APS'
+Disponível para o nosso aplicativo de servidor:
+
+```csharp title="Startup.cs"
+using System;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+public class Startup
+{
+    public Startup(IConfiguration configuration)
+    {
+        Configuration = configuration;
+    }
+    public IConfiguration Configuration { get; }
+    // This method gets called by the runtime. Use this method to add services to the container.
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services.AddControllers();
+        var clientID = Configuration["APS_CLIENT_ID"];
+        var clientSecret = Configuration["APS_CLIENT_SECRET"];
+        var bucket = Configuration["APS_BUCKET"]; // Optional
+        if (string.IsNullOrEmpty(clientID) || string.IsNullOrEmpty(clientSecret))
+        {
+            throw new ApplicationException("Missing required environment variables APS_CLIENT_ID or APS_CLIENT_SECRET.");
+        }
+        // highlight-start
+        services.AddSingleton<APS>(new APS(clientID, clientSecret, bucket));
+        // highlight-end
+    }
+    // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        if (env.IsDevelopment())
+        {
+            app.UseDeveloperExceptionPage();
+        }
+        app.UseDefaultFiles();
+        app.UseStaticFiles();
+        app.UseRouting();
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.MapControllers();
+        });
+    }
+}
+```

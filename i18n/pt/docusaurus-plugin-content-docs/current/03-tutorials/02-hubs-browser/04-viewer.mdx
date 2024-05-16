@@ -1,0 +1,336 @@
+import EnvTabs from '@site/src/components/EnvTabs.js';
+
+import NodeJsVsCodeStructure from './_shared/nodejs-vscode/final-folder-structure.mdx';
+import DotNetVsCodeStructure from './_shared/dotnet-vscode/final-folder-structure.mdx';
+import DotNetVs2022Structure from './_shared/dotnet-vs2022/final-folder-structure.mdx';
+
+# Visualizador & UI
+
+Finalmente, estamos prontos para construir a parte do lado do cliente do nosso aplicativo.
+
+
+
+:::tip
+
+ 
+If you're developing with Node.js, you can use TypeScript definitions for the Viewer.
+Run
+```bash
+npm install --save-dev @types/forge-viewer
+``` 
+in your terminal to add the TypeScript definition file to your project.
+
+
+:::
+
+
+
+## Lógica do visualizador
+
+Vamos começar implementando a funcionalidade Viewer para o nosso aplicativo.
+Crie um arquivo 'viewer.js' na subpasta 'wwwroot' com o seguinte código:
+
+```js title="wwwroot/viewer.js"
+async function getAccessToken(callback) {
+    try {
+        const resp = await fetch('/api/auth/token');
+        if (!resp.ok)
+            throw new Error(await resp.text());
+        const { access_token, expires_in } = await resp.json();
+        callback(access_token, expires_in);
+    } catch (err) {
+        alert('Could not obtain access token. See the console for more details.');
+        console.error(err);        
+    }
+}
+export function initViewer(container) {
+    return new Promise(function (resolve, reject) {
+            Autodesk.Viewing.Initializer({ env: 'AutodeskProduction', getAccessToken }, function () {
+            const config = {
+                extensions: ['Autodesk.DocumentBrowser']
+            };
+            const viewer = new Autodesk.Viewing.GuiViewer3D(container, config);
+            viewer.start();
+            viewer.setTheme('light-theme');
+            resolve(viewer);
+        });
+    });
+}
+export function loadModel(viewer, urn) {
+    function onDocumentLoadSuccess(doc) {
+        viewer.loadDocumentNode(doc, doc.getRoot().getDefaultGeometry());
+    }
+    function onDocumentLoadFailure(code, message) {
+        alert('Could not load model. See console for more details.');
+        console.error(message);
+    }
+    Autodesk.Viewing.Document.load('urn:' + urn, onDocumentLoadSuccess, onDocumentLoadFailure);
+}
+```
+
+O script é um [módulo ES6](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules)
+que exporta duas funções:
+
+- 'initViewer' criará uma nova instância do visualizador no contêiner DOM especificado
+- 'loadModel' para carregar um modelo específico para o visualizador
+
+## Lógica da barra lateral
+
+Em seguida, implementaremos o comportamento de uma barra lateral onde exibiremos
+todos os hubs, projetos, pastas, itens e versões em um componente de exibição de árvore de terceiros 3rd.
+Crie um arquivo 'sidebar.js' na subpasta 'wwwroot' com o seguinte código:
+
+```js title="wwwroot/sidebar.js"
+async function getJSON(url) {
+    const resp = await fetch(url);
+    if (!resp.ok) {
+        alert('Could not load tree data. See console for more details.');
+        console.error(await resp.text());
+        return [];
+    }
+    return resp.json();
+}
+function createTreeNode(id, text, icon, children = false) {
+    return { id, text, children, itree: { icon } };
+}
+async function getHubs() {
+    const hubs = await getJSON('/api/hubs');
+    return hubs.map(hub => createTreeNode(`hub|${hub.id}`, hub.attributes.name, 'icon-hub', true));
+}
+async function getProjects(hubId) {
+    const projects = await getJSON(`/api/hubs/${hubId}/projects`);
+    return projects.map(project => createTreeNode(`project|${hubId}|${project.id}`, project.attributes.name, 'icon-project', true));
+}
+async function getContents(hubId, projectId, folderId = null) {
+    const contents = await getJSON(`/api/hubs/${hubId}/projects/${projectId}/contents` + (folderId ? `?folder_id=${folderId}` : ''));
+    return contents.map(item => {
+        if (item.type === 'folders') {
+            return createTreeNode(`folder|${hubId}|${projectId}|${item.id}`, item.attributes.displayName, 'icon-my-folder', true);
+        } else {
+            return createTreeNode(`item|${hubId}|${projectId}|${item.id}`, item.attributes.displayName, 'icon-item', true);
+        }
+    });
+}
+async function getVersions(hubId, projectId, itemId) {
+    const versions = await getJSON(`/api/hubs/${hubId}/projects/${projectId}/contents/${itemId}/versions`);
+    return versions.map(version => createTreeNode(`version|${version.id}`, version.attributes.createTime, 'icon-version'));
+}
+export function initTree(selector, onSelectionChanged) {
+    // See http://inspire-tree.com
+    const tree = new InspireTree({
+        data: function (node) {
+            if (!node || !node.id) {
+                return getHubs();
+            } else {
+                const tokens = node.id.split('|');
+                switch (tokens[0]) {
+                    case 'hub': return getProjects(tokens[1]);
+                    case 'project': return getContents(tokens[1], tokens[2]);
+                    case 'folder': return getContents(tokens[1], tokens[2], tokens[3]);
+                    case 'item': return getVersions(tokens[1], tokens[2], tokens[3]);
+                    default: return [];
+                }
+            }
+        }
+    });
+    tree.on('node.click', function (event, node) {
+        event.preventTreeDefault();
+        const tokens = node.id.split('|');
+        if (tokens[0] === 'version') {
+            onSelectionChanged(tokens[1]);
+        }
+    });
+    return new InspireTreeDOM(tree, { target: selector });
+}
+```
+
+## Lógica de aplicação
+
+Agora vamos conectar todos os componentes da interface do usuário. Crie um arquivo 'main.js' em
+a pasta 'wwwroot' e preencha-a com o seguinte código:
+
+```js title="wwwroot/main.js"
+import { initViewer, loadModel } from './viewer.js';
+import { initTree } from './sidebar.js';
+const login = document.getElementById('login');
+try {
+    const resp = await fetch('/api/auth/profile');
+    if (resp.ok) {
+        const user = await resp.json();
+        login.innerText = `Logout (${user.name})`;
+        login.onclick = () => {
+            const iframe = document.createElement('iframe');
+            iframe.style.visibility = 'hidden';
+            iframe.src = 'https://accounts.autodesk.com/Authentication/LogOut';
+            document.body.appendChild(iframe);
+            iframe.onload = () => {
+                window.location.replace('/api/auth/logout');
+                document.body.removeChild(iframe);
+            };
+        }
+        const viewer = await initViewer(document.getElementById('preview'));
+        initTree('#tree', (id) => loadModel(viewer, window.btoa(id).replace(/=/g, '')));
+    } else {
+        login.innerText = 'Login';
+        login.onclick = () => window.location.replace('/api/auth/login');
+    }
+    login.style.visibility = 'visible';
+} catch (err) {
+    alert('Could not initialize the application. See console for more details.');
+    console.error(err);
+}
+```
+
+O script primeiro tentará obter detalhes do usuário para verificar se estamos conectados ou não.
+Se estivermos, o código pode então inicializar o visualizador, bem como o componente de visualização em árvore.
+A função de retorno de chamada passada para 'initTree' garante que quando clicamos em um nó de folha
+Na árvore, o visualizador começará a carregar o modelo correspondente.
+
+## Interface do usuário
+
+E, finalmente, vamos construir a interface do usuário do nosso aplicativo.
+
+Crie um arquivo 'main.css' na subpasta 'wwwroot' e preencha-o com as seguintes regras CSS:
+
+```css title="wwwroot/main.css"
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    font-family: ArtifaktElement;
+}
+#header, #sidebar, #preview {
+    position: absolute;
+}
+#header {
+    height: 3em;
+    width: 100%;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    align-items: center;
+}
+#sidebar {
+    width: 25%;
+    left: 0;
+    top: 3em;
+    bottom: 0;
+    overflow-y: scroll;
+}
+#preview {
+    width: 75%;
+    right: 0;
+    top: 3em;
+    bottom: 0;
+}
+#header > * {
+    height: 2em;
+    margin: 0 0.5em;
+}
+#login {
+    font-family: ArtifaktElement;
+    font-size: 1em;
+}
+#header .title {
+    height: auto;
+    margin-right: auto;
+}
+#tree {
+    margin: 0.5em;
+}
+@media (max-width: 768px) {
+    #sidebar {
+        width: 100%;
+        top: 3em;
+        bottom: 75%;
+    }
+    #preview {
+        width: 100%;
+        top: 25%;
+        bottom: 0;
+    }
+}
+.icon-hub:before {
+    background-image: url(https://raw.githubusercontent.com/primer/octicons/main/icons/apps-16.svg); /* or https://raw.githubusercontent.com/primer/octicons/main/icons/stack-16.svg */
+    background-size: cover;
+}
+.icon-project:before {
+    
+    background-image: url(https://raw.githubusercontent.com/primer/octicons/main/icons/project-16.svg); /* or https://raw.githubusercontent.com/primer/octicons/main/icons/organization-16.svg */
+    background-size: cover;
+}
+.icon-my-folder:before {
+    background-image: url(https://raw.githubusercontent.com/primer/octicons/main/icons/file-directory-16.svg);
+    background-size: cover;
+}
+.icon-item:before {
+    background-image: url(https://raw.githubusercontent.com/primer/octicons/main/icons/file-16.svg);
+    background-size: cover;
+}
+.icon-version:before {
+    background-image: url(https://raw.githubusercontent.com/primer/octicons/main/icons/clock-16.svg);
+    background-size: cover;
+}
+```
+
+Em seguida, crie um arquivo 'index.html' na mesma pasta com o seguinte conteúdo:
+
+```html title="wwwroot/index.html"
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="https://cdn.autodesk.io/favicon.ico">
+    <link rel="stylesheet" href="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/inspire-tree-dom@4.0.6/dist/inspire-tree-light.min.css">
+    <link rel="stylesheet" href="/main.css">
+    <title>Autodesk Platform Services: Hubs Browser</title>
+</head>
+<body>
+    <div id="header">
+        <img class="logo" src="https://cdn.autodesk.io/logo/black/stacked.png" alt="Autodesk Platform Services">
+        <span class="title">Hubs Browser</span>
+        <button id="login" style="visibility: hidden;">Login</button>
+    </div>
+    <div id="sidebar">
+        <div id="tree"></div>
+    </div>
+    <div id="preview"></div>
+    <script src="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+    <script src="https://unpkg.com/inspire-tree@4.3.1/dist/inspire-tree.js"></script>
+    <script src="https://unpkg.com/inspire-tree-dom@4.0.6/dist/inspire-tree-dom.min.js"></script>
+    <script src="/main.js" type="module"></script>
+</body>
+</html>
+```
+
+> Note that since `main.js` is also an ES6 module, we have to use `type="module"` in its `<script>` tag.
+
+A estrutura de pastas final do código-fonte do seu aplicativo agora deve ter a seguinte aparência:
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeStructure} DotNetVsCode={DotNetVsCodeStructure} DotNetVs2022={DotNetVs2022Structure} />
+
+## Experimente
+
+E é isso! Seu aplicativo agora está pronto para a ação. Inicie como de costume, e quando você for para
+[http://localhost:8080] (http://localhost:8080), você deve ser apresentado com uma interface do usuário simples, com
+uma vista em árvore no lado esquerdo e um visualizador vazio no lado direito. Tente navegar pela árvore,
+e selecione uma versão específica de um dos seus arquivos. Depois disso, o modelo correspondente deve ser carregado
+para o espectador.
+
+
+
+:::caution
+
+Observe que os designs carregados no Fusion Teams não são processados para visualização automática.
+Você vai querer abrir esses designs no site do Fusion Teams primeiro e, quando eles estiverem prontos,
+você pode visualizá-los em seu próprio aplicativo Hubs Browser.
+
+
+:::
+
+
+
+![Final App](./_shared/aps-hubs-browser-final-app.webp)

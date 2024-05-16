@@ -1,0 +1,43 @@
+import EnvTabs from '@site/src/components/EnvTabs.js';
+
+import NodeJsVsCodeProject from './_shared/nodejs-vscode/setup/project.mdx';
+import NodeJsVsCodeConfig from './_shared/nodejs-vscode/setup/config.mdx';
+import NodeJsVsCodeServer from './_shared/nodejs-vscode/setup/server.mdx';
+import NodeJsVsCodeTest from './_shared/nodejs-vscode/setup/test.mdx';
+
+import DotNetConfig from './_shared/dotnet/setup/config.mdx';
+import DotNetVsCodeServer from './_shared/dotnet-vscode/setup/server.mdx';
+import DotNetVs2022Server from './_shared/dotnet-vs2022/setup/server.mdx';
+import DotNetVsCodeProject from './_shared/dotnet-vscode/setup/project.mdx';
+import DotNetVsCodeTest from './_shared/dotnet-vscode/setup/test.mdx';
+import DotNetVs2022Project from './_shared/dotnet-vs2022/setup/project.mdx';
+import DotNetVs2022Test from './_shared/dotnet-vs2022/setup/test.mdx';
+
+# Configuração do aplicativo
+
+Vamos começar criando um novo projeto, instalando dependências necessárias e configurando
+Um aplicativo de servidor básico.
+
+## Novo projeto
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeProject} DotNetVsCode={DotNetVsCodeProject} DotNetVs2022={DotNetVs2022Project} />
+
+## Configuração do aplicativo
+
+Nosso aplicativo precisará de algumas entradas de configuração para funcionar corretamente, por exemplo,
+as credenciais do nosso aplicativo APS (ID do cliente e segredo) para comunicação com os Serviços da Plataforma Autodesk.
+Passaremos esses parâmetros para nosso aplicativo usando variáveis de ambiente.
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeConfig} DotNetVsCode={DotNetConfig} DotNetVs2022={DotNetConfig} />
+
+## Servidor básico
+
+Em seguida, criaremos um aplicativo de servidor básico.
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeServer} DotNetVsCode={DotNetVsCodeServer} DotNetVs2022={DotNetVs2022Server} />
+
+## Experimente
+
+Agora que temos uma configuração básica do aplicativo, vamos experimentá-lo!
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeTest} DotNetVsCode={DotNetVsCodeTest} DotNetVs2022={DotNetVs2022Test} />

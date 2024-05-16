@@ -1,0 +1,57 @@
+Crie um arquivo 'auth.js' na subpasta 'rotas' com o seguinte conteúdo:
+
+```js title="routes/auth.js"
+const express = require('express');
+const { getAuthorizationUrl, authCallbackMiddleware, authRefreshMiddleware, getUserProfile } = require('../services/aps.js');
+let router = express.Router();
+router.get('/api/auth/login', function (req, res) {
+    res.redirect(getAuthorizationUrl());
+});
+router.get('/api/auth/logout', function (req, res) {
+    req.session = null;
+    res.redirect('/');
+});
+router.get('/api/auth/callback', authCallbackMiddleware, function (req, res) {
+    res.redirect('/');
+});
+router.get('/api/auth/token', authRefreshMiddleware, function (req, res) {
+    res.json(req.publicOAuthToken);
+});
+router.get('/api/auth/profile', authRefreshMiddleware, async function (req, res, next) {
+    try {
+        const profile = await getUserProfile(req.internalOAuthToken.access_token);
+        res.json({ name: `${profile.name}` });
+    } catch (err) {
+        next(err);
+    }
+});
+module.exports = router;
+```
+
+Aqui implementamos um novo Express.js [roteador](http://expressjs.com/en/4x/api.html#router) que
+manipulará todos os pontos de extremidade relacionados à autenticação. Vamos "montar" o roteador em nosso servidor
+modificando 'server.js':
+
+```js title="server.js"
+const express = require('express');
+const session = require('cookie-session');
+const { PORT, SERVER_SESSION_SECRET } = require('./config.js');
+let app = express();
+app.use(express.static('wwwroot'));
+app.use(session({ secret: SERVER_SESSION_SECRET, maxAge: 24 * 60 * 60 * 1000 }));
+// highlight-start
+app.use(require('./routes/auth.js'));
+// highlight-end
+app.listen(PORT, () => console.log(`Server listening on port ${PORT}...`));
+```
+
+O roteador agora lidará com as seguintes solicitações:
+
+- 'GET /api/auth/login' redirecionará o usuário para a página de login da Autodesk
+- 'GET /api/auth/callback' é a URL para a qual nosso usuário será redirecionado após fazer login com sucesso,
+e é onde vamos gerar um novo conjunto de tokens para o usuário
+- 'GET /api/auth/logout' removerá quaisquer dados de sessão baseados em cookies para o usuário em questão, efetivamente
+Efetuando logout do usuário em nosso aplicativo
+- 'GET /api/auth/token' gerará um token de acesso público que posteriormente será usado pelo Viewer
+para carregar nossos projetos
+- 'GET /api/auth/profile' retornará um JSON simples com informações adicionais sobre o usuário conectado

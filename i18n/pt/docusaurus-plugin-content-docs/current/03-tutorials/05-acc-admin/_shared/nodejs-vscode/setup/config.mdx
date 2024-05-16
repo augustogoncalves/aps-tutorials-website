@@ -1,0 +1,75 @@
+Crie um arquivo 'config.js' na raiz da pasta do projeto e adicione o seguinte código:
+
+```js title="config.js"
+require('dotenv').config();
+let { APS_CLIENT_ID, APS_CLIENT_SECRET, APS_CALLBACK_URL, SERVER_SESSION_SECRET, PORT } = process.env;
+if (!APS_CLIENT_ID || !APS_CLIENT_SECRET || !APS_CALLBACK_URL || !SERVER_SESSION_SECRET) {
+    console.warn('Missing some of the environment variables.');
+    process.exit(1);
+}
+PORT = PORT || 8080;
+module.exports = {
+    APS_CLIENT_ID,
+    APS_CLIENT_SECRET,
+    APS_CALLBACK_URL,
+    SERVER_SESSION_SECRET,
+    PORT
+};
+```
+
+A biblioteca 'dotenv' inicializa variáveis de ambiente de um arquivo _.env_ local (se houver).
+Em seguida, basta ler as variáveis de ambiente de 'process.env' e sair do aplicativo
+imediatamente se alguma das propriedades necessárias estiver faltando.
+
+Next, let's create the _.env_ file in the project folder, and populate it with the required
+environment variables (replacing `<client-id>` and `<client-secret>` with your APS Client ID
+and Client Secret, and `<secret-phrase>` with an arbitrary string):
+
+``` title=".env"
+APS_CLIENT_ID="<client-id>"
+APS_CLIENT_SECRET="<client-secret>"
+APS_CALLBACK_URL="http://localhost:8080/api/auth/callback" # URL your users will be redirected to after logging in with their Autodesk account
+SERVER_SESSION_SECRET="<secret-phrase>" # secret phrase used to encrypt/decrypt server session cookies
+```
+
+
+
+:::caution
+
+Como o arquivo '.env' contém informações confidenciais, certifique-se de que ele não esteja incluído no git!
+Isso pode ser garantido adicionando a linha '.env' ao arquivo [.gitignore](https://git-scm.com/docs/gitignore).
+
+
+:::
+
+
+
+Agora, para poder executar e depurar nosso aplicativo do Visual Studio Code, precisamos criar
+a [configuração de inicialização](https://code.visualstudio.com/docs/editor/debugging#_launch-configurations).
+Use _Run > Adicionar Configuration_ no menu para criar uma nova configuração e quando solicitado
+Para o ambiente específico, escolha _Node.js_. Isso criará uma nova _.vscode_
+subpasta em seu projeto com um arquivo _launch.json_ onde você pode definir diferentes
+configurações de inicialização. Substitua o conteúdo do arquivo pelo seguinte:
+
+```json title=".vscode/launch.json"
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Server",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "start"
+            ],
+            "skipFiles": [
+                "<node_internals>/**/*.js"
+            ]
+        }
+    ]
+}
+```
+
+Estamos definindo uma configuração de lançamento único chamada _Launch Server_ que simplesmente
+Inicie nosso aplicativo usando o comando 'npm start'.

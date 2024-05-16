@@ -1,0 +1,24 @@
+import ResponsiveVideo from "@site/src/components/ResponsiveVideo.js";
+import PreviewUrl from "@site/static/videos/define-activity.mp4";
+import ActivityNet6 from "./_shared/dotnet-vs2022/setup/activity.mdx";
+import ActivityNodeJs from "./_shared/nodejs-vscode/setup/activity.mdx";
+import EnvTabs from "@site/src/components/EnvTabs.js";
+
+# Definir Atividade
+
+Atividade é a especificação de uma ação que pode ser executada usando um mecanismo especificado. Ele especifica o número de arquivos de entrada e saída, e o AppBundle e o ponto de entrada a ser usado.
+
+Neste exemplo de tutorial, a atividade tem 2 entradas (arquivo & dados JSON) e 1 saída (arquivo).
+
+<EnvTabs
+  NodeJsVsCode={ActivityNodeJs}
+  DotNetVsCode={ActivityNet6}
+  DotNetVs2022={ActivityNet6}
+/>
+
+Agora você pode clicar em Configurar (canto superior direito), selecionar o AppBundle, selecionar o Engine
+e clique em Definir Atividade, que deve definir e carregar o appbundle e definir
+a atividade. O painel de resultados (lado esquerdo) mostra os respectivos ids. Todos os outros botões
+não funcionam ainda... vamos em frente.
+
+<ResponsiveVideo src={PreviewUrl} />

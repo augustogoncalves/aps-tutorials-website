@@ -1,0 +1,42 @@
+import EnvTabs from '@site/src/components/EnvTabs.js';
+
+import NodeJsVsCodeProject from './_shared/nodejs-vscode/setup/project.mdx';
+import NodeJsVsCodeConfig from './_shared/nodejs-vscode/setup/config.mdx';
+import NodeJsVsCodeServer from './_shared/nodejs-vscode/setup/server.mdx';
+import NodeJsVsCodeTest from './_shared/nodejs-vscode/setup/test.mdx';
+
+import DotNetConfig from './_shared/dotnet/setup/config.mdx';
+import DotNetVsCodeServer from './_shared/dotnet-vscode/setup/server.mdx';
+import DotNetVs2022Server from './_shared/dotnet-vs2022/setup/server.mdx';
+import DotNetVsCodeProject from './_shared/dotnet-vscode/setup/project.mdx';
+import DotNetVsCodeTest from './_shared/dotnet-vscode/setup/test.mdx';
+import DotNetVs2022Project from './_shared/dotnet-vs2022/setup/project.mdx';
+import DotNetVs2022Test from './_shared/dotnet-vs2022/setup/test.mdx';
+
+# Configuração do aplicativo
+
+Vamos começar criando um novo projeto, instalando dependências necessárias e configurando
+Um aplicativo de servidor básico.
+
+## Criar projeto
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeProject} DotNetVsCode={DotNetVsCodeProject} DotNetVs2022={DotNetVs2022Project} />
+
+## Configuração do aplicativo
+
+Nosso aplicativo precisará de alguns parâmetros de configuração para funcionar corretamente, por exemplo,
+as credenciais do nosso aplicativo APS para comunicação com o Autodesk Platform Services ou a URL de retorno de chamada
+para onde nossos usuários serão redirecionados durante o [fluxo de trabalho de autenticação de 3 pernas](https://aps.autodesk.com/en/docs/oauth/v2/tutorials/get-3-legged-token/).
+Passaremos esses parâmetros para o aplicativo do servidor usando variáveis de ambiente.
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeConfig} DotNetVsCode={DotNetConfig} DotNetVs2022={DotNetConfig} />
+
+## Criar servidor básico
+
+Em seguida, vamos configurar um aplicativo de servidor básico.
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeServer} DotNetVsCode={DotNetVsCodeServer} DotNetVs2022={DotNetVs2022Server} />
+
+## Experimente
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeTest} DotNetVsCode={DotNetVsCodeTest} DotNetVs2022={DotNetVs2022Test} />

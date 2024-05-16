@@ -1,0 +1,46 @@
+Vamos implementar o OSS ([Object Storage Service](https://aps.autodesk.com/en/docs/data/v2/developers_guide/basics/#object-storage-service-oss))
+lógica da nossa aplicação de servidor. Adicione o seguinte código ao final do arquivo 'services/aps.js':
+
+```js title="services/aps.js"
+service.ensureBucketExists = async (bucketKey) => {
+    const { access_token } = await service.getInternalToken();
+    try {
+        await ossClient.getBucketDetails(access_token, bucketKey);
+    } catch (err) {
+        if (err.axiosError.response.status === 404) {
+            await ossClient.createBucket(access_token, CreateBucketXAdsRegionEnum.Us, {
+                bucketKey: bucketKey,
+                policyKey: CreateBucketsPayloadPolicyKeyEnum.Temporary
+            });
+        } else {
+            throw err;  
+        }
+    }
+};
+service.listObjects = async () => {
+    await service.ensureBucketExists(APS_BUCKET);
+    const { access_token } = await service.getInternalToken();
+    let resp = await ossClient.getObjects(access_token, APS_BUCKET, { limit: 64 });
+    let objects = resp.items;
+    while (resp.next) {
+        const startAt = new URL(resp.next).searchParams.get('startAt');
+        resp = await ossClient.getObjects(access_token, APS_BUCKET, { limit: 64, startAt });
+        objects = objects.concat(resp.items);
+    }
+    return objects;
+};
+service.uploadObject = async (objectName, filePath) => {
+    await service.ensureBucketExists(APS_BUCKET);
+    const { access_token } = await service.getInternalToken();
+    const obj = await ossClient.upload(APS_BUCKET, objectName, filePath, access_token);
+    return obj;
+};
+```
+
+A função 'ensureBucketExists' simplesmente tentará solicitar informações adicionais
+sobre um bucket específico usando o SDK do APS e se a resposta
+do APS é '404 Not Found', ele tentará criar um novo bucket com esse nome.
+
+Como você pode ver, o método 'getObjects' (responsável por listar arquivos
+em um bucket de Gerenciamento de Dados) usa paginação. Em nosso código, nós simplesmente iteramos por todas as páginas
+e retornar todos os arquivos do bucket do nosso aplicativo em uma única lista.

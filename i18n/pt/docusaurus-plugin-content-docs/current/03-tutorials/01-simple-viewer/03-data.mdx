@@ -1,0 +1,120 @@
+import EnvTabs from '@site/src/components/EnvTabs.js';
+
+import NodeJsVsCodeData from './_shared/nodejs-vscode/data/data.mdx';
+import NodeJsVsCodeDerivatives from './_shared/nodejs-vscode/data/derivatives.mdx';
+import NodeJsVsCodeEndpoints from './_shared/nodejs-vscode/data/endpoints.mdx';
+
+import DotNetData from './_shared/dotnet/data/data.mdx';
+import DotNetDerivatives from './_shared/dotnet/data/derivatives.mdx';
+import DotNetEndpoints from './_shared/dotnet/data/endpoints.mdx';
+
+# Dados & Derivativos
+
+Nesta etapa, estenderemos nosso servidor para que possamos listar modelos, carregá-los,
+e prepará-los para visualização.
+
+## Gerenciamento de dados
+
+Primeiro, vamos garantir que nosso aplicativo tenha um bucket no serviço de Gerenciamento de Dados
+para armazenar seus arquivos em. Normalmente, o bucket seria criado apenas uma vez como parte de um provisionamento:
+mas em nosso exemplo, implementaremos uma função auxiliar que garantirá que o bucket
+está disponível e use-o em outras partes do aplicativo do servidor.
+
+Ao criar buckets, é necessário que os aplicativos definam uma política de retenção para objetos armazenados no bucket. Isso não pode ser alterado posteriormente. A política de retenção no bucket se aplica a todos os objetos armazenados nele. Ao criar um bucket, defina especificamente a **policyKey** como **transient**, **temporary**, ou **persistent**.
+
+
+
+:::info
+
+**Política de retenção de dados**
+
+**Transitório** - Objetos com mais de 24 horas são removidos automaticamente.
+
+**Temporário** - Quando um objeto atinge 30 dias de idade, ele é excluído.
+
+**Persistente** - Disponível até que um usuário exclua o objeto.
+
+
+:::
+
+
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeData} DotNetVsCode={DotNetData} DotNetVs2022={DotNetData} />
+
+
+
+:::caution
+
+Observe que o serviço de Gerenciamento de Dados requer que os nomes de bucket sejam **globalmente exclusivos**,
+e as tentativas de criar um bucket com um nome já usado falharão com '409 Conflict'.
+Consulte a [documentação](https://aps.autodesk.com/en/docs/data/v2/reference/http/buckets-POST)
+para mais detalhes.
+
+
+:::
+
+
+
+## Derivativos
+
+Em seguida, implementaremos algumas funções auxiliares que derivarão/extrairão vários tipos de informações
+dos arquivos carregados - por exemplo, desenhos 2D, geometria 3D e metadados - que podemos carregar posteriormente
+no Visualizador em nossa página da Web. Para isso, precisaremos iniciar um novo trabalho de conversão
+na [Derivada do Modelo](https://aps.autodesk.com/en/docs/model-derivative/v2/developers_guide/overview)
+e verificação do status da conversão.
+
+O serviço Derivativo de Modelo requer que todos os IDs que usamos nas chamadas de API sejam codificados em [base64](https://wikipedia.org/wiki/Base64),
+então incluímos uma pequena função de utilidade que ajudará com isso.
+
+
+
+:::info
+
+Os IDs codificados em Base64 são chamados de _URNs_.
+
+
+:::
+
+
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeDerivatives} DotNetVsCode={DotNetDerivatives} DotNetVs2022={DotNetDerivatives} />
+
+## Pontos de extremidade do servidor
+
+Agora vamos disponibilizar a nova funcionalidade para o cliente através de outra
+conjunto de pontos de extremidade.
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeEndpoints} DotNetVsCode={DotNetEndpoints} DotNetVs2022={DotNetEndpoints} />
+
+## Experimente
+
+Inicie (ou reinicie) o aplicativo como de costume e navegue até [http://localhost:8080/api/models](http://localhost:8080/api/models)
+no navegador. O servidor deve responder com uma lista JSON com nomes e URNs de todos os objetos
+disponível em seu bucket configurado.
+
+
+
+:::info
+
+Se esta for sua primeira vez trabalhando com APS, você pode obter uma resposta JSON
+com uma matriz vazia ('[]') que é esperada. Na imagem abaixo podemos
+já vejo alguns arquivos que foram carregados em nosso bucket no passado.
+
+
+:::
+
+
+
+
+
+:::tip
+
+Se você estiver usando o Google Chrome, considere instalar o [JSON Formatter](https://chrome.google.com/webstore/detail/json-formatter/bcjindcccaagfpapjjmafapmmgkkhgoa?hl=en)
+ou uma extensão semelhante para formatar automaticamente respostas JSON.
+
+
+:::
+
+
+
+![Server Response](./_shared/data-response.webp)

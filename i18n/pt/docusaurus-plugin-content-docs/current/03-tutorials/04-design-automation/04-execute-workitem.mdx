@@ -1,0 +1,82 @@
+import EnvTabs from "@site/src/components/EnvTabs.js";
+import WorkitemForNet from "./_shared/dotnet-vs2022/setup/workitem.mdx";
+import WorkitemForNodejs from "./_shared/nodejs-vscode/setup/workitem.mdx";
+import DebugForNet from "./_shared/dotnet-vs2022/setup/debug.mdx";
+import DebugForNodejs from "./_shared/nodejs-vscode/setup/debug.mdx";
+import ResponsiveVideo from "@site/src/components/ResponsiveVideo.js";
+import PreviewUrl from "@site/static/videos/modify-your-models.mp4";
+
+# Executar item de trabalho
+
+Um trabalho que executa uma atividade especificada, usando arquivos de entrada especificados e gerando arquivos de saída apropriados.
+
+A relação entre uma Atividade e WorkItem pode ser pensada como uma "definição de função" e "chamada de função", respectivamente. A Atividade especifica o(s) AppBundle(s) a serem usados, que, por sua vez, especificam o mecanismo a ser usado. O Workitem é então chamado para executá-los.
+
+Neste exemplo de tutorial, o item de trabalho especifica a URL do arquivo de entrada, os dados JSON de entrada com os novos valores de parâmetro e a URL de destino do arquivo de saída. Este exemplo carregará o arquivo de entrada em um bucket OSS antes de iniciar o item de trabalho.
+
+<EnvTabs
+  NodeJsVsCode={WorkitemForNodejs}
+  DotNetVsCode={WorkitemForNet}
+  DotNetVs2022={WorkitemForNet}
+/>
+
+Tudo pronto!
+
+## Executar & Debug
+
+Agora que seu aplicativo está pronto, é hora de executá-lo. É aqui que podemos testar e verificar possíveis erros (via depuração).
+
+## Usando o exemplo
+
+Na parte superior, clique em **Configurar** para definir AppBundle & Activity. Isso só precisa ser feito uma vez. Especifique as novas 'largura' e 'altura' no painel esquerdo, selecione o 'arquivo de entrada' e clique em 'Iniciar item de trabalho'. O painel direito deve mostrar os resultados.
+
+Você pode encontrar [arquivos de exemplo aqui](https://github.com/autodesk-platform-services/aps-design-automation-dotnet/tree/master/sample%20files).
+
+
+
+:::caution
+
+Se o código do plugin mudar, você precisará carregar um novo AppBundle e aumentar a versão (por exemplo, v1 para v2). Este exemplo criará uma nova versão sempre que um novo AppBundle for carregado.
+
+
+:::
+
+
+
+> os arquivos de entrada e saída são salvos em buckets OSS, você pode usar [View Models](.. /simple-viewer/) tutorial para visualizá-los.
+
+<ResponsiveVideo src={PreviewUrl} />
+
+## Solução de problemas
+
+**1. O painel de resultados não mostra as informações completas**
+
+Verifique se o **ngrok** está em execução e não expirou. Verifique se o endereço ngrok está especificado corretamente na variável de ambiente.
+
+**2. Item de trabalho executar, mas o resultado não é o esperado**
+
+Considere usar o botão **Limpar conta**. Isso remove todos os AppBundles & Atividades em sua conta. Em seguida, defina-os novamente.
+
+**3. Não é possível ver meu AppBundle no formulário Configuração**
+
+Os pacotes ZIP são copiados para os 'pacotes' depois que você compila o respectivo plugin. Certifique-se de que o evento 'Post-build' esteja corretamente definido e executado após a compilação.
+
+**4. Garantindo que a DLL correta foi carregada**
+
+Um truque fácil para garantir que a DLL correta foi carregada no Design Automation é verificar sua data. [Esta resposta StackOverflow] (https://stackoverflow.com/a/1600990) mostra como obter a Data do Vinculador (ou seja, quando a DLL foi compilada), com isso você pode mostrá-la no início do seu código. Observe que as datas estão no fuso horário do servidor.
+
+> Plugin é escrito em 'C#' independentemente da linguagem do servidor.
+
+```cs
+LogTrace("DLL {0} compiled on {1}",
+    System.IO.Path.GetFileName(System.Reflection.Assembly.GetExecutingAssembly().Location),
+    GetLinkerTime(System.Reflection.Assembly.GetExecutingAssembly()));
+```
+
+Pronto? Vamos executá-lo!
+
+<EnvTabs
+  NodeJsVsCode={DebugForNodejs}
+  DotNetVsCode={DebugForNet}
+  DotNetVs2022={DebugForNet}
+/>

@@ -1,0 +1,52 @@
+Crie uma nova pasta para seu projeto, navegue até ela na linha de comando e inicialize uma nova
+ASP.NET Projeto principal:
+
+```bash
+dotnet new web
+```
+
+Em seguida, precisaremos instalar as dependências. Neste caso, serão os pacotes do SDK do APS necessários:
+
+```bash
+dotnet add package Autodesk.SdkManager
+dotnet add package Autodesk.Authentication
+dotnet add package Autodesk.DataManagement
+```
+
+O arquivo '*.csproj' em seu projeto agora deve ser semelhante a este (possivelmente com
+números de versão ligeiramente diferentes e configurações adicionais do .NET):
+
+```xml
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Autodesk.Authentication" Version="1.0.0" />
+    <PackageReference Include="Autodesk.DataManagement" Version="1.0.0" />
+    <PackageReference Include="Autodesk.SdkManager" Version="1.0.0" />
+  </ItemGroup>
+</Project>
+```
+
+Finalmente, vamos criar mais algumas subpastas na pasta do projeto que precisaremos mais tarde:
+
+- 'Controladores' - é aqui que vamos implementar todos os endpoints do servidor
+- 'Modelos' - aqui vamos manter toda a lógica do lado do servidor que pode ser compartilhada por diferentes endpoints
+- 'wwwroot' - é aqui que vamos colocar todos os ativos do lado do cliente (HTML, CSS, JavaScript, imagens, etc.)
+
+
+
+
+:::note
+
+Se a pasta '.vscode' não for criada automaticamente, você poderá criá-la por meio do painel lateral Executar & Depurar
+
+
+:::
+
+
+
+Para criar a pasta '.vscode', clique na ferramenta *Executar e Depurar no painel lateral esquerdo > criar um arquivo launch.json > Selecionar . NET5+ & .NET Core*.

@@ -1,0 +1,59 @@
+Crie uma nova pasta para seu projeto, navegue até ela na linha de comando e inicialize uma nova
+ASP.NET Projeto principal:
+
+```bash
+dotnet new web
+```
+
+Em seguida, precisaremos instalar as dependências. Neste caso, será apenas um par de
+pacotes do SDK oficial do APS:
+
+```bash
+dotnet add package Autodesk.SdkManager
+dotnet add package Autodesk.Authentication
+dotnet add package Autodesk.OSS
+dotnet add package Autodesk.ModelDerivative
+```
+
+O arquivo '*.csproj' em seu projeto agora deve ser semelhante a este (possivelmente com
+números de versão ligeiramente diferentes e configurações adicionais do .NET):
+
+```xml
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Autodesk.Authentication" Version="1.0.0" />
+    <PackageReference Include="Autodesk.ModelDerivative" Version="1.0.0" />
+    <PackageReference Include="Autodesk.OSS" Version="1.0.0" />
+    <PackageReference Include="Autodesk.SdkManager" Version="1.0.0" />
+  </ItemGroup>
+</Project>
+```
+
+Finalmente, vamos criar mais algumas subpastas na pasta do projeto que precisaremos mais tarde:
+
+- 'Controladores' - é aqui que vamos implementar todos os endpoints do servidor
+- 'Modelos' - aqui vamos manter toda a lógica do lado do servidor que pode ser compartilhada por diferentes endpoints
+- 'wwwroot' - é aqui que vamos colocar todos os ativos do lado do cliente (HTML, CSS, JavaScript, imagens, etc.)
+
+Agora, quando você abrir sua pasta de projeto no Visual Studio Code pela primeira vez, você será solicitado
+para configurar seu projeto para desenvolvimento .NET. Aceite o prompt e o editor criará automaticamente
+uma subpasta '.vscode' com configurações adicionais específicas do .NET, como a [configuração de inicialização](https://code.visualstudio.com/docs/editor/debugging#_launch-configurations).
+A estrutura de pastas no editor deve ser semelhante a esta:
+
+![Folder Structure](folder-structure.webp)
+
+
+
+:::note
+
+Se a pasta '.vscode' não for criada automaticamente, você poderá criá-la por meio do painel lateral Executar & Depurar
+
+
+:::
+
+
+
+Para criar a pasta '.vscode', clique na ferramenta *Executar e Depurar no painel lateral esquerdo > criar um arquivo launch.json > Selecionar . NET5+ & .NET Core*.

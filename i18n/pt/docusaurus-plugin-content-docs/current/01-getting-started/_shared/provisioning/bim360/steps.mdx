@@ -1,0 +1,71 @@
+import Image from '@theme/IdealImage';
+
+
+
+:::caution
+
+Verifique se você tem acesso _admin_ a uma conta BIM 360.
+
+
+:::
+
+
+
+1. Faça login na sua conta BIM 360 e navegue até _Account Admin_
+
+2. Na página _Account Admin_, vá para _Configurações_, e navegue até a guia _Custom Integrations_
+
+<Image img={require('./custom-integrations.jpeg')} />
+
+3. Use o botão _Add Custom Integration_ no lado esquerdo para iniciar um assistente simples
+que irá guiá-lo através do processo
+
+4. Na página _Select Access_, mantenha a Conta _BIM 360 Administration_
+e as opções _Document Management_ marcadas, e pressione o botão _Next_
+
+<Image img={require('../select-access.jpeg')} />
+
+5. Na próxima página do assistente, escolha a opção _I sou a developer_ e pressione
+o botão _Next_
+
+<Image img={require('../i-am-developer.jpeg')} />
+
+
+
+:::info
+
+Aqui assumimos que o _account admin_ também é o proprietário do aplicativo APS.
+Se esse não for o caso, o administrador da conta pode usar o _Invite um developer_
+em vez disso, e o desenvolvedor convidado inserirá os detalhes do aplicativo APS mais tarde.
+
+
+:::
+
+
+
+6. Na página seguinte e final, anote o ID_ da Conta _BIM 360, verifique o
+ao lado e preencha os campos _Client ID_ e _App Name_
+exatamente como eles aparecem na página do seu aplicativo no https://aps.autodesk.com/myapps
+
+<Image img={require('../bim360-info.jpeg')} />
+
+
+
+:::tip
+
+Considere armazenar sua ID de cliente em algum lugar _App Description_. O ID do cliente será _not_
+aparecem na integração personalizada depois de ter sido criada e se o número de integrações
+em sua conta começa a crescer, isso irá ajudá-lo a identificar rapidamente o aplicativo APS
+Cada integração personalizada está associada.
+
+
+:::
+
+
+
+7. Quando estiver pronto, role para baixo e pressione o botão _Save_
+
+E é isso. Agora seu aplicativo pode usar diferentes serviços APS, como
+[API de gerenciamento de dados] (https://aps.autodesk.com/en/docs/data/v2/developers_guide/overview)
+ou [API BIM 360](https://aps.autodesk.com/en/docs/bim360/v1/overview/introduction)
+para acessar informações de todos os projetos sob esta conta BIM 360.
