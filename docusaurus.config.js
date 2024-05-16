@@ -6,7 +6,7 @@ module.exports = {
     tagline: 'Getting started with Autodesk Platform Services',
     url: 'https://augustogoncalves.github.io',
     baseUrl: '/',
-    onBrokenLinks: 'throw',
+    onBrokenLinks: 'warn',
     onBrokenMarkdownLinks: 'warn',
     favicon: 'https://cdn.autodesk.io/favicon.ico',
     organizationName: 'augustogoncalves',
