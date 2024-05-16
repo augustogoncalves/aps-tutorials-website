@@ -5,7 +5,7 @@ module.exports = {
     title: 'Autodesk Platform Services Tutorials',
     tagline: 'Getting started with Autodesk Platform Services',
     url: 'https://augustogoncalves.github.io',
-    baseUrl: '/',
+    baseUrl: '/aps-tutorials-website/',
     onBrokenLinks: 'warn',
     onBrokenMarkdownLinks: 'warn',
     favicon: 'https://cdn.autodesk.io/favicon.ico',
