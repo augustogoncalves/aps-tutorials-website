@@ -4,13 +4,14 @@ const lazyImages = require('rehype-plugin-image-native-lazy-loading');
 module.exports = {
     title: 'Autodesk Platform Services Tutorials',
     tagline: 'Getting started with Autodesk Platform Services',
-    url: 'https://tutorials.autodesk.io',
-    baseUrl: '/aps-tutorials-website/',
+    url: 'https://augustogoncalves.github.io',
+    baseUrl: '/',
     onBrokenLinks: 'throw',
     onBrokenMarkdownLinks: 'warn',
     favicon: 'https://cdn.autodesk.io/favicon.ico',
     organizationName: 'augustogoncalves',
-    projectName: 'aps-tutorials-website',
+    projectName: 'augustogoncalves.github.io',
+    trailingSlash: false,
     plugins: [
         [
             '@docusaurus/plugin-ideal-image',
