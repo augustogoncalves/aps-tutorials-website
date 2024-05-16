@@ -9,7 +9,7 @@ module.exports = {
     onBrokenLinks: 'throw',
     onBrokenMarkdownLinks: 'warn',
     favicon: 'https://cdn.autodesk.io/favicon.ico',
-    organizationName: 'autodesk-platform-services',
+    organizationName: 'augustogoncalves',
     projectName: 'aps-tutorials-website',
     plugins: [
         [
