@@ -1,0 +1,26 @@
+개별 허브, 프로젝트, 폴더, 항목을 탐색하기 위한 논리를 구현해 보겠습니다.
+및 버전. 'services/aps.js' 파일의 끝에 다음 코드를 추가합니다.
+
+```js title="services/aps.js"
+service.getHubs = async (accessToken) => {
+    const resp = await dataManagementClient.getHubs(accessToken);
+    return resp.data;
+};
+service.getProjects = async (hubId, accessToken) => {
+    const resp = await dataManagementClient.getHubProjects(accessToken, hubId);
+    return resp.data;
+};
+service.getProjectContents = async (hubId, projectId, folderId, accessToken) => {
+    if (!folderId) {
+        const resp = await dataManagementClient.getProjectTopFolders(accessToken, hubId, projectId);
+        return resp.data;
+    } else {
+        const resp = await dataManagementClient.getFolderContents(accessToken, projectId, folderId);
+        return resp.data;
+    }
+};
+service.getItemVersions = async (projectId, itemId, accessToken) => {
+    const resp = await dataManagementClient.getItemVersions(accessToken, projectId, itemId);
+    return resp.data;
+};
+```

@@ -1,0 +1,168 @@
+이 단계는 설계 자동화를 위한 기본 Revit 플러그인을 작성하는 데 도움이 됩니다. 자세한 내용은 [My First Revit 플러그인](https://knowledge.autodesk.com/support/revit-products/learn-explore/caas/simplecontent/content/my-first-revit-plug-overview.html) 튜토리얼을 참조하십시오.
+
+> 'bundles/'(Node.js) 또는 '/designAutomationSample/wwwroot/bundles'(.NET 6) 폴더에 [번들 ZIP](https://github.com/autodesk-platform-services/aps-design-automation-nodejs/tree/nodejs/bundles/UpdateRVTParam.zip)을 다운로드하고 [**플러그인 번들 업로드** 섹션으로 건너뛰기](#upload-plugin-bundle)할 수 있습니다.
+
+### 새 프로젝트 만들기
+
+솔루션을 클릭하고, **추가** >> **새 프로젝트**를 클릭합니다. **Windows 바탕 화면**을 선택한 다음 **클래스 라이브러리**를 선택하고 마지막으로 이름을 'UpdateRVTParam'으로 지정합니다.
+
+> .NET Framework 4.8을 선택하십시오. 목록에 없으면 [개발 팩을 설치하세요](https://dotnet.microsoft.com/download/dotnet-framework/net48).
+
+**참조**를 마우스 오른쪽 버튼으로 클릭한 다음 **참조 추가**를 클릭하고 'RevitAPI.dll'(기본적으로 'C:\Program Files\Autodesk\Revit 201x' 폴더 아래)에 대해 **찾아보기**를 클릭합니다. 그런 다음 이 **RevitAPI** 참조를 마우스 오른쪽 버튼으로 클릭하고 **특성**으로 이동한 다음 **로컬 복사**를 **False**로 설정합니다.
+
+그런 다음 프로젝트를 마우스 오른쪽 버튼으로 클릭하고 **NuGet 패키지 관리...**로 이동하여 **브라우저**에서 **DesignAutomation.Revit**을 검색하고 'Autodesk.Forge.DesignAutomation.Revit'을 설치할 수 있습니다(필요한 적절한 Revit 버전 선택). 그런 다음, 'Newtonsoft.Json'(JSON 형식의 입력 데이터를 구문 분석하는 데 사용됨)을 검색하여 설치합니다.
+
+![](../_images/_revit/new_project.gif)
+
+```xml title=package.config
+<?xml version="1.0" encoding="utf-8"?>
+<packages>
+  <package id="Autodesk.Forge.DesignAutomation.Revit" version="2021.0.0" targetFramework="net48" />
+  <package id="Microsoft.CSharp" version="4.5.0" targetFramework="net48" />
+  <package id="Newtonsoft.Json" version="12.0.1" targetFramework="net48" />
+</packages>
+```
+
+프로젝트에는 'Class1.cs' 클래스가 포함되어야 하며, 일관성을 위해 파일 이름을 Commands.cs로 변경해 보겠습니다.
+
+이 시점에서 프로젝트는 다음과 같아야 합니다
+
+![](../_images/_revit/project_files.png)
+
+```cs title=Commands.cs
+using Autodesk.Revit.ApplicationServices;
+using Autodesk.Revit.Attributes;
+using Autodesk.Revit.DB;
+using DesignAutomationFramework;
+using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.IO;
+namespace Autodesk.Forge.Sample.DesignAutomation.Revit
+{
+    [Transaction(TransactionMode.Manual)]
+    [Regeneration(RegenerationOption.Manual)]
+    public class Commands : IExternalDBApplication
+    {
+        //Path of the project(i.e)project where your Window family files are present
+        string OUTPUT_FILE = "OutputFile.rvt";
+        public ExternalDBApplicationResult OnStartup(ControlledApplication application)
+        {
+            DesignAutomationBridge.DesignAutomationReadyEvent += HandleDesignAutomationReadyEvent;
+            return ExternalDBApplicationResult.Succeeded;
+        }
+        private void HandleDesignAutomationReadyEvent(object sender, DesignAutomationReadyEventArgs e)
+        {
+            LogTrace("Design Automation Ready event triggered...");
+            e.Succeeded = true;
+            EditWindowParametersMethod(e.DesignAutomationData.RevitDoc);
+        }
+        private void EditWindowParametersMethod(Document doc)
+        {
+            InputParams inputParameters = JsonConvert.DeserializeObject<InputParams>(File.ReadAllText("params.json"));
+            //Modifying the window parameters
+            //Open transaction
+            using (Transaction trans = new Transaction(doc))
+            {
+                trans.Start("Update window parameters");
+                //Filter for windows
+                FilteredElementCollector WindowCollector = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Windows).WhereElementIsNotElementType();
+                IList<ElementId> windowIds = WindowCollector.ToElementIds() as IList<ElementId>;
+                foreach (ElementId windowId in windowIds)
+                {
+                    Element Window = doc.GetElement(windowId);
+                    FamilyInstance FamInst = Window as FamilyInstance;
+                    FamilySymbol FamSym = FamInst.Symbol;
+                    SetElementParameter(FamSym, BuiltInParameter.WINDOW_HEIGHT, inputParameters.Height);
+                    SetElementParameter(FamSym, BuiltInParameter.WINDOW_WIDTH, inputParameters.Width);
+                }
+                //To save all the changes commit the transaction
+                trans.Commit();
+            }
+            //Save the updated file by overwriting the existing file
+            ModelPath ProjectModelPath = ModelPathUtils.ConvertUserVisiblePathToModelPath(OUTPUT_FILE);
+            SaveAsOptions SAO = new SaveAsOptions();
+            SAO.OverwriteExistingFile = true;
+            //Save the project file with updated window's parameters
+            LogTrace("Saving file...");
+            doc.SaveAs(ProjectModelPath, SAO);
+        }
+        public ExternalDBApplicationResult OnShutdown(ControlledApplication application)
+        {
+            return ExternalDBApplicationResult.Succeeded;
+        }
+        private void SetElementParameter(FamilySymbol FamSym, BuiltInParameter paraMeter, double parameterValue)
+        {
+            FamSym.get_Parameter(paraMeter).Set(parameterValue);
+        }
+        public class InputParams
+        {
+            public double Width { get; set; }
+            public double Height { get; set; }
+        }
+        /// <summary>
+        /// This will appear on the Design Automation output
+        /// </summary>
+        private static void LogTrace(string format, params object[] args) { System.Console.WriteLine(format, args); }
+    }
+}
+```
+
+UpdateRVTParam.bundle이라는 폴더를 만들고 그 안에 PackageContents.xml라는 파일을 만든 후 다음 콘텐츠를 복사합니다. PackageContents.xml 형식 참조에서 자세히 알아보세요. 이 파일은 Revit에 .addin 플러그인을 로드하도록 지시합니다.
+
+```xml title=PackageContents.xml
+<?xml version="1.0" encoding="utf-8" ?>
+<ApplicationPackage Name="RevitDesignAutomation" Description="Sample Plugin for Revit" Author="tutorials.autodesk.io">
+  <CompanyDetails Name="Autodesk, Inc" Url="http://tutorials.autodesk.io" Email="forge.help@autodesk.com"/>
+  <Components Description="Modify window parameters">
+    <RuntimeRequirements SeriesMax="R2021" SeriesMin="R2019" Platform="Revit" OS="Win64"/>
+    <ComponentEntry LoadOnRevitStartup="True" LoadOnCommandInvocation="False" AppDescription="Modify Window Parameters" ModuleName="./Contents/Autodesk.Forge.Sample.DesignAutomation.Revit.addin" Version="1.0.0" AppName="Modify Window Parameters"/>
+  </Components>
+</ApplicationPackage>
+```
+
+#### Autodesk.Forge.Sample.DesignAutomation.Revit.addin
+
+'UpdateRVTParam.bundle' 폴더 아래에 'Contents'라는 하위 폴더를 만들고 이 폴더 안에 'Autodesk.Forge.Sample.DesignAutomation.Revit.addin'이라는 새 파일을 만듭니다. 이렇게 하면 Revit에서 플러그인을 로드하는 방법을 알 수 있습니다.
+
+```xml
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<RevitAddIns>
+  <AddIn Type="DBApplication">
+    <Name>Modify Window Parameters</Name>
+    <FullClassName>Autodesk.Forge.Sample.DesignAutomation.Revit.Commands</FullClassName>
+    <Text>Revit for Design Automation</Text>
+    <Description>Revit for Design Automation</Description>
+    <VisibilityMode>AlwaysVisible</VisibilityMode>
+    <Assembly>.\UpdateRVTParam.dll</Assembly>
+    <AddInId>000BD853-36E4-461f-9171-C5ACEDA4E723</AddInId>
+    <VendorId>ADSK</VendorId>
+    <VendorDescription>Autodesk, Inc, www.autodesk.com</VendorDescription>
+  </AddIn>
+</RevitAddIns>
+```
+
+![](../_images/_revit/bundle_folders.png)
+
+#### 빌드 후 이벤트
+
+> Node.js 경우 AppBundle ZIP 출력 폴더를 조정해야 합니다.
+
+이제 .bundle 폴더를 압축해야 합니다. 프로젝트를 마우스 오른쪽 단추로 클릭하고, **속성**을 선택한 다음, **빌드 이벤트**를 열고, 아래 이미지와 같이 **빌드 후 이벤트 명령줄** 필드에 다음을 복사합니다.
+
+```
+xcopy /Y /F "$(TargetDir)*.dll" "$(ProjectDir)UpdateRVTParam.bundle\Contents\"
+del /F "$(ProjectDir)..\designAutomationSample\wwwroot\bundles\UpdateRVTParam.zip"
+"C:\Program Files\7-Zip\7z.exe" a -tzip "$(ProjectDir)../designAutomationSample/wwwroot/bundles/UpdateRVTParam.zip" "$(ProjectDir)UpdateRVTParam.bundle\" -xr0!*.pdb
+```
+
+그러면 DLL이 '/bin/debug/'에서 '.bundle/Contents' 폴더로 복사된 다음 [7zip](https://www.7-zip.org/)을 사용하여 zip을 만든 다음 마지막으로 ZIP을 웹앱의 '/bundles' 폴더에 복사합니다.
+
+![](../_images/_revit/post_build.png)
+
+> **빌드 후 이벤트**에서 프로젝트 및 폴더 이름을 사용하는 방법을 확인하므로 이 이름을 사용해야 합니다.
+
+이제 'UpdateRVTParam' 프로젝트를 빌드하면 **출력** 창에 다음과 같은 내용이 표시됩니다. 2 개의 폴더와 3 개의 파일이 압축되어 있습니다. zip 파일은 /wwwroot/bundles 폴더에 직접 생성됩니다. 이것은 당신이 잘하고 있다는 것을 의미합니다!
+
+![](../_images/_revit/build_output.png)
+
+> 빌드 출력에 **폴더 2개, 복사된 파일 5개 이상이 표시되면 돌아가서 **RevitAPI** 참조가 **로컬 복사**:**False**로 설정되어 있는지 확인하십시오. 'UpdateRVTParam.bundle/Contents/' 폴더에서 모든 DLL을 제거해야 할 수 있습니다.

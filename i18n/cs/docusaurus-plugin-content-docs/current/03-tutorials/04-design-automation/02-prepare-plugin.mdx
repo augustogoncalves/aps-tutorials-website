@@ -1,0 +1,59 @@
+import ActivityBundleConfigureImg from "./_shared/_images/activity-bundle-configure.webp";
+import VsCodeFolderExplorerImg from "./_shared/_images/vscode_nodejsfs.webp";
+import BundleNet6 from "./_shared/dotnet-vs2022/setup/upload-bundle.mdx";
+import BundleNodeJS from "./_shared/nodejs-vscode/setup/upload-bundle.mdx";
+import AutoCADPlugin from "./_shared/_plugins/autocad-plugin.mdx";
+import InventorPlugin from "./_shared/_plugins/inventor-plugin.mdx";
+import RevitPlugin from "./_shared/_plugins/revit-plugin.mdx";
+import MaxPlugin from "./_shared/_plugins/max-plugin.mdx";
+import EngineTabs from "@site/src/components/EngineTabs.js";
+import EnvTabs from "@site/src/components/EnvTabs.js";
+
+# Vytvořit zásuvný modul
+
+Automatizace návrhu používá ".bundle" stejně jako [Autodesk App Store](https://www.autodesk.com/developer-network/app-store), což znamená, že musíte vytvořit PackageContents.xml a ZIP s knihovnou DLL (a dalšími požadovanými soubory). Podrobné informace o tom, jak je vytvořit, naleznete v Centru pro vývojáře Autodesk App Store.
+
+V této sekci vytvoříme základní plugin, který aktualizuje parametry width a height a výsledný soubor uloží. Také podpůrné soubory (PackageContents.xml) a strukturu složek pro jejich umístění. Nakonec vytvořte soubor .ZIP připravený k nahrání do automatizace návrhu.
+
+V kořenové složce vytvořte složku "bundles".
+
+<img src={VsCodeFolderExplorerImg} style={{ width: 300 }} />
+
+### Předpoklady
+
+- 7zip: slouží k vytvoření .ZIP se soubory svazků, nainstalujte prosím odtud. Tento výukový program předpokládá, že 7zip je nainstalovaný ve výchozí složce: C:\Program Files\7-Zip\7z.exe.
+
+### Další předpoklady
+
+Pro další relaci můžete použít předem sestavený modul plug-in. Nebo pokud se rozhodnete jej postavit, budete potřebovat
+
+- **Visual Studio**: Vyžaduje se Visual Studio 2019 nebo novější, navštivte [tento odkaz](https://visualstudio.microsoft.com/vs/).
+
+- **AutoCAD, Inventor, Revit nebo 3ds Max**: Chcete-li vyvíjet, testovat a ladit zásuvný modul pro automatizaci návrhu: [AutoCAD](https://www.autodesk.com/products/autocad/overview) | [Vynálezce](https://www.autodesk.com/products/inventor/overview) | [Revit](https://www.autodesk.com/products/revit/overview) | [3ds Max](https://www.autodesk.com/products/3ds-max/overview).
+
+---
+
+V dalším kroku zvolte **Engine**, což je aplikace Autodesku, ve které bude zásuvný modul spuštěn. Abyste mohli kompilovat, ladit a testovat lokálně, budete potřebovat nainstalovanou příslušnou aplikaci.
+
+### Vyberte motor
+
+<EngineTabs
+  AutoCAD={AutoCADPlugin}
+  Inventor={InventorPlugin}
+  Revit={RevitPlugin}
+  Max={MaxPlugin}
+/>
+
+### Nahrát balíček pluginů
+
+Nyní je balíček ZIP připraven, pojďme jej nahrát do Design Automation.
+
+<EnvTabs
+  NodeJsVsCode={BundleNodeJS}
+  DotNetVsCode={BundleNet6}
+  DotNetVs2022={BundleNet6}
+/>
+
+Pokud nyní spustíte webovou aplikaci a kliknete na Konfigurovat (vpravo nahoře), měl by se zobrazit váš AppBundle a seznam všech dostupných modulů. Tlačítka zatím nefungují... Pojďme dál.
+
+<img src={ActivityBundleConfigureImg} style={{ width: 800 }} />

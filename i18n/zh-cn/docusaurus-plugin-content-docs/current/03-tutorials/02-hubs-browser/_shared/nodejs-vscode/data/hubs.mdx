@@ -1,0 +1,26 @@
+让我们实现浏览各个中心、项目、文件夹、项目、
+和版本。将以下代码添加到“services/aps.js”文件的末尾：
+
+```js title="services/aps.js"
+service.getHubs = async (accessToken) => {
+    const resp = await dataManagementClient.getHubs(accessToken);
+    return resp.data;
+};
+service.getProjects = async (hubId, accessToken) => {
+    const resp = await dataManagementClient.getHubProjects(accessToken, hubId);
+    return resp.data;
+};
+service.getProjectContents = async (hubId, projectId, folderId, accessToken) => {
+    if (!folderId) {
+        const resp = await dataManagementClient.getProjectTopFolders(accessToken, hubId, projectId);
+        return resp.data;
+    } else {
+        const resp = await dataManagementClient.getFolderContents(accessToken, projectId, folderId);
+        return resp.data;
+    }
+};
+service.getItemVersions = async (projectId, itemId, accessToken) => {
+    const resp = await dataManagementClient.getItemVersions(accessToken, projectId, itemId);
+    return resp.data;
+};
+```

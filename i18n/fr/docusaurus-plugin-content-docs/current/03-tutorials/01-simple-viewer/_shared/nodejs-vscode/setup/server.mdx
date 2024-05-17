@@ -1,0 +1,23 @@
+Créez un fichier 'server.js' à la racine de votre dossier de projet avec le code suivant :
+
+```js title="server.js"
+const express = require('express');
+const { PORT } = require('./config.js');
+let app = express();
+app.use(express.static('wwwroot'));
+app.listen(PORT, function () { console.log(`Server listening on port ${PORT}...`); });
+```
+
+Pour l’instant, le serveur ne fait pas grand-chose, se contentant de servir des ressources statiques à partir du sous-dossier 'wwwroot'
+(qui est actuellement vide) et signale toute erreur à la console et au client.
+
+Ensuite, ajoutons un script '"start » : « node server.js"' au fichier 'package.json' afin que nous puissions
+Exécutez facilement notre application plus tard :
+
+```json
+// ...
+"scripts": {
+    "start": "node server.js"
+}
+// ...
+```

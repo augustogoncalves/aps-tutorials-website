@@ -1,0 +1,82 @@
+import EnvTabs from "@site/src/components/EnvTabs.js";
+import WorkitemForNet from "./_shared/dotnet-vs2022/setup/workitem.mdx";
+import WorkitemForNodejs from "./_shared/nodejs-vscode/setup/workitem.mdx";
+import DebugForNet from "./_shared/dotnet-vs2022/setup/debug.mdx";
+import DebugForNodejs from "./_shared/nodejs-vscode/setup/debug.mdx";
+import ResponsiveVideo from "@site/src/components/ResponsiveVideo.js";
+import PreviewUrl from "@site/static/videos/modify-your-models.mp4";
+
+# 执行工作项
+
+使用指定的输入文件执行指定活动并生成相应输出文件的作业。
+
+Activity 和 WorkItem 之间的关系可以分别视为“函数定义”和“函数调用”。Activity 指定要使用的 AppBundle，而 AppBundle 又指定要使用的引擎。然后调用 Workitem 来执行这些操作。
+
+在本教程示例中，工作项指定输入文件 URL、具有新参数值的输入 JSON 数据以及输出文件的目标 URL。该示例会在启动工作项之前将输入文件上传到 OSS Bucket。
+
+<EnvTabs
+  NodeJsVsCode={WorkitemForNodejs}
+  DotNetVsCode={WorkitemForNet}
+  DotNetVs2022={WorkitemForNet}
+/>
+
+一切都准备好了！
+
+## 运行和调试
+
+现在你的应用已准备就绪，是时候运行它了。在这里，我们可以测试和检查可能的错误（通过调试）。
+
+## 使用示例
+
+在顶部，单击“**配置**”以定义 AppBundle & Activity。这只需要做一次。在左侧面板上指定新的“宽度”和“高度”，选择“输入文件”，然后单击“启动工作项”。右侧面板应显示结果。
+
+您可以在此处找到 [示例文件](https://github.com/autodesk-platform-services/aps-design-automation-dotnet/tree/master/sample%20files）。
+
+
+
+:::caution
+
+如果插件代码发生变化，则需要上传新的 AppBundle 并增加版本（例如 v1 到 v2）。此示例将在每次上传新 AppBundle 时创建一个新版本。
+
+
+:::
+
+
+
+>输入和输出文件都保存在OSS Bucket中，可以使用【查看模型】（../simple-viewer/） 教程来查看它们。
+
+<ResponsiveVideo src={PreviewUrl} />
+
+## 故障排除
+
+**1.结果面板不显示全部信息**
+
+确保 **ngrok** 正在运行且未过期。确保在环境变量中正确指定了 ngrok 地址。
+
+**2.工作项执行，但结果与预期不符**
+
+请考虑使用“清除帐户”按钮。这将删除您帐户上的所有 AppBundle & Activity。然后再次定义它们。
+
+**3.在配置表单中看不到我的 AppBundle**
+
+构建相应的插件后，ZIP捆绑包将复制到“捆绑包”中。确保正确定义“生成后”事件，并在生成后执行。
+
+**4.确保上传了正确的 DLL**
+
+确保将正确的 DLL 上传到 Design Automation 的一个简单技巧是检查其日期。[此 StackOverflow 答案](https://stackoverflow.com/a/1600990） 演示如何获取链接器日期（即 DLL 的编译时间），您可以在代码开头显示它。请注意，日期是服务器时区。
+
+> 插件是用“C#”编写的，与服务器语言无关。
+
+```cs
+LogTrace("DLL {0} compiled on {1}",
+    System.IO.Path.GetFileName(System.Reflection.Assembly.GetExecutingAssembly().Location),
+    GetLinkerTime(System.Reflection.Assembly.GetExecutingAssembly()));
+```
+
+准备？让我们运行它！
+
+<EnvTabs
+  NodeJsVsCode={DebugForNodejs}
+  DotNetVsCode={DebugForNet}
+  DotNetVs2022={DebugForNet}
+/>

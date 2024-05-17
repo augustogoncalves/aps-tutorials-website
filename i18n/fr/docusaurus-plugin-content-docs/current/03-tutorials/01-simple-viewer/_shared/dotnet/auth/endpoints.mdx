@@ -1,0 +1,32 @@
+Créez un fichier 'AuthController.cs' sous le sous-dossier 'Controllers' avec le contenu suivant :
+
+```csharp title="Controllers/AuthController.cs"
+using System;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+[ApiController]
+[Route("api/[controller]")]
+public class AuthController : ControllerBase
+{
+    public record AccessToken(string access_token, long expires_in);
+    private readonly APS _aps;
+    public AuthController(APS aps)
+    {
+        _aps = aps;
+    }
+    [HttpGet("token")]
+    public async Task<AccessToken> GetAccessToken()
+    {
+        var token = await _aps.GetPublicToken();
+        return new AccessToken(
+            token.AccessToken,
+            (long)Math.Round((token.ExpiresAt - DateTime.UtcNow).TotalSeconds)
+        );
+    }
+}
+```
+
+Le contrôleur recevra l’instance de « APS », notre client Autodesk Platform Services, via ASP. NET’s
+[Injection de dépendances](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/dependency-injection?view=aspnetcore-6.0),
+et il traitera les requêtes à '/api/auth/token' en générant un nouveau jeton d’accès
+et le renvoyer au client en tant que charge utile JSON.

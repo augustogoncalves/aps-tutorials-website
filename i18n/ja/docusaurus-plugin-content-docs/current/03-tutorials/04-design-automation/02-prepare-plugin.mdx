@@ -1,0 +1,59 @@
+import ActivityBundleConfigureImg from "./_shared/_images/activity-bundle-configure.webp";
+import VsCodeFolderExplorerImg from "./_shared/_images/vscode_nodejsfs.webp";
+import BundleNet6 from "./_shared/dotnet-vs2022/setup/upload-bundle.mdx";
+import BundleNodeJS from "./_shared/nodejs-vscode/setup/upload-bundle.mdx";
+import AutoCADPlugin from "./_shared/_plugins/autocad-plugin.mdx";
+import InventorPlugin from "./_shared/_plugins/inventor-plugin.mdx";
+import RevitPlugin from "./_shared/_plugins/revit-plugin.mdx";
+import MaxPlugin from "./_shared/_plugins/max-plugin.mdx";
+import EngineTabs from "@site/src/components/EngineTabs.js";
+import EnvTabs from "@site/src/components/EnvTabs.js";
+
+# プラグイン作成
+
+Design Automation では [Autodesk App Store](https://www.autodesk.com/developer-network/app-store) と同様に '.bundle' を使用するため、DLL (およびその他の必要なファイル)を含む PackageContents.xml と ZIP を作成する必要があります。作成方法の詳細については、Autodesk App Store デベロッパー センターを参照してください。
+
+このセクションでは、幅と高さのパラメータを更新し、結果のファイルを保存する基本的なプラグインを作成します。また、サポート ファイル (PackageContents.xml) とそれらを配置するフォルダー構造。最後に、Design Automation にアップロードする準備ができている .ZIP ファイルを作成します。
+
+ルートフォルダに「bundles」フォルダを作成します。
+
+<img src={VsCodeFolderExplorerImg} style={{ width: 300 }} />
+
+### 前提条件
+
+- 7zip:バンドルファイルで.ZIPを作成するために使用しますので、こちらからインストールしてください。このチュートリアルでは、7zip が既定のフォルダー 'C:\Program Files\7-Zip\7z.exe' にインストールされていることを前提としています。
+
+### その他の前提条件
+
+次のセッションでは、ビルド前のプラグインを使用できます。または、それを構築することにした場合は、
+
+- **Visual Studio**: Visual Studio 2019 以降が必要な場合は、[このリンク](https://visualstudio.microsoft.com/vs/) にアクセスしてください。
+
+- **AutoCAD、Inventor、Revit、または 3ds Max**: Design Automation プラグインを開発、テスト、デバッグするには: [AutoCAD](https://www.autodesk.com/products/autocad/overview) |[発明者](https://www.autodesk.com/products/inventor/overview) |[リビット](https://www.autodesk.com/products/revit/overview) |[3ds Maxの](https://www.autodesk.com/products/3ds-max/overview)。
+
+---
+
+次の手順では、プラグインを実行するオートデスク アプリケーションである **エンジン** を選択します。ローカルでコンパイル、デバッグ、テストするには、それぞれのアプリケーションをインストールする必要があります。
+
+### エンジンの選択
+
+<EngineTabs
+  AutoCAD={AutoCADPlugin}
+  Inventor={InventorPlugin}
+  Revit={RevitPlugin}
+  Max={MaxPlugin}
+/>
+
+### プラグインバンドルのアップロード
+
+ZIPバンドルの準備ができたので、Design Automationにアップロードしましょう。
+
+<EnvTabs
+  NodeJsVsCode={BundleNodeJS}
+  DotNetVsCode={BundleNet6}
+  DotNetVs2022={BundleNet6}
+/>
+
+ここで Web アプリを実行し、[構成](右上) をクリックすると、AppBundle と使用可能なすべてのエンジンの一覧が表示されます。ボタンはまだ機能しません...先に進みましょう。
+
+<img src={ActivityBundleConfigureImg} style={{ width: 800 }} />

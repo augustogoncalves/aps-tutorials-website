@@ -1,0 +1,75 @@
+프로젝트 폴더의 루트에 'config.js' 파일을 만들고 다음 코드를 추가합니다.
+
+```js title="config.js"
+require('dotenv').config();
+let { APS_CLIENT_ID, APS_CLIENT_SECRET, APS_CALLBACK_URL, SERVER_SESSION_SECRET, PORT } = process.env;
+if (!APS_CLIENT_ID || !APS_CLIENT_SECRET || !APS_CALLBACK_URL || !SERVER_SESSION_SECRET) {
+    console.warn('Missing some of the environment variables.');
+    process.exit(1);
+}
+PORT = PORT || 8080;
+module.exports = {
+    APS_CLIENT_ID,
+    APS_CLIENT_SECRET,
+    APS_CALLBACK_URL,
+    SERVER_SESSION_SECRET,
+    PORT
+};
+```
+
+'dotenv'라이브러리는 로컬 _.env_ 파일 (있는 경우)에서 환경 변수를 초기화합니다.
+그런 다음 'process.env'에서 환경 변수를 읽고 응용 프로그램을 종료합니다
+필수 속성 중 하나라도 누락된 경우 즉시.
+
+Next, let's create the _.env_ file in the project folder, and populate it with the required
+environment variables (replacing `<client-id>` and `<client-secret>` with your APS Client ID
+and Client Secret, and `<secret-phrase>` with an arbitrary string):
+
+``` title=".env"
+APS_CLIENT_ID="<client-id>"
+APS_CLIENT_SECRET="<client-secret>"
+APS_CALLBACK_URL="http://localhost:8080/api/auth/callback" # URL your users will be redirected to after logging in with their Autodesk account
+SERVER_SESSION_SECRET="<secret-phrase>" # secret phrase used to encrypt/decrypt server session cookies
+```
+
+
+
+:::caution
+
+'.env' 파일에는 민감한 정보가 포함되어 있으므로 git에 **포함되지 않은** 것이 아닌지 확인하십시오!
+이것은 [.gitignore](https://git-scm.com/docs/gitignore) 파일에 '.env' 행을 추가하여 보장할 수 있습니다.
+
+
+:::
+
+
+
+이제 Visual Studio Code에서 응용 프로그램을 실행하고 디버그할 수 있으려면
+[시작 구성](https://code.visualstudio.com/docs/editor/debugging#_launch-configurations).
+메뉴에서 Configuration_ 추가_Run > 사용하여 새 구성을 만들고 메시지가 표시되면
+특정 환경의 경우 _Node.js_를 선택합니다. 이렇게 하면 새 _.vscode_ 생성됩니다.
+다른 파일을 정의할 수 있는 _launch.json_ 파일이 있는 프로젝트의 하위 폴더
+구성을 시작합니다. 파일의 내용을 다음으로 바꿉니다.
+
+```json title=".vscode/launch.json"
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Server",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "start"
+            ],
+            "skipFiles": [
+                "<node_internals>/**/*.js"
+            ]
+        }
+    ]
+}
+```
+
+_Launch Server_라는 단일 시작 구성을 정의하고 있습니다.
+'npm start' 명령을 사용하여 응용 프로그램을 시작합니다.

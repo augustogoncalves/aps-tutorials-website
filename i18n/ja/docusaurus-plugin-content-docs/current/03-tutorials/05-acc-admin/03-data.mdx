@@ -1,0 +1,57 @@
+import NodeJsVsCodeHubs from './_shared/nodejs-vscode/data/hubs.mdx';
+import NodeJsVsCodeEndpoints from './_shared/nodejs-vscode/data/endpoints.mdx';
+
+# プロジェクトの閲覧
+
+このステップでは、Autodesk Construction Cloud のプロジェクトを参照できるようにサーバを拡張します。
+基本的には、データ管理APIを使用してハブ、プロジェクトの階層を取得します。
+
+## ハブの閲覧
+
+まず、ハブ、プロジェクトを参照するためのヘルパーメソッドをいくつか追加しましょう。
+
+<NodeJsVsCodeHubs />
+
+## サーバーエンドポイント
+
+次に、別の
+エンドポイントのセット。
+
+<NodeJsVsCodeEndpoints />
+
+## 試してみる
+
+通常どおり Visual Studio Code からアプリを起動 (または再起動) し、
+[http://localhost:8080/api/hubs](http://localhost:8080/api/hubs)ブラウザで。
+サーバーは、アクセスできるすべてのハブの JSON リストで応答する必要があります。
+ハブの 1 つの ID をコピーして、別のアドレス (http://localhost:8080/api/hubs/your-hub-id/projects) で使用してみてください。
+この場合、サーバー アプリケーションは、すべてのプロジェクトの JSON リストで応答する必要があります
+指定したハブで使用できます。
+
+
+
+:::info
+
+前のステップでログイン手順をスキップした場合、またはサーバーアプリケーションを再起動した場合は、
+[http://localhost:8080/api/auth/login](http://localhost:8080/api/auth/login)に移動する必要がある場合があります
+もう一度、テストする前に、すべての認証データが Cookie で使用可能であることを確認します
+'/api/hubs' エンドポイント。
+
+
+:::
+
+
+
+
+
+:::tip
+
+Google Chromeをお使いの場合は、[JSON Formatter](https://chrome.google.com/webstore/detail/json-formatter/bcjindcccaagfpapjjmafapmmgkkhgoa?hl=en)のインストールをご検討ください
+または同様の拡張機能を使用して、JSON 応答を自動的に書式設定します。
+
+
+:::
+
+
+
+![Hubs Response](./_shared/hubs-response.webp)

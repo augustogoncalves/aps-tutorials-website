@@ -1,0 +1,43 @@
+import Image from '@theme/IdealImage';
+import PreviewUrl from '@site/static/videos/hubs-browser.gif';
+
+# Navigateur Hubs
+
+## Présentation
+
+Dans ce tutoriel, nous allons créer une application APS qui nous permettra de parcourir le contenu
+de nos utilisateurs authentifiés dans d’autres applications basées sur APS telles que [BIM 360 Docs](https://www.autodesk.com/bim-360/construction-document-management-software/),
+[Documentation Autodesk](https://www.autodesk.com/products/autodesk-docs/overview) ou [Fusion Team](https://www.autodesk.com/products/fusion-360/overview).
+
+
+
+:::note
+
+Assurez-vous de [provisionner l’accès](.. /.. /01-getting-started/index.mdx#provision-access-in-other-products) à l’un de vos comptes ACC ou BIM360
+afin que l’application puisse voir vos projets, dossiers et documents.
+
+
+:::
+
+
+
+<Image img={PreviewUrl} />
+
+Nous utiliserons les composants suivants de la plateforme :
+
+- [Authentification](https://aps.autodesk.com/en/docs/oauth/v2/developers_guide/overview)
+- [Gestion des données](https://aps.autodesk.com/en/docs/data/v2/developers_guide/overview)
+- [Spectateur](https://aps.autodesk.com/en/docs/viewer/v7/developers_guide/overview)
+
+
+
+:::tip
+
+Si vous n’êtes pas intéressé par la création de l’application à partir de zéro et que vous voulez juste essayer
+et exécutez-le localement, l’implémentation complète est disponible sur GitHub :
+- https://github.com/autodesk-platform-services/aps-hubs-browser-nodejs
+- https://github.com/autodesk-platform-services/aps-hubs-browser-dotnet
+
+
+:::
+

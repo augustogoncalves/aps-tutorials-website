@@ -1,0 +1,32 @@
+import ResponsiveVideo from "@site/src/components/ResponsiveVideo.js";
+import PreviewUrl from "@site/static/videos/vscode-proj-dotnet-setup.mp4";
+
+- Inicie el terminal o el símbolo del sistema
+- Ve al directorio donde quieres crear el proyecto.
+- Asegúrese de que tiene instalado el SDK de .NET 6. Consulte [Entorno](../../../../../../configuración/)
+
+```bash title="setup.bat"
+dotnet --version
+dotnet new web -n designAutomationSample
+cd designAutomationSample
+dotnet add package Autodesk.Forge --version 1.9.7
+dotnet add package Autodesk.Forge.DesignAutomation --version 5.1.0
+dotnet add package Microsoft.AspNetCore.Mvc.NewtonsoftJson --version 6.0.11
+dotnet add package Microsoft.AspNetCore.Mvc.NewtonsoftJson --version 6.0.11
+dotnet add package Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson --version 6.0.11
+dotnet build
+code .
+```
+
+
+
+:::tip
+
+Cree un archivo batch/bash y copie las instrucciones 'dotnet' anteriores para ejecutarlas de una sola vez.
+
+
+:::
+
+
+
+<ResponsiveVideo src={PreviewUrl} />

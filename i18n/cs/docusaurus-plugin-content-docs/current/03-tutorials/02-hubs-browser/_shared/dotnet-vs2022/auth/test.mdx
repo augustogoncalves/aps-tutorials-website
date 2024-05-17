@@ -1,0 +1,27 @@
+Pokud je aplikace stále spuštěna, restartujte ji (například pomocí _Debug > Restart_,
+nebo stiskem 'Ctrl'+'Shift'+'F5'), jinak jej spusťte znovu (pomocí _Debug > Start Debugging_,
+nebo stisknutím klávesy 'F5').
+
+Když přejdete na [http://localhost:8080/api/auth/login](http://localhost:8080/api/auth/login)
+v prohlížeči byste měli být přesměrováni na přihlašovací stránku Autodesku, a po přihlášení byste měli
+Buďte přesměrováni zpět na svou aplikaci, prozatím jednoduše vraťte 404. To se očekává, protože jsme to neudělali
+implementoval koncový bod 'GET /'. Pokud však používáte nástroje pro vývojáře prohlížeče a prozkoumáte soubory cookie
+uložené vaším prohlížečem pro původ "localhost", všimnete si, že aplikace je již
+Tam jsou uloženy autentizační údaje.
+
+
+
+:::info
+
+Zde najdete soubory cookie svých webových stránek v různých prohlížečích:
+- [Chrome](https://developer.chrome.com/docs/devtools/storage/sessionstorage/)
+- [Firefox](https://developer.mozilla.org/en-US/docs/Tools/Storage_Inspector/Cookies)
+- [Hrana](https://docs.microsoft.com/en-us/microsoft-edge/devtools-guide-chromium/storage/cookies)
+- [Safari](https://developer.apple.com/safari/tools/)
+
+
+:::
+
+
+
+![Empty Response](../../dotnet/auth/empty-response.webp)

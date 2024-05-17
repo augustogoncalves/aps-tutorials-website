@@ -1,0 +1,36 @@
+デザインを閲覧用に変換したり、
+変換。「services/aps.js」ファイルの末尾に次のコードを追加します。
+
+```js title="services/aps.js"
+service.translateObject = async (urn, rootFilename) => {
+    const { access_token } = await service.getInternalToken();
+    const job = await modelDerivativeClient.startJob(access_token, {
+        input: {
+            urn,
+            compressedUrn: !!rootFilename,
+            rootFilename
+        },
+        output: {
+            formats: [{
+                views: [View._2d, View._3d],
+                type: Type.Svf
+            }]
+        }
+    });
+    return job.result;
+};
+service.getManifest = async (urn) => {
+    const { access_token } = await service.getInternalToken();
+    try {
+        const manifest = await modelDerivativeClient.getManifest(access_token, urn);
+        return manifest;
+    } catch (err) {
+        if (err.axiosError.response.status === 404) {
+            return null;
+        } else {
+            throw err;
+        }
+    }
+};
+service.urnify = (id) => Buffer.from(id).toString('base64').replace(/=/g, '');
+```

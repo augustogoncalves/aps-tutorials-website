@@ -1,0 +1,37 @@
+Vytvořte soubor 'aps.js' ve složce 'services'. To je místo, kde budeme realizovat
+veškerou logiku APS, která bude použita v různých oblastech naší serverové aplikace. Začněme
+přidáním následujícího kódu do souboru:
+
+```js title="services/aps.js"
+const { SdkManagerBuilder } = require('@aps_sdk/autodesk-sdkmanager');
+const { AuthenticationClient, Scopes } = require('@aps_sdk/authentication');
+const { OssClient, CreateBucketsPayloadPolicyKeyEnum, CreateBucketXAdsRegionEnum } = require('@aps_sdk/oss');
+const { ModelDerivativeClient, View, Type } = require('@aps_sdk/model-derivative');
+const { APS_CLIENT_ID, APS_CLIENT_SECRET, APS_BUCKET } = require('../config.js');
+const sdk = SdkManagerBuilder.create().build();
+const authenticationClient = new AuthenticationClient(sdk);
+const ossClient = new OssClient(sdk);
+const modelDerivativeClient = new ModelDerivativeClient(sdk);
+const service = module.exports = {};
+service.getInternalToken = async () => {
+    const credentials = await authenticationClient.getTwoLeggedToken(APS_CLIENT_ID, APS_CLIENT_SECRET, [
+        Scopes.DataRead,
+        Scopes.DataCreate,
+        Scopes.DataWrite,
+        Scopes.BucketCreate,
+        Scopes.BucketRead
+    ]);
+    return credentials;
+};
+service.getPublicToken = async () => {
+    const credentials = await authenticationClient.getTwoLeggedToken(APS_CLIENT_ID, APS_CLIENT_SECRET, [
+        Scopes.DataRead
+    ]);
+    return credentials;
+};
+```
+
+Kód poskytuje dvě pomocné funkce - jednu pro generování přístupových tokenů pro interní použití
+(což nám dává přístup pro čtení a zápis do kontejnerů a objektů správy dat) a jeden pro generování
+tokeny pro veřejné použití (pouze s přístupem pro čtení k výstupům překladu z derivátu modelu)
+služby).

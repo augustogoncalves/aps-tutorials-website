@@ -1,0 +1,59 @@
+프로젝트에 대한 새 폴더를 만들고, 명령줄에서 해당 폴더로 이동하고, 새
+ASP.NET 핵심 프로젝트:
+
+```bash
+dotnet new web
+```
+
+다음으로 종속성을 설치해야 합니다. 이 경우 몇 가지
+공식 APS SDK의 패키지 :
+
+```bash
+dotnet add package Autodesk.SdkManager
+dotnet add package Autodesk.Authentication
+dotnet add package Autodesk.OSS
+dotnet add package Autodesk.ModelDerivative
+```
+
+이제 프로젝트의 '*.csproj' 파일이 다음과 비슷하게 보일 것입니다(
+약간 다른 버전 번호 및 추가 .NET 설정):
+
+```xml
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Autodesk.Authentication" Version="1.0.0" />
+    <PackageReference Include="Autodesk.ModelDerivative" Version="1.0.0" />
+    <PackageReference Include="Autodesk.OSS" Version="1.0.0" />
+    <PackageReference Include="Autodesk.SdkManager" Version="1.0.0" />
+  </ItemGroup>
+</Project>
+```
+
+마지막으로, 프로젝트 폴더에 나중에 필요한 하위 폴더를 몇 개 더 만들어 보겠습니다.
+
+- '컨트롤러' - 모든 서버 엔드포인트를 구현할 위치입니다.
+- '모델' - 여기서는 서로 다른 엔드포인트에서 공유할 수 있는 모든 서버 측 논리를 유지합니다.
+- 'wwwroot' - 모든 클라이언트 측 자산(HTML, CSS, JavaScript, 이미지 등)을 넣을 위치입니다.
+
+이제 Visual Studio Code에서 프로젝트 폴더를 처음 열면 메시지가 표시됩니다
+.NET 개발을 위해 프로젝트를 설정합니다. 프롬프트를 수락하면 편집기가 자동으로 생성합니다.
+기본 [시작 구성](https://code.visualstudio.com/docs/editor/debugging#_launch-configurations)과 같은 추가 .NET 관련 설정이 있는 '.vscode' 하위 폴더입니다.
+편집기의 폴더 구조는 다음과 유사해야 합니다.
+
+![Folder Structure](folder-structure.webp)
+
+
+
+:::note
+
+'.vscode' 폴더가 자동으로 생성되지 않으면 실행 및 디버그 사이드 패널을 통해 생성할 수 있습니다
+
+
+:::
+
+
+
+'.vscode' 폴더를 만들려면 왼쪽 패널에서 *실행 및 디버그 도구를 클릭한 > launch.json 파일을 만든 > 선택합니다. NET5+ 및 .NET Core*.

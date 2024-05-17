@@ -1,0 +1,32 @@
+import CliSetup from '../cli.mdx';
+import GitSetup from '../git.mdx';
+import VSCodeSetup from '../vscode.mdx';
+
+## Interfaz de línea de comandos
+
+<CliSetup />
+
+## Gestión del código fuente
+
+<GitSetup />
+
+## Tiempo de ejecución
+
+También necesitaremos el Node.js _runtime_ para ejecutar nuestro código, y el Node.js gestor de paquetes, _NPM_,
+para administrar dependencias de terceros. Puede obtener un instalador para su plataforma en https://nodejs.org/en/download
+que instalará ambos.
+
+Para asegurarse de que las herramientas están disponibles, intente ejecutar los siguientes dos comandos en 'bash':
+
+```bash
+node -v
+npm -v
+```
+
+Deberías ver algo como esto:
+
+![Checking node in terminal](node.webp)
+
+## Editor
+
+<VSCodeSetup />

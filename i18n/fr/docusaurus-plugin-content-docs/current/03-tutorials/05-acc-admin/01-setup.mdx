@@ -1,0 +1,33 @@
+
+import NodeJsVsCodeProject from './_shared/nodejs-vscode/setup/project.mdx';
+import NodeJsVsCodeConfig from './_shared/nodejs-vscode/setup/config.mdx';
+import NodeJsVsCodeServer from './_shared/nodejs-vscode/setup/server.mdx';
+import NodeJsVsCodeTest from './_shared/nodejs-vscode/setup/test.mdx';
+
+# Configuration de l’application
+
+Commençons par créer un projet, installer les dépendances requises et configurer
+une application serveur de base.
+
+## Créer un projet
+
+<NodeJsVsCodeProject />
+
+## Configuration de l’application
+
+Notre application aura besoin de quelques paramètres de configuration pour fonctionner correctement, par exemple,
+les informations d’identification de notre application APS pour communiquer avec les services Autodesk Platform ou l’URL de rappel
+où nos utilisateurs seront redirigés pendant le [workflow d’authentification à 3 pattes](https://aps.autodesk.com/en/docs/oauth/v2/tutorials/get-3-legged-token/).
+Nous allons transmettre ces paramètres à l’application serveur à l’aide de variables d’environnement.
+
+<NodeJsVsCodeConfig />
+
+## Créer un serveur de base
+
+Ensuite, nous allons configurer une application serveur de base.
+
+<NodeJsVsCodeServer />
+
+## Essayez-le
+
+<NodeJsVsCodeTest />

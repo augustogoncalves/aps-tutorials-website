@@ -1,0 +1,52 @@
+为项目创建一个新文件夹，在命令行中导航到该文件夹，然后初始化一个新的
+ASP.NET 核心项目：
+
+```bash
+dotnet new web
+```
+
+接下来，我们需要安装依赖项。在这种情况下，它将是所需的 APS SDK 包：
+
+```bash
+dotnet add package Autodesk.SdkManager
+dotnet add package Autodesk.Authentication
+dotnet add package Autodesk.DataManagement
+```
+
+项目中的“*.csproj”文件现在应与此类似（可能具有
+版本号略有不同，以及其他 .NET 设置）：
+
+```xml
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Autodesk.Authentication" Version="1.0.0" />
+    <PackageReference Include="Autodesk.DataManagement" Version="1.0.0" />
+    <PackageReference Include="Autodesk.SdkManager" Version="1.0.0" />
+  </ItemGroup>
+</Project>
+```
+
+最后，让我们在项目文件夹中再创建几个子文件夹，稍后我们将需要这些子文件夹：
+
+- 'Controllers' - 这是我们要实现所有服务器端点的地方
+- 'Models' - 在这里，我们将保留所有可以由不同端点共享的服务器端逻辑
+- 'wwwroot' - 这是我们要放置所有客户端资产（HTML、CSS、JavaScript、图像等）的地方。
+
+
+
+
+:::note
+
+如果“.vscode”文件夹不是自动创建的，则可以通过“运行和调试”侧边板创建它
+
+
+:::
+
+
+
+若要创建“.vscode”文件夹，请单击左侧面板上的“运行和调试”工具>创建launch.json文件>选择。NET5+ 和 .NET Core*。

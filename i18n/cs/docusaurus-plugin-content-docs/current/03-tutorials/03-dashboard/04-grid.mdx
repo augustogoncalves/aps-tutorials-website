@@ -1,0 +1,266 @@
+# Datová mřížka
+
+V tomto posledním kroku vytvoříme rozšíření prohlížeče, které bude poskytovat zobrazení datagridu
+vlastností našich návrhových prvků pomocí open source knihovny [Tabulator](http://tabulator.info).
+
+## Kostra rozšíření
+
+Jako obvykle vytvoříme nový soubor v podsložce 'extensions', nazvěme jej 'DataGridExtension.js',
+a naplňte ho následujícím kódem:
+
+```js title="wwwroot/extensions/DataGridExtension.js"
+import { BaseExtension } from './BaseExtension.js';
+class DataGridExtension extends BaseExtension {
+    constructor(viewer, options) {
+        super(viewer, options);
+    }
+    async load() {
+        super.load();
+        await Promise.all([
+            this.loadScript('https://unpkg.com/tabulator-tables@4.9.3/dist/js/tabulator.min.js', 'Tabulator'),
+            this.loadStylesheet('https://unpkg.com/tabulator-tables@4.9.3/dist/css/tabulator.min.css')
+        ]);
+        console.log('DataGridExtension loaded.');
+        return true;
+    }
+    unload() {
+        super.unload();
+        console.log('DataGridExtension unloaded.');
+        return true;
+    }
+}
+Autodesk.Viewing.theExtensionManager.registerExtension('DataGridExtension', DataGridExtension);
+```
+
+Tentokrát také načítáme více závislostí, které knihovna Tabulator vyžaduje.
+
+Now let's import the JavaScript file to our application, and pass the extension ID to the viewer
+constructor:
+
+```js
+import './extensions/LoggerExtension.js';
+import './extensions/SummaryExtension.js';
+import './extensions/HistogramExtension.js';
+// highlight-start
+import './extensions/DataGridExtension.js';
+// highlight-end
+```
+
+```js
+const config = {
+    extensions: [
+        'LoggerExtension',
+        'SummaryExtension',
+        'HistogramExtension',
+        // highlight-start
+        'DataGridExtension',
+        // highlight-end
+    ]
+};
+const viewer = new Autodesk.Viewing.GuiViewer3D(container, config);
+```
+
+## Panel nástrojů
+
+Dále aktualizujeme třídu DataGridExtension tak, aby do prohlížeče přidala nové tlačítko
+panel nástrojů při načtení rozšíření:
+
+```js title="wwwroot/extensions/DataGridExtension.js"
+import { BaseExtension } from './BaseExtension.js';
+class DataGridExtension extends BaseExtension {
+    constructor(viewer, options) {
+        super(viewer, options);
+        // highlight-start
+        this._button = null;
+        // highlight-end
+    }
+    async load() {
+        super.load();
+        await Promise.all([
+            this.loadScript('https://unpkg.com/tabulator-tables@4.9.3/dist/js/tabulator.min.js', 'Tabulator'),
+            this.loadStylesheet('https://unpkg.com/tabulator-tables@4.9.3/dist/css/tabulator.min.css')
+        ]);
+        console.log('DataGridExtension loaded.');
+        return true;
+    }
+    unload() {
+        super.unload();
+        // highlight-start
+        if (this._button) {
+            this.removeToolbarButton(this._button);
+            this._button = null;
+        }
+        // highlight-end
+        console.log('DataGridExtension unloaded.');
+        return true;
+    }
+    // highlight-start
+    onToolbarCreated() {
+        this._button = this.createToolbarButton('dashboard-datagrid-button', 'https://img.icons8.com/small/32/activity-grid.png', 'Show Data Grid');
+        this._button.onClick = () => {
+            // TODO
+        };
+    }
+    // highlight-end
+}
+Autodesk.Viewing.theExtensionManager.registerExtension('DataGridExtension', DataGridExtension);
+```
+
+## Datová mřížka
+
+Nyní vytvoříme vlastní ukotvený panel, který bude hostovat skutečnou mřížku tabulátoru. Vytvářet
+soubor "DataGridPanel.js" ve stejné složce, kde je umístěn soubor "DataGridExtension.js", a
+Přidejte do něj následující kód:
+
+```js title="wwwroot/extensions/DataGridPanel.js"
+const DATAGRID_CONFIG = {
+    requiredProps: ['name', 'Volume', 'Level'], // Which properties should be requested for each object
+    columns: [ // Definition of individual grid columns (see http://tabulator.info for more details)
+        { title: 'ID', field: 'dbid' },
+        { title: 'Name', field: 'name', width: 150 },
+        { title: 'Volume', field: 'volume', hozAlign: 'left', formatter: 'progress' },
+        { title: 'Level', field: 'level' }
+    ],
+    groupBy: 'level', // Optional column to group by
+    createRow: (dbid, name, props) => { // Function generating grid rows based on recieved object properties
+        const volume = props.find(p => p.displayName === 'Volume')?.displayValue;
+        const level = props.find(p => p.displayName === 'Level' && p.displayCategory === 'Constraints')?.displayValue;
+        return { dbid, name, volume, level };
+    },
+    onRowClick: (row, viewer) => {
+        viewer.isolate([row.dbid]);
+        viewer.fitToView([row.dbid]);
+    }
+};
+export class DataGridPanel extends Autodesk.Viewing.UI.DockingPanel {
+    constructor(extension, id, title, options) {
+        super(extension.viewer.container, id, title, options);
+        this.extension = extension;
+        this.container.style.left = (options.x || 0) + 'px';
+        this.container.style.top = (options.y || 0) + 'px';
+        this.container.style.width = (options.width || 500) + 'px';
+        this.container.style.height = (options.height || 400) + 'px';
+        this.container.style.resize = 'none';
+    }
+    initialize() {
+        this.title = this.createTitleBar(this.titleLabel || this.container.id);
+        this.initializeMoveHandlers(this.title);
+        this.container.appendChild(this.title);
+        this.content = document.createElement('div');
+        this.content.style.height = '350px';
+        this.content.style.backgroundColor = 'white';
+        this.content.innerHTML = `<div class="datagrid-container" style="position: relative; height: 350px;"></div>`;
+        this.container.appendChild(this.content);
+        // See http://tabulator.info
+        this.table = new Tabulator('.datagrid-container', {
+            height: '100%',
+            layout: 'fitColumns',
+            columns: DATAGRID_CONFIG.columns,
+            groupBy: DATAGRID_CONFIG.groupBy,
+            rowClick: (e, row) => DATAGRID_CONFIG.onRowClick(row.getData(), this.extension.viewer)
+        });
+    }
+    update(model, dbids) {
+        model.getBulkProperties(dbids, { propFilter: DATAGRID_CONFIG.requiredProps }, (results) => {
+            this.table.replaceData(results.map((result) => DATAGRID_CONFIG.createRow(result.dbId, result.name, result.properties)));
+        }, (err) => {
+            console.error(err);
+        });
+    }
+}
+```
+
+
+
+:::info
+
+Aby to bylo jednoduché, třída DataGridPanel je v současné době pevně zakódovaná sloupce mřížky
+zobrazit pouze několik specifických vlastností našich metadat návrhu (konkrétně ID objektu,
+a vlastnosti 'Volume' a 'Level'). V závislosti na typu designu budete
+načítání do aplikace, možná je budete chtít změnit.
+
+
+:::
+
+
+
+Nakonec přidejte nový panel do našeho rozšíření:
+
+```js title="wwwroot/extensions/DataGridExtension.js"
+import { BaseExtension } from './BaseExtension.js';
+// highlight-start
+import { DataGridPanel } from './DataGridPanel.js';
+// highlight-end
+class DataGridExtension extends BaseExtension {
+    constructor(viewer, options) {
+        super(viewer, options);
+        this._button = null;
+        // highlight-start
+        this._panel = null;
+        // highlight-end
+    }
+    async load() {
+        super.load();
+        await Promise.all([
+            this.loadScript('https://unpkg.com/tabulator-tables@4.9.3/dist/js/tabulator.min.js', 'Tabulator'),
+            this.loadStylesheet('https://unpkg.com/tabulator-tables@4.9.3/dist/css/tabulator.min.css')
+        ]);
+        console.log('DataGridExtension loaded.');
+        return true;
+    }
+    unload() {
+        super.unload();
+        if (this._button) {
+            this.removeToolbarButton(this._button);
+            this._button = null;
+        }
+        // highlight-start
+        if (this._panel) {
+            this._panel.setVisible(false);
+            this._panel.uninitialize();
+            this._panel = null;
+        }
+        // highlight-end
+        console.log('DataGridExtension unloaded.');
+        return true;
+    }
+    onToolbarCreated() {
+        // highlight-start
+        this._panel = new DataGridPanel(this, 'dashboard-datagrid-panel', 'Data Grid', { x: 10, y: 10 });
+        // highlight-end
+        this._button = this.createToolbarButton('dashboard-datagrid-button', 'https://img.icons8.com/small/32/activity-grid.png', 'Show Data Grid');
+        this._button.onClick = () => {
+            // highlight-start
+            this._panel.setVisible(!this._panel.isVisible());
+            this._button.setState(this._panel.isVisible() ? Autodesk.Viewing.UI.Button.State.ACTIVE : Autodesk.Viewing.UI.Button.State.INACTIVE);
+            if (this._panel.isVisible() && this.viewer.model) {
+                this.update();
+            }
+            // highlight-end
+        };
+    }
+    // highlight-start
+    onModelLoaded(model) {
+        super.onModelLoaded(model);
+        if (this._panel && this._panel.isVisible()) {
+            this.update();
+        }
+    }
+    // highlight-end
+    // highlight-start
+    async update() {
+        const dbids = await this.findLeafNodes(this.viewer.model);
+        this._panel.update(this.viewer.model, dbids);
+    }
+    // highlight-end
+}
+Autodesk.Viewing.theExtensionManager.registerExtension('DataGridExtension', DataGridExtension);
+```
+
+## Vyzkoušejte si to
+
+Kliknutím na tlačítko nového panelu nástrojů vyvoláte panel datagrid. Mřížka by měla vypsat vybrané
+všech prvků návrhu a kliknutím na libovolný řádek v mřížce by se měly izolovat konkrétní
+designový prvek v prohlížeči.
+
+![Grid Result](data-grid-final-app.webp)

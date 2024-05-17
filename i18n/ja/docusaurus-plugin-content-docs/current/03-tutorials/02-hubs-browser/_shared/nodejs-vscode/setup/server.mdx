@@ -1,0 +1,26 @@
+次のコードを使用して、プロジェクト フォルダーのルートに 'server.js' ファイルを作成します。
+
+```js title="server.js"
+const express = require('express');
+const session = require('cookie-session');
+const { PORT, SERVER_SESSION_SECRET } = require('./config.js');
+let app = express();
+app.use(express.static('wwwroot'));
+app.use(session({ secret: SERVER_SESSION_SECRET, maxAge: 24 * 60 * 60 * 1000 }));
+app.listen(PORT, () => console.log(`Server listening on port ${PORT}...`));
+```
+
+今のところ、サーバーはあまり何もしておらず、「wwwroot」サブフォルダーからクライアント側のアセットを提供しているだけです。
+Cookieに保存されているセッションデータへのアクセス。クッキーは秘密のフレーズを使用して暗号化されます
+環境変数 'SERVER_SESSION_SECRET' を介してアプリケーションに渡す必要があります。
+
+次に、'"start": "node server.js"' スクリプトを 'package.json' ファイルに追加して、
+後でアプリケーションを簡単に実行できます。
+
+```json
+// ...
+"scripts": {
+    "start": "node server.js"
+}
+// ...
+```

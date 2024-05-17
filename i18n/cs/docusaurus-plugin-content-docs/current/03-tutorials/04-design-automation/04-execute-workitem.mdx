@@ -1,0 +1,82 @@
+import EnvTabs from "@site/src/components/EnvTabs.js";
+import WorkitemForNet from "./_shared/dotnet-vs2022/setup/workitem.mdx";
+import WorkitemForNodejs from "./_shared/nodejs-vscode/setup/workitem.mdx";
+import DebugForNet from "./_shared/dotnet-vs2022/setup/debug.mdx";
+import DebugForNodejs from "./_shared/nodejs-vscode/setup/debug.mdx";
+import ResponsiveVideo from "@site/src/components/ResponsiveVideo.js";
+import PreviewUrl from "@site/static/videos/modify-your-models.mp4";
+
+# Spustit pracovní položku
+
+Úloha, která spustí zadanou aktivitu pomocí zadaných vstupních souborů a vygeneruje příslušné výstupní soubory.
+
+Vztah mezi aktivitou a WorkItem si lze představit jako "definici funkce" a "volání funkce". Aktivita určuje sady aplikací, které se mají použít, které zase určují modul, který se má použít. Workitem je pak volána, aby je provedla.
+
+V této ukázce kurzu pracovní položka určuje adresu URL vstupního souboru, vstupní data JSON s novými hodnotami parametrů a cílovou adresu URL výstupního souboru. Tato ukázka nahraje vstupní soubor do kontejneru OSS před spuštěním pracovní položky.
+
+<EnvTabs
+  NodeJsVsCode={WorkitemForNodejs}
+  DotNetVsCode={WorkitemForNet}
+  DotNetVs2022={WorkitemForNet}
+/>
+
+Vše připraveno!
+
+## Spuštění a ladění
+
+Teď, když je vaše aplikace připravená, je čas ji spustit. Zde můžeme testovat a kontrolovat možné chyby (pomocí ladění).
+
+## Použití ukázky
+
+Na horním řádku klikněte na **Konfigurovat** a definujte AppBundle & Activity. To stačí provést pouze jednou. Na levém panelu zadejte novou šířku a výšku, vyberte vstupní soubor a klikněte na Spustit pracovní položku. Výsledky by se měly zobrazit na pravém panelu.
+
+[Ukázkové soubory najdete zde](https://github.com/autodesk-platform-services/aps-design-automation-dotnet/tree/master/sample%20files).
+
+
+
+:::caution
+
+Pokud se kód pluginu změní, musíte nahrát nový AppBundle a zvýšit verzi (např. v1 na v2). Tato ukázka vytvoří novou verzi pokaždé, když se nahraje nová sada prostředků AppBundle.
+
+
+:::
+
+
+
+> Vstupní i výstupní soubory jsou uloženy v OSS Buckets, můžete použít [Zobrazit modely](../simple-viewer/) pro jejich zobrazení.
+
+<ResponsiveVideo src={PreviewUrl} />
+
+## Řešení problémů
+
+**1. Na panelu výsledků se nezobrazují všechny informace**
+
+Ujistěte se, že **ngrok** je spuštěn a nevypršela jeho platnost. Ujistěte se, že je adresa ngrok správně zadaná v proměnné prostředí.
+
+**2. Pracovní položka se spustí, ale výsledek není podle očekávání**
+
+Zvažte použití tlačítka **Vymazat účet**. Tím odstraníte všechny balíčky aplikací a aktivity na vašem účtu. Poté je definujte znovu.
+
+**3. Nelze zobrazit můj AppBundle ve formuláři konfigurace**
+
+Balíčky ZIP se zkopírují do balíčků po sestavení příslušného pluginu. Ujistěte se, že je událost po sestavení správně definována a spuštěna po sestavení.
+
+**4. Zajištění nahrání správné knihovny DLL**
+
+Snadný trik, jak zajistit, aby byla do automatizace návrhu nahrána správná knihovna DLL, je zkontrolovat její datum. [Tato odpověď StackOverflow](https://stackoverflow.com/a/1600990) ukazuje, jak získat datum linkeru (tj. kdy byla knihovna DLL zkompilována), pomocí kterého jej můžete zobrazit na začátku kódu. Všimněte si, že data jsou v časovém pásmu serveru.
+
+> Plugin je napsán v jazyce C# bez ohledu na jazyk serveru.
+
+```cs
+LogTrace("DLL {0} compiled on {1}",
+    System.IO.Path.GetFileName(System.Reflection.Assembly.GetExecutingAssembly().Location),
+    GetLinkerTime(System.Reflection.Assembly.GetExecutingAssembly()));
+```
+
+Připravený? Pojďme to spustit!
+
+<EnvTabs
+  NodeJsVsCode={DebugForNodejs}
+  DotNetVsCode={DebugForNet}
+  DotNetVs2022={DebugForNet}
+/>

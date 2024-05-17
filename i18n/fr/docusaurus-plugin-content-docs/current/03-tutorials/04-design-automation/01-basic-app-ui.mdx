@@ -1,0 +1,26 @@
+import IndexHtmlForNode from "./_shared/nodejs-vscode/ui/index.mdx";
+import DAJSForNode from "./_shared/nodejs-vscode/ui/design-automation.mdx";
+import IndexHtmlForNET from "./_shared/dotnet-vs2022/ui/index.mdx";
+import DAJSForNET from "./_shared/dotnet-vs2022/ui/design-automation.mdx";
+import EnvTabs from "@site/src/components/EnvTabs.js";
+
+# Interface utilisateur de base
+
+L’interface est basée sur HTML5 et 'JavaScript'. C’est essentiellement la même chose pour n’importe quel côté serveur, mais il y a quelques différences : l’implémentation Websocket utilise socket.io ('Node.js') ou SignalR ('.NET 6').
+Commençons par les fichiers UI ('HTML' et 'JavaScript'). Dans le dossier 'wwwroot', créez un fichier 'index.html' avec le contenu suivant :
+
+<EnvTabs
+  NodeJsVsCode={IndexHtmlForNode}
+  DotNetVsCode={IndexHtmlForNET}
+  DotNetVs2022={IndexHtmlForNET}
+/>
+
+## ApsDesignAutomation.js
+
+Créez un dossier 'js' sous le dossier 'wwwroot'. Ensuite, dans le dossier 'wwwroot/js', créez un fichier 'ApsDesignAutomation.js' avec le contenu suivant :
+
+<EnvTabs
+  NodeJsVsCode={DAJSForNode}
+  DotNetVsCode={DAJSForNET}
+  DotNetVs2022={DAJSForNET}
+/>

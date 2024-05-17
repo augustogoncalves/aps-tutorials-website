@@ -1,0 +1,57 @@
+'routes' 하위 폴더 아래에 다음 내용으로 'auth.js' 파일을 만듭니다.
+
+```js title="routes/auth.js"
+const express = require('express');
+const { getAuthorizationUrl, authCallbackMiddleware, authRefreshMiddleware, getUserProfile } = require('../services/aps.js');
+let router = express.Router();
+router.get('/api/auth/login', function (req, res) {
+    res.redirect(getAuthorizationUrl());
+});
+router.get('/api/auth/logout', function (req, res) {
+    req.session = null;
+    res.redirect('/');
+});
+router.get('/api/auth/callback', authCallbackMiddleware, function (req, res) {
+    res.redirect('/');
+});
+router.get('/api/auth/token', authRefreshMiddleware, function (req, res) {
+    res.json(req.publicOAuthToken);
+});
+router.get('/api/auth/profile', authRefreshMiddleware, async function (req, res, next) {
+    try {
+        const profile = await getUserProfile(req.internalOAuthToken.access_token);
+        res.json({ name: `${profile.name}` });
+    } catch (err) {
+        next(err);
+    }
+});
+module.exports = router;
+```
+
+여기서는 다음과 같은 새로운 Express.js [router](http://expressjs.com/en/4x/api.html#router)를 구현합니다.
+모든 인증 관련 엔드포인트를 처리합니다. 라우터를 서버에 "마운트"해 보겠습니다.
+'server.js'를 수정하여 응용 프로그램:
+
+```js title="server.js"
+const express = require('express');
+const session = require('cookie-session');
+const { PORT, SERVER_SESSION_SECRET } = require('./config.js');
+let app = express();
+app.use(express.static('wwwroot'));
+app.use(session({ secret: SERVER_SESSION_SECRET, maxAge: 24 * 60 * 60 * 1000 }));
+// highlight-start
+app.use(require('./routes/auth.js'));
+// highlight-end
+app.listen(PORT, () => console.log(`Server listening on port ${PORT}...`));
+```
+
+이제 라우터가 다음 요청을 처리합니다.
+
+- 'GET /api/auth/login'은 사용자를 Autodesk 로그인 페이지로 리디렉션합니다.
+- 'GET /api/auth/callback'은 성공적으로 로그인한 후 사용자가 리디렉션되는 URL입니다.
+그리고 여기에서 사용자를 위한 새로운 토큰 세트를 생성할 것입니다
+- 'GET /api/auth/logout'은 지정된 사용자에 대한 쿠키 기반 세션 데이터를 효과적으로 제거합니다.
+응용 프로그램에서 사용자 로그 아웃
+- 'GET /api/auth/token'은 나중에 뷰어에서 사용할 공개 액세스 토큰을 생성합니다.
+우리의 디자인을 로드하기 위해
+- 'GET /api/auth/profile'은 로그인한 사용자에 대한 추가 정보가 포함된 간단한 JSON을 반환합니다.

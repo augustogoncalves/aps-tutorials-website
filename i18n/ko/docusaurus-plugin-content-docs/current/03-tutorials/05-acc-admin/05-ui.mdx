@@ -1,0 +1,398 @@
+import NodeJsVsCodeStructure from './_shared/nodejs-vscode/final-folder-structure.mdx';
+
+# UI 프레임워크
+
+자, 이제 응용 프로그램의 클라이언트 측 부분을 빌드하겠습니다.
+
+## 테이블 자리 표시자
+
+Table의 자리 표시자 함수를 구현하는 것부터 시작하겠습니다.
+다음 코드를 사용하여 'wwwroot' 하위 폴더 아래에 'table.js' 파일을 만듭니다.
+
+```js title="wwwroot/table.js"
+const TABLE_TABS = {
+    'PROJECTS': {
+        'REQUEST_URL': '/api/admin/projects',
+        'TAB_NAME': 'PROJECTS',
+        'CATEGORY_NAME': 'hub',
+        'CATEGORY_DEFAULT': true
+    },
+    'PROJECT': {
+        'REQUEST_URL': '/api/admin/project',
+        'TAB_NAME': 'PROJECT',
+        'CATEGORY_NAME': 'project',
+        'CATEGORY_DEFAULT': true
+    },
+    'USERS': {
+        'REQUEST_URL': '/api/admin/project/users',
+        'TAB_NAME': 'USERS',
+        'CATEGORY_NAME': 'project',
+        'CATEGORY_DEFAULT': false
+    }
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Table class wraps the specific data info
+class Table {
+    #tableId;
+    #accountId;
+    #projectId;
+    #tabKey;
+    #dataSet;
+    #maxItem;
+    constructor(tableId, accountId = null, projectId = null, tabKey = 'PROJECTS') {
+        this.#tableId = tableId;
+        this.#accountId = accountId;
+        this.#projectId = projectId;
+        this.#tabKey = tabKey;
+        this.#dataSet = null;
+        this.#maxItem = 5;
+    };
+    get tabKey(){
+        return this.#tabKey;
+    }
+    set tabKey( tabKey){
+        this.#tabKey = tabKey;
+    }
+    resetData = async( tabKey=null, accountId=null, projectId=null ) =>{
+        //TBD
+    }
+    drawTable = () => {
+        //TBD
+    }
+    exportToCSV = ()=>{
+        //TBD
+    }
+    importFromCSV = async() => {
+        //TBD
+    }    
+}
+
+export async function refreshTable( accountId = null, projectId=null ) {
+    $("#loadingoverlay").fadeIn()
+    if( TABLE_TABS[g_accDataTable.tabKey].CATEGORY_NAME=='hub' && projectId ){
+        for (let key in TABLE_TABS) {
+            if( TABLE_TABS[key].CATEGORY_NAME == 'hub' ){
+                $("#" + key).addClass("hidden");
+                $("#" + key).removeClass("active");
+            }
+            else{
+                if( TABLE_TABS[key].CATEGORY_DEFAULT )
+                    $("#" + key).addClass("active");
+                $("#" + key).removeClass("hidden");
+            }
+        } 
+    }
+    if (TABLE_TABS[g_accDataTable.tabKey].CATEGORY_NAME == 'project' && !projectId) {
+        for (let key in TABLE_TABS) {
+            if (TABLE_TABS[key].CATEGORY_NAME == 'hub') {
+                $("#" + key).removeClass("hidden");
+                if (TABLE_TABS[key].CATEGORY_DEFAULT)
+                    $("#" + key).addClass("active");
+            }
+            else {
+                $("#" + key).addClass("hidden");
+                $("#" + key).removeClass("active");
+            }
+        }
+    }
+    const activeTab = $("ul#adminTableTabs li.active")[0].id;
+    g_accDataTable.tabKey = activeTab;
+    alert( "current active tab is: " + activeTab );
+    $("#loadingoverlay").fadeOut()
+}
+export async function initTableTabs(){
+    // add all tabs
+    for (let key in TABLE_TABS) {
+        $('<li id=' + key + '><a href="accTable" data-toggle="tab">' + TABLE_TABS[key].TAB_NAME + '</a></li>').appendTo('#adminTableTabs');
+        $("#" + key).addClass((TABLE_TABS[key].CATEGORY_NAME == 'hub' && TABLE_TABS[key].CATEGORY_DEFAULT) ? "active" : "hidden");
+    } 
+    // event on the tabs
+    $('a[data-toggle="tab"]').on('shown.bs.tab', async function (e) {
+        $("#loadingoverlay").fadeIn()
+        const activeTab = e.target.parentElement.id;
+        g_accDataTable.tabKey = activeTab;
+        alert( "current active tab is: " + activeTab );
+        $("#loadingoverlay").fadeOut()
+    }); 
+}
+var g_accDataTable = new Table('#accTable' );
+```
+
+스크립트는 [ES6 모듈](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules)입니다.
+프로젝트 및 사용자의 정보를 나열하는 데 사용되는 클래스 '테이블'을 정의하는 모듈도
+두 개의 함수를 내보냅니다.
+
+- 'initTableTabs'는 탭을 생성하고 활성 탭이 변경될 때 함수를 등록합니다.
+- 'refreshTable': 선택한 허브/프로젝트의 데이터를 테이블에 로드합니다.
+
+## 사이드바 로직
+
+다음으로 표시할 사이드바의 동작을 구현합니다
+모든 ACC 허브 및 프로젝트는 제3자 트리 뷰 구성 요소에 있습니다.
+다음 코드를 사용하여 'wwwroot' 하위 폴더 아래에 'sidebar.js' 파일을 만듭니다.
+
+```js title="wwwroot/sidebar.js"
+async function getJSON(url) {
+    const resp = await fetch(url);
+    if (!resp.ok) {
+        alert('Could not load tree data. See console for more details.');
+        console.error(await resp.text());
+        return [];
+    }
+    return resp.json();
+}
+function createTreeNode(id, text, icon, children = false) {
+    return { id, text, children, itree: { icon } };
+}
+async function getHubs() {
+    const hubs = await getJSON('/api/hubs');
+    return hubs.map(hub => createTreeNode(`hub|${hub.id}`, hub.attributes.name, 'icon-hub', true));
+}
+async function getProjects(hubId) {
+    const projects = await getJSON(`/api/hubs/${hubId}/projects`);
+    return projects.map(project => createTreeNode(`project|${hubId}|${project.id}`, project.attributes.name, 'icon-project', false));
+}
+
+export function initTree(selector, onSelectionChanged) {
+    // See http://inspire-tree.com
+    const tree = new InspireTree({
+        data: function (node) {
+            if (!node || !node.id) {
+                return getHubs();
+            } else {
+                const tokens = node.id.split('|');
+                switch (tokens[0]) {
+                    case 'hub': return getProjects(tokens[1]);
+                    default: return [];
+                }
+            }
+        }
+    });
+    tree.on('node.click', function (event, node) {
+        event.preventTreeDefault();
+        const tokens = node.id.split('|');
+        if (tokens[0] === 'hub') {
+            onSelectionChanged( tokens[1], null);
+        }
+        if (tokens[0] === 'project') {
+            onSelectionChanged( tokens[1], tokens[2]);
+        }
+    });
+    return new InspireTreeDOM(tree, { target: selector });
+}
+```
+
+## 응용 프로그램 로직
+
+이제 모든 UI 구성 요소를 함께 연결해 보겠습니다. 아래에 'main.js' 파일을 만듭니다.
+'wwwroot' 폴더를 만들고 다음 코드로 채웁니다.
+
+```js title="wwwroot/main.js"
+import { refreshTable, initTableTabs } from './table.js';
+import { initTree } from './sidebar.js';
+const login = document.getElementById('login');
+try {
+    const resp = await fetch('/api/auth/profile');
+    if (resp.ok) {
+        const user = await resp.json();
+        login.innerText = `Logout (${user.name})`;
+        login.onclick = () => {
+            const iframe = document.createElement('iframe');
+            iframe.style.visibility = 'hidden';
+            iframe.src = 'https://accounts.autodesk.com/Authentication/LogOut';
+            document.body.appendChild(iframe);
+            iframe.onload = () => {
+                window.location.replace('/api/auth/logout');
+                document.body.removeChild(iframe);
+            };
+        }
+        initTree('#tree', (accountId, projectId) => refreshTable(accountId, projectId));
+        await initTableTabs();
+    } else {
+        login.innerText = 'Login';
+        login.onclick = () => window.location.replace('/api/auth/login');
+    }
+    login.style.visibility = 'visible';
+} catch (err) {
+    alert('Could not initialize the application. See console for more details.');
+    console.error(err);
+}
+```
+
+스크립트는 먼저 로그인 여부를 확인하기 위해 사용자 세부 정보를 얻으려고 시도합니다.
+그렇다면 코드는 테이블과 트리 뷰 구성 요소를 초기화할 수 있습니다.
+'initTree'에 전달된 콜백 함수는 리프 노드를 클릭할 때
+트리에서 테이블은 해당 데이터를로드하기 시작합니다.
+
+## 사용자 인터페이스
+
+마지막으로 애플리케이션의 UI를 빌드해 보겠습니다.
+
+'wwwroot' 하위 폴더 아래에 'main.css' 파일을 만들고 다음 CSS 규칙으로 채웁니다.
+
+```css title="wwwroot/main.css"
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    font-family: ArtifaktElement;
+}
+#header, #sidebar, #table, #loadingoverlay {
+    position: absolute;
+}
+#header {
+    height: 3em;
+    width: 100%;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    align-items: center;
+}
+#sidebar {
+    width: 25%;
+    left: 0;
+    top: 3em;
+    bottom: 0;
+    overflow-y: scroll;
+}
+#table {
+    width: 75%;
+    right: 0;
+    top: 3em;
+    bottom: 0;
+    overflow-y: scroll;
+}
+#loadingoverlay{
+    top: 3em;
+    z-index: 90;
+    width: 100%;
+    height: 100%;
+    display: none;
+    background: rgba(0, 0, 0, 0.6);
+}
+.cv-spinner {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.spinner {
+    width: 60px;
+    height: 60px;
+    border: 6px #ddd solid;
+    border-top: 6px #2e93e6 solid;
+    border-radius: 50%;
+    animation: sp-anime 0.8s infinite linear;
+}
+@keyframes sp-anime {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(359deg);
+    }
+}
+#header > * {
+    height: 2em;
+    margin: 0 0.5em;
+}
+#login {
+    font-family: ArtifaktElement;
+    font-size: 1em;
+}
+#header .title {
+    height: auto;
+    margin-right: auto;
+}
+#tree {
+    margin: 0.5em;
+}
+#workingAnimation {    
+    text-align: center;
+}
+@media (max-width: 768px) {
+    #sidebar {
+        width: 100%;
+        top: 3em;
+        bottom: 75%;
+    }
+    #table {
+        width: 100%;
+        top: 25%;
+        bottom: 0;
+    }
+}
+.icon-hub:before {
+    background-image: url(https://raw.githubusercontent.com/primer/octicons/main/icons/apps-16.svg); /* or https://raw.githubusercontent.com/primer/octicons/main/icons/stack-16.svg */
+    background-size: cover;
+}
+.icon-project:before {
+    
+    background-image: url(https://raw.githubusercontent.com/primer/octicons/main/icons/project-16.svg); /* or https://raw.githubusercontent.com/primer/octicons/main/icons/organization-16.svg */
+    background-size: cover;
+}
+```
+
+그런 다음 다음 내용이 포함된 동일한 폴더에 'index.html' 파일을 만듭니다.
+
+```html title="wwwroot/index.html"
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="https://cdn.autodesk.io/favicon.ico">
+    <link rel="stylesheet" href="https://unpkg.com/inspire-tree-dom@4.0.6/dist/inspire-tree-light.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.22.2/dist/bootstrap-table.min.css">
+    <link rel="stylesheet" href="/main.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+    <script src="https://unpkg.com/inspire-tree@4.3.1/dist/inspire-tree.js"></script>
+    <script src="https://unpkg.com/inspire-tree-dom@4.0.6/dist/inspire-tree-dom.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src="https://unpkg.com/bootstrap-table@1.22.2/dist/bootstrap-table.min.js"></script>
+    <script src="https://rawgit.com/michaelsogos/bootstrap-table-toolbar-buttons/master/src/bootstrap-table-toolbar-buttons.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="/main.js" type="module"></script>
+    <title>Autodesk Platform Services: ACC Administrator</title>
+</head>
+<body>
+    <div id="header">
+        <img class="logo" src="https://cdn.autodesk.io/logo/black/stacked.png" alt="Autodesk Platform Services">
+        <span class="title">ACC Administrator</span>
+        <button id="login" style="visibility: hidden;">Login</button>
+    </div>
+    <div id="sidebar">
+        <div id="tree"></div>
+    </div>
+    <div id="table">
+        <ul id="adminTableTabs" class="nav nav-tabs">
+        </ul>
+        <table id="accTable" class="table-striped table-bordered table-hover">
+        </table>
+        <div id="loadingoverlay">
+            <div class="cv-spinner">
+                <span class="spinner"></span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+```
+
+> Note that since `main.js` is also an ES6 module, we have to use `type="module"` in its `<script>` tag.
+
+이제 응용 프로그램 소스 코드의 최종 폴더 구조는 다음과 같아야 합니다.
+
+<NodeJsVsCodeStructure />
+
+## 사용해 보기
+
+이제 응용 프로그램이 프레임워크를 테스트할 준비가 되었습니다. 평소와 같이 시작하고
+[http://localhost:8080](http://localhost:8080)에는 다음과 같은 간단한 UI가 표시되어야 합니다.
+왼쪽에는 트리 뷰가 있고 오른쪽에는 빈 테이블이 있습니다. 나무를 탐색해 보세요.
+다음 단계에서 테이블에 데이터를 로드합니다.
+
+
+![Account Admin](./_shared/aps-acc-admin.webp)

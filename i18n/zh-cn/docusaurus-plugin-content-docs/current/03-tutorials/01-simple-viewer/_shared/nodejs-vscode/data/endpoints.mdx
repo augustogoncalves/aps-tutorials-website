@@ -1,0 +1,93 @@
+使用以下代码在“routes”子文件夹下创建一个“models.js”文件：
+
+```js title="routes/models.js"
+const express = require('express');
+const formidable = require('express-formidable');
+const { listObjects, uploadObject, translateObject, getManifest, urnify } = require('../services/aps.js');
+let router = express.Router();
+router.get('/api/models', async function (req, res, next) {
+    try {
+        const objects = await listObjects();
+        res.json(objects.map(o => ({
+            name: o.objectKey,
+            urn: urnify(o.objectId)
+        })));
+    } catch (err) {
+        next(err);
+    }
+});
+router.get('/api/models/:urn/status', async function (req, res, next) {
+    try {
+        const manifest = await getManifest(req.params.urn);
+        if (manifest) {
+            let messages = [];
+            if (manifest.derivatives) {
+                for (const derivative of manifest.derivatives) {
+                    messages = messages.concat(derivative.messages || []);
+                    if (derivative.children) {
+                        for (const child of derivative.children) {
+                            messages.concat(child.messages || []);
+                        }
+                    }
+                }
+            }
+            res.json({ status: manifest.status, progress: manifest.progress, messages });
+        } else {
+            res.json({ status: 'n/a' });
+        }
+    } catch (err) {
+        next(err);
+    }
+});
+router.post('/api/models', formidable({ maxFileSize: Infinity }), async function (req, res, next) {
+    const file = req.files['model-file'];
+    if (!file) {
+        res.status(400).send('The required field ("model-file") is missing.');
+        return;
+    }
+    try {
+        const obj = await uploadObject(file.name, file.path);
+        await translateObject(urnify(obj.objectId), req.fields['model-zip-entrypoint']);
+        res.json({
+            name: obj.objectKey,
+            urn: urnify(obj.objectId)
+        });
+    } catch (err) {
+        next(err);
+    }
+});
+module.exports = router;
+```
+
+
+
+:::info
+
+“POST”请求处理程序中使用的“formidable（）”中间件将确保任何
+请求附带的“multipart/form-data”内容将被解析，并在“req.files”中可用
+和“req.fields”属性。
+
+
+:::
+
+
+
+并通过修改“server.js”将路由器安装到我们的服务器应用程序：
+
+```js title="server.js"
+const express = require('express');
+const { PORT } = require('./config.js');
+let app = express();
+app.use(express.static('wwwroot'));
+app.use(require('./routes/auth.js'));
+// highlight-start
+app.use(require('./routes/models.js'));
+// highlight-end
+app.listen(PORT, function () { console.log(`Server listening on port ${PORT}...`); });
+```
+
+路由器将处理 3 种类型的请求：
+
+- 'GET /api/models' - 当客户端想要获取所有可供查看的模型的列表时
+- 'GET /api/models/：urn/status' - 用于检查转换状态（包括错误消息（如果有的话）
+- 'POST /api/models' - 当客户端想要上传新模型并开始翻译时

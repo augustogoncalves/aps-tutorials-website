@@ -1,0 +1,26 @@
+Crea un archivo "server.js" en la raíz de la carpeta del proyecto con el siguiente código:
+
+```js title="server.js"
+const express = require('express');
+const session = require('cookie-session');
+const { PORT, SERVER_SESSION_SECRET } = require('./config.js');
+let app = express();
+app.use(express.static('wwwroot'));
+app.use(session({ secret: SERVER_SESSION_SECRET, maxAge: 24 * 60 * 60 * 1000 }));
+app.listen(PORT, () => console.log(`Server listening on port ${PORT}...`));
+```
+
+Por ahora, el servidor no está haciendo mucho, solo sirviendo activos del lado del cliente desde la subcarpeta 'wwwroot',
+y acceder a los datos de sesión almacenados en las cookies. Las cookies se cifrarán mediante una frase secreta
+que tendremos que pasar a la aplicación a través de la variable de entorno 'SERVER_SESSION_SECRET'.
+
+A continuación, agreguemos un script ''start': "node server.js"' al archivo 'package.json' para que podamos
+Ejecute fácilmente nuestra aplicación más tarde:
+
+```json
+// ...
+"scripts": {
+    "start": "node server.js"
+}
+// ...
+```

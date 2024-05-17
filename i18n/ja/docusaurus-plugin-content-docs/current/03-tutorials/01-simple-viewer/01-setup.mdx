@@ -1,0 +1,43 @@
+import EnvTabs from '@site/src/components/EnvTabs.js';
+
+import NodeJsVsCodeProject from './_shared/nodejs-vscode/setup/project.mdx';
+import NodeJsVsCodeConfig from './_shared/nodejs-vscode/setup/config.mdx';
+import NodeJsVsCodeServer from './_shared/nodejs-vscode/setup/server.mdx';
+import NodeJsVsCodeTest from './_shared/nodejs-vscode/setup/test.mdx';
+
+import DotNetConfig from './_shared/dotnet/setup/config.mdx';
+import DotNetVsCodeServer from './_shared/dotnet-vscode/setup/server.mdx';
+import DotNetVs2022Server from './_shared/dotnet-vs2022/setup/server.mdx';
+import DotNetVsCodeProject from './_shared/dotnet-vscode/setup/project.mdx';
+import DotNetVsCodeTest from './_shared/dotnet-vscode/setup/test.mdx';
+import DotNetVs2022Project from './_shared/dotnet-vs2022/setup/project.mdx';
+import DotNetVs2022Test from './_shared/dotnet-vs2022/setup/test.mdx';
+
+# アプリケーションのセットアップ
+
+新しいプロジェクトを作成し、必要な依存関係をインストールし、セットアップすることから始めましょう
+基本的なサーバー アプリケーション。
+
+## 新規プロジェクト
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeProject} DotNetVsCode={DotNetVsCodeProject} DotNetVs2022={DotNetVs2022Project} />
+
+## アプリケーション設定
+
+アプリケーションを適切に実行するには、いくつかの構成入力が必要です。
+Autodesk Platform Services と通信するための APS アプリの資格情報(クライアント ID とシークレット)。
+これらのパラメータは、環境変数を使用してアプリに渡します。
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeConfig} DotNetVsCode={DotNetConfig} DotNetVs2022={DotNetConfig} />
+
+## 基本サーバ
+
+次に、基本的なサーバー アプリケーションを作成します。
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeServer} DotNetVsCode={DotNetVsCodeServer} DotNetVs2022={DotNetVs2022Server} />
+
+## 試してみる
+
+基本的なアプリケーションのセットアップができたので、試してみましょう。
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeTest} DotNetVsCode={DotNetVsCodeTest} DotNetVs2022={DotNetVs2022Test} />

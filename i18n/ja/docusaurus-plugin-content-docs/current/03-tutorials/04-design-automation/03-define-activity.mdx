@@ -1,0 +1,24 @@
+import ResponsiveVideo from "@site/src/components/ResponsiveVideo.js";
+import PreviewUrl from "@site/static/videos/define-activity.mp4";
+import ActivityNet6 from "./_shared/dotnet-vs2022/setup/activity.mdx";
+import ActivityNodeJs from "./_shared/nodejs-vscode/setup/activity.mdx";
+import EnvTabs from "@site/src/components/EnvTabs.js";
+
+# アクティビティの定義
+
+アクティビティは、指定されたエンジンを使用して実行できるアクションの仕様です。入力ファイルと出力ファイルの数、および使用する AppBundle とエントリポイントを指定します。
+
+このチュートリアル サンプルでは、アクティビティに 2 つの入力 (ファイルと JSON データ) と 1 つの出力 (ファイル) があります。
+
+<EnvTabs
+  NodeJsVsCode={ActivityNodeJs}
+  DotNetVsCode={ActivityNet6}
+  DotNetVs2022={ActivityNet6}
+/>
+
+これで、Configure(右上)をクリックし、AppBundleを選択し、Engineを選択します
+をクリックし、[Define Activity] をクリックすると、appbundle を定義してアップロードし、
+アクティビティ。結果パネル(左側)には、それぞれのIDが表示されます。その他すべてのボタン
+まだ動作しません...先に進みましょう。
+
+<ResponsiveVideo src={PreviewUrl} />

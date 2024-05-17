@@ -1,0 +1,33 @@
+
+import NodeJsVsCodeProject from './_shared/nodejs-vscode/setup/project.mdx';
+import NodeJsVsCodeConfig from './_shared/nodejs-vscode/setup/config.mdx';
+import NodeJsVsCodeServer from './_shared/nodejs-vscode/setup/server.mdx';
+import NodeJsVsCodeTest from './_shared/nodejs-vscode/setup/test.mdx';
+
+# 应用设置
+
+让我们从创建一个新项目、安装所需的依赖项和设置开始
+基本的服务器应用程序。
+
+## 创建项目
+
+<NodeJsVsCodeProject />
+
+## 应用配置
+
+我们的应用程序需要几个配置参数才能正常运行，例如，
+用于与Autodesk Platform Services通信的APS应用程序的凭据，或回调URL
+在[三方身份验证工作流程](https://aps.autodesk.com/en/docs/oauth/v2/tutorials/get-3-legged-token/）期间，我们的用户将被重定向到该位置。
+我们将使用环境变量将这些参数传递给服务器应用程序。
+
+<NodeJsVsCodeConfig />
+
+## 创建基础服务器
+
+接下来，我们将设置一个基本的服务器应用程序。
+
+<NodeJsVsCodeServer />
+
+## 试一试
+
+<NodeJsVsCodeTest />

@@ -1,0 +1,89 @@
+Cree un archivo 'config.js' en la raíz de la carpeta del proyecto y agregue el siguiente código:
+
+```js title="config.js"
+require('dotenv').config();
+let { APS_CLIENT_ID, APS_CLIENT_SECRET, APS_BUCKET, PORT } = process.env;
+if (!APS_CLIENT_ID || !APS_CLIENT_SECRET) {
+    console.warn('Missing some of the environment variables.');
+    process.exit(1);
+}
+APS_BUCKET = APS_BUCKET || `${APS_CLIENT_ID.toLowerCase()}-basic-app`;
+PORT = PORT || 8080;
+module.exports = {
+    APS_CLIENT_ID,
+    APS_CLIENT_SECRET,
+    APS_BUCKET,
+    PORT
+};
+```
+
+La biblioteca 'dotenv' inicializa las variables de entorno desde un archivo de _.env_ local (si lo hay).
+A continuación, simplemente leemos las variables de entorno de 'process.env' y salimos de la aplicación
+inmediatamente si falta alguna de las propiedades requeridas. Y si no se proporciona ningún nombre de bucket
+Para saber dónde deben almacenarse nuestros diseños, generamos uno añadiendo el sufijo '-basic-app'
+a nuestra aplicación ID de cliente.
+
+
+
+:::caution
+
+Tenga en cuenta que el servicio de administración de datos requiere que los nombres de los buckets sean **globalmente únicos**,
+y los intentos de crear un bucket con un nombre ya utilizado fallarán con '409 Conflict'.
+Consulte la [documentación](https://forge.autodesk.com/en/docs/data/v2/reference/http/buckets-POST)
+para obtener más detalles.
+
+
+:::
+
+
+
+Next, let's create the _.env_ file in the project folder, and populate it with the required
+environment variables (replacing `<client-id>` and `<client-secret>` with your APS Client ID
+and Client Secret):
+
+``` title=".env"
+APS_CLIENT_ID="<client-id>"
+APS_CLIENT_SECRET="<client-secret>"
+```
+
+
+
+:::caution
+
+Dado que el archivo '.env' contiene información confidencial, asegúrate de que **no** esté incluido en git.
+Esto se puede asegurar agregando la línea '.env' al archivo [.gitignore](https://git-scm.com/docs/gitignore).
+
+
+:::
+
+
+
+Ahora, para poder ejecutar y depurar nuestra aplicación desde Visual Studio Code, necesitamos crear
+a [Configuración de lanzamiento](https://code.visualstudio.com/docs/editor/debugging#_launch-configurations).
+Use _Run > Agregar Configuration_ en el menú para crear una nueva configuración y cuando se le solicite
+Para el entorno específico, elija _Node.js_. Esto creará un nuevo '.vscode'
+en tu proyecto con un archivo 'launch.json' donde puedes definir diferentes
+Configuraciones de lanzamiento. Reemplace el contenido del archivo por lo siguiente:
+
+```json title=".vscode/launch.json"
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Server",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "start"
+            ],
+            "skipFiles": [
+                "<node_internals>/**/*.js"
+            ]
+        }
+    ]
+}
+```
+
+Estamos definiendo una configuración de lanzamiento única llamada _Launch Server_ que simplemente
+Inicie nuestra aplicación usando el comando 'npm start'.

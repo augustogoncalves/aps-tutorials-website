@@ -1,0 +1,41 @@
+import EnvTabs from "@site/src/components/EnvTabs.js";
+import ResponsiveVideo from "@site/src/components/ResponsiveVideo.js";
+import PreviewUrl from "@site/static/videos/ngrok-setup.mp4";
+import DotNetVS2022Setup from "./_shared/dotnet-vs2022/setup/project.mdx";
+import DotnetVS2022Config from "./_shared/dotnet-vs2022/setup/config.mdx";
+import DotNetVsCodeSetup from "./_shared/dotnet-vscode/setup/project.mdx";
+import DotNetVsCodeConfig from "./_shared/dotnet-vscode/setup/config.mdx";
+import NodeJsVsCodeSetup from "./_shared/nodejs-vscode/setup/project.mdx";
+import NodeJsVsCodeConfig from "./_shared/nodejs-vscode/setup/config.mdx";
+import NodeJsVsCodeServer from "./_shared/nodejs-vscode/setup/server.mdx";
+import DotnetVS2022Server from "./_shared/dotnet-vs2022/setup/server.mdx";
+
+# サーバーの作成
+
+あなたの「クライアントID」と「秘密」は保護され、すべてのファイルがあなたのアカウントにバインドされるため、機密に保たれる必要があります。Web アプリケーションの場合は、サーバー上に保持します。このセクションでは、ローカル開発サーバーを準備する方法を示します。
+
+[環境設定](../../setup/)セクションに記述します。
+
+## プロジェクトのセットアップ
+
+<EnvTabs
+  NodeJsVsCode={NodeJsVsCodeSetup}
+  DotNetVsCode={DotNetVsCodeSetup}
+  DotNetVs2022={DotNetVS2022Setup}
+/>
+
+### アプリケーション設定
+
+<EnvTabs
+  NodeJsVsCode={NodeJsVsCodeConfig}
+  DotNetVsCode={DotNetVsCodeConfig}
+  DotNetVs2022={DotnetVS2022Config}
+/>
+
+### サーバーのセットアップ
+
+<EnvTabs
+  NodeJsVsCode={NodeJsVsCodeServer}
+  DotNetVsCode={DotnetVS2022Server}
+  DotNetVs2022={DotnetVS2022Server}
+/>

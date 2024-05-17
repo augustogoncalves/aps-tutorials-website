@@ -1,0 +1,46 @@
+OSS([Object Storage Service](https://aps.autodesk.com/en/docs/data/v2/developers_guide/basics/#object-storage-service-oss))를 구현해 봅시다.
+서버 응용 프로그램의 논리. 'services/aps.js' 파일의 끝에 다음 코드를 추가합니다.
+
+```js title="services/aps.js"
+service.ensureBucketExists = async (bucketKey) => {
+    const { access_token } = await service.getInternalToken();
+    try {
+        await ossClient.getBucketDetails(access_token, bucketKey);
+    } catch (err) {
+        if (err.axiosError.response.status === 404) {
+            await ossClient.createBucket(access_token, CreateBucketXAdsRegionEnum.Us, {
+                bucketKey: bucketKey,
+                policyKey: CreateBucketsPayloadPolicyKeyEnum.Temporary
+            });
+        } else {
+            throw err;  
+        }
+    }
+};
+service.listObjects = async () => {
+    await service.ensureBucketExists(APS_BUCKET);
+    const { access_token } = await service.getInternalToken();
+    let resp = await ossClient.getObjects(access_token, APS_BUCKET, { limit: 64 });
+    let objects = resp.items;
+    while (resp.next) {
+        const startAt = new URL(resp.next).searchParams.get('startAt');
+        resp = await ossClient.getObjects(access_token, APS_BUCKET, { limit: 64, startAt });
+        objects = objects.concat(resp.items);
+    }
+    return objects;
+};
+service.uploadObject = async (objectName, filePath) => {
+    await service.ensureBucketExists(APS_BUCKET);
+    const { access_token } = await service.getInternalToken();
+    const obj = await ossClient.upload(APS_BUCKET, objectName, filePath, access_token);
+    return obj;
+};
+```
+
+'ensureBucketExists' 함수는 단순히 추가 정보를 시도하고 요청합니다
+APS SDK를 사용하는 특정 버킷에 대한 정보 및 응답
+APS에서 '404 찾을 수 없음'이면이 이름으로 새 버킷을 만들려고 시도합니다.
+
+보시다시피 'getObjects'메소드 (파일 나열 담당)
+Data Management 버킷에서)은 페이지 매김을 사용합니다. 코드에서는 단순히 모든 페이지를 반복합니다
+애플리케이션 버킷의 모든 파일을 단일 목록으로 반환합니다.

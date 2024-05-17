@@ -1,0 +1,60 @@
+Dans l’explorateur de solutions, sélectionnez le projet 'designAutomationSample', sous les 'Propriétés',
+Sélectionnez et ouvrez le 'launchSettings.json'
+
+- Remplacez 'applicationUrl' par « http://localhost:8080 »
+- Dans le 'launchSettings.json' allez dans 'profiles\designAutomationSample\environmentVariables' et ajoutez les environnements suivants.
+
+```bash
+ASPNETCORE_URLS:"http://localhost:8080"
+APS_CLIENT_ID:"Your Id Here"
+APS_CLIENT_SECRET:"Your Secret Here"
+```
+
+- Sélectionnez le projet 'designAutomationSample', cliquez avec le bouton droit de la souris sur 'Ajouter'->'Nouvel élément', sélectionnez 'JSON'.
+- Nommez-le comme « appsettings.user.json ».
+- Ajoutez les paramètres de configuration suivants, requis par [DesignAutomation SDK](https://www.nuget.org/packages/Autodesk.Forge.DesignAutomation)
+  pour créer oAuth et exécuter des requêtes d’API.
+
+```json title=appsettings.user.json
+{
+  "Forge": {
+    "ClientId": "your client id",
+    "ClientSecret": "your secret"
+  }
+}
+```
+
+Comme il s’exécute localement, 'sslPort' est défini sur 0. Il devrait ressembler à ce qui est indiqué ci-dessous.
+
+```json title="launchSettings.json"
+{
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:8080",
+      "sslPort": 0
+    }
+  },
+  "profiles": {
+    "designAutomationSample": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "applicationUrl": "http://localhost:8080",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "APS_CLIENT_ID": "your client id here",
+        "APS_CLIENT_SECRET": "your secret here"
+      }
+    },
+    "IIS Express": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
+```

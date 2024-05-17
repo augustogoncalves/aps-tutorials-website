@@ -1,0 +1,44 @@
+import EnvTabs from '@site/src/components/EnvTabs.js';
+
+import NodeJsVsCodeTokens from './_shared/nodejs-vscode/auth/tokens.mdx';
+import NodeJsVsCodeEndpoints from './_shared/nodejs-vscode/auth/endpoints.mdx';
+import NodeJsVsCodeTest from './_shared/nodejs-vscode/auth/test.mdx';
+
+import DotNetTokens from './_shared/dotnet/auth/tokens.mdx';
+import DotNetEndpoints from './_shared/dotnet/auth/endpoints.mdx';
+import DotNetVsCodeTest from './_shared/dotnet-vscode/auth/test.mdx';
+import DotNetVs2022Test from './_shared/dotnet-vs2022/auth/test.mdx';
+
+# 인증
+
+이 단계에서는 자체 인증할 수 있도록 서버 구현을 확장합니다
+APS 플랫폼에서 [3-legged OAuth 워크플로](https://aps.autodesk.com/en/docs/oauth/v2/tutorials/get-3-legged-token)를 통해 사용자를 안내합니다.
+다양한 요구 사항에 대한 액세스 토큰을 생성합니다.
+
+
+
+:::tip
+
+더 많은 기능을 가진 "내부" 토큰을 생성하는 것이 좋습니다(예:
+소유자가 데이터 관리 서비스에서 파일을 만들거나 삭제할 수 있도록 허용)
+서버에 의해, 그리고 안전하게 공유할 수 있는 기능이 더 적은 "공개" 토큰
+클라이언트 쪽 논리입니다.
+
+
+:::
+
+
+
+## 액세스 토큰
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeTokens} DotNetVsCode={DotNetTokens} DotNetVs2022={DotNetTokens} />
+
+## 서버 엔드포인트
+
+이제 서버의 엔드포인트 컬렉션을 통해 이 기능을 노출해 보겠습니다.
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeEndpoints} DotNetVsCode={DotNetEndpoints} DotNetVs2022={DotNetEndpoints} />
+
+## 사용해 보기
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeTest} DotNetVsCode={DotNetVsCodeTest} DotNetVs2022={DotNetVs2022Test} />

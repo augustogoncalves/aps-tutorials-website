@@ -1,0 +1,41 @@
+import CliSetup from '../cli.mdx';
+import GitSetup from '../git.mdx';
+import VSCodeSetup from '../vscode.mdx';
+
+## コマンドラインインターフェイス
+
+<CliSetup />
+
+## ソースコード管理
+
+<GitSetup />
+
+## ランタイム
+
+また、コードを実行し、3rdパーティの依存関係を管理するために、.NET 6_runtime_も必要です。
+https://dotnet.microsoft.com/download/dotnet/6.0 でプラットフォーム用のインストーラーを入手できます。
+
+
+
+:::info
+
+サンプル アプリケーションは、.NET 6.0 で開発およびテストされています。
+
+
+:::
+
+
+
+ツールが使用可能であることを確認するには、「bash」で次のコマンドを実行してみてください。
+
+```bash
+dotnet --version
+```
+
+次のように表示されます。
+
+![Checking dotnet in terminal](dotnet.webp)
+
+## エディタ
+
+<VSCodeSetup />

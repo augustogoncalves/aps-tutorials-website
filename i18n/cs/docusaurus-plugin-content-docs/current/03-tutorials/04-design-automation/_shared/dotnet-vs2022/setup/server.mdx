@@ -1,0 +1,125 @@
+import VS2022DotnetFolderStructureImg from "../../_images/vs2022-dotnet-folderStructure.webp";
+
+Nyní otevřete Program.cs a přidejte následující obory názvů
+
+```cs
+using Autodesk.Forge.Core;
+using Autodesk.Forge.DesignAutomation;
+```
+
+Poté nahraďte obsah "Program.cs" následujícím kódem. To říká naší aplikaci, aby načetla Forge Client ID & Secret z výše definovaných proměnných prostředí.
+
+```cs
+using Autodesk.Forge.Core;
+using Autodesk.Forge.DesignAutomation;
+using Microsoft.AspNetCore;
+namespace designAutomationSample
+{
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            CreateHostBuilder(args).ConfigureAppConfiguration(builder =>
+            {
+                builder.AddJsonFile($"appsettings.user.json", optional: true);
+                builder.AddEnvironmentVariables();
+            }).ConfigureServices((hostContext, services) =>
+            {
+                services.AddDesignAutomation(hostContext.Configuration);
+            }).Build().Run();
+        }
+        public static IWebHostBuilder CreateHostBuilder(string[] args) =>
+            WebHost.CreateDefaultBuilder(args)
+                .UseStartup<Startup>();
+    }
+}
+```
+
+Nyní otevřete Startup.cs (v případě potřeby jej vytvořte) a přidejte následující obor názvů
+
+```cs
+using Microsoft.AspNetCore.Mvc;
+```
+
+Pak nahraďte obsah Startup třídy následujícím kódem, který povolí statický souborový server (HTML & JS) a SignalR, který se používá k nabízeným oznámením klientovi.
+
+```cs
+// This method gets called by the runtime. Use this method to add services to the container.
+// For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddMvc(options => options.EnableEndpointRouting = false).SetCompatibilityVersion(CompatibilityVersion.Version_3_0).AddNewtonsoftJson();
+    services.AddSignalR().AddNewtonsoftJsonProtocol(opt=> {
+        opt.PayloadSerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+    });
+}
+// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+{
+    app.UseFileServer();
+    app.UseMvc();
+}
+```
+
+### OAuthController.cs
+
+Vytvořte složku Controllers, která bude hostovat kontrolery WebAPI.
+Budeme potřebovat přístupový token pro čtení a zápis vstupních a výstupních souborů do OSS Bucketů. Ve složce Kontrolery vytvořte soubor OAuthController.cs s následujícím obsahem.
+
+```cs title=OAuthController.cs
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Autodesk.Forge;
+namespace designAutomationSample.Controllers
+{
+    [ApiController]
+    public class OAuthController : ControllerBase
+    {
+        // As both internal & public tokens are used for all visitors
+        // we don't need to request a new token on every request, so let's
+        // cache them using static variables. Note we still need to refresh
+        // them after the expires_in time (in seconds)
+        private static dynamic InternalToken { get; set; }
+        /// <summary>
+        /// Get access token with internal (write) scope
+        /// </summary>
+        public static async Task<dynamic> GetInternalAsync()
+        {
+            if (InternalToken == null || InternalToken.ExpiresAt < DateTime.UtcNow)
+            {
+                InternalToken = await Get2LeggedTokenAsync(new Scope[] { Scope.BucketCreate, Scope.BucketRead, Scope.BucketDelete, Scope.DataRead, Scope.DataWrite, Scope.DataCreate, Scope.CodeAll });
+                InternalToken.ExpiresAt = DateTime.UtcNow.AddSeconds(InternalToken.expires_in);
+            }
+            return InternalToken;
+        }
+        /// <summary>
+        /// Get the access token from Autodesk
+        /// </summary>
+        private static async Task<dynamic> Get2LeggedTokenAsync(Scope[] scopes)
+        {
+            TwoLeggedApi oauth = new TwoLeggedApi();
+            string grantType = "client_credentials";
+            dynamic bearer = await oauth.AuthenticateAsync(
+              GetAppSetting("APS_CLIENT_ID"),
+              GetAppSetting("APS_CLIENT_SECRET"),
+              grantType,
+              scopes);
+            return bearer;
+        }
+        /// <summary>
+        /// Reads appsettings from web.config
+        /// </summary>
+        public static string GetAppSetting(string settingKey)
+        {
+            return Environment.GetEnvironmentVariable(settingKey).Trim();
+        }
+    }
+}
+```
+
+Projekt je připraven! V tuto chvíli by to mělo vypadat takto
+
+<img src={VS2022DotnetFolderStructureImg} style={{ width: 300 }} />

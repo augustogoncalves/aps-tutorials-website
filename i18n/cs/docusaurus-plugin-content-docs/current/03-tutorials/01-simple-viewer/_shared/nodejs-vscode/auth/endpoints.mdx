@@ -1,0 +1,32 @@
+V podsložce 'routes' vytvořte soubor 'auth.js' s následujícím obsahem:
+
+```js title="routes/auth.js"
+const express = require('express');
+const { getPublicToken } = require('../services/aps.js');
+let router = express.Router();
+router.get('/api/auth/token', async function (req, res, next) {
+    try {
+        res.json(await getPublicToken());
+    } catch (err) {
+        next(err);
+    }
+});
+module.exports = router;
+```
+
+Zde implementujeme nový [Express Router](http://expressjs.com/en/4x/api.html#router), který bude zpracovávat
+požadavky přicházející na náš server s adresou URL končící na '/token', vygenerováním veřejného přístupového tokenu
+a odeslání zpět klientovi jako odpověď JSON.
+
+"Napojme" router na naši serverovou aplikaci úpravou 'server.js':
+
+```js title="server.js"
+const express = require('express');
+const { PORT } = require('./config.js');
+let app = express();
+app.use(express.static('wwwroot'));
+// highlight-start
+app.use(require('./routes/auth.js'));
+// highlight-end
+app.listen(PORT, function () { console.log(`Server listening on port ${PORT}...`); });
+```

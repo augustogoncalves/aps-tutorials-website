@@ -1,0 +1,64 @@
+在“services”文件夹下创建一个“aps.js”文件。这就是我们将要实施的地方
+所有 APS 逻辑，将用于我们服务器应用程序的不同区域。让我们开始吧
+通过将以下代码添加到文件中：
+
+```js title="services/aps.js"
+const { SdkManagerBuilder } = require('@aps_sdk/autodesk-sdkmanager');
+const { AuthenticationClient, Scopes, ResponseType } = require('@aps_sdk/authentication');
+const { APS_CLIENT_ID, APS_CLIENT_SECRET, APS_CALLBACK_URL } = require('../config.js');
+const service = module.exports = {};
+const sdk = SdkManagerBuilder.create().build();
+const authenticationClient = new AuthenticationClient(sdk);
+service.getAuthorizationUrl = () => authenticationClient.authorize(APS_CLIENT_ID, ResponseType.Code, APS_CALLBACK_URL, [
+    Scopes.DataRead,
+    Scopes.AccountRead,
+    Scopes.AccountWrite
+]);
+service.authCallbackMiddleware = async (req, res, next) => {
+    const credentials = await authenticationClient.getThreeLeggedToken(APS_CLIENT_ID, req.query.code, APS_CALLBACK_URL,{clientSecret:APS_CLIENT_SECRET});
+    req.session.token = credentials.access_token;
+    req.session.refresh_token = credentials.refresh_token;
+    req.session.expires_at = Date.now() + credentials.expires_in * 1000;
+    next();
+};
+service.authRefreshMiddleware = async (req, res, next) => {
+    const { refresh_token, expires_at } = req.session;
+    if (!refresh_token) {
+        res.status(401).end();
+        return;
+    }
+    if (expires_at < Date.now()) {
+        const credentials = await authenticationClient.getRefreshToken(APS_CLIENT_ID, refresh_token, {
+            clientSecret: APS_CLIENT_SECRET,
+            scopes: [
+                Scopes.DataRead,
+                Scopes.AccountRead,
+                Scopes.AccountWrite
+            ]
+        });
+        req.session.token = credentials.access_token;
+        req.session.refresh_token = credentials.refresh_token;
+        req.session.expires_at = Date.now() + credentials.expires_in * 1000;
+    }
+    req.oAuthToken = {
+        access_token: req.session.token,
+        expires_in: Math.round((req.session.expires_at - Date.now()) / 1000)
+    };
+    next();
+};
+service.getUserProfile = async (token) => {
+    const resp = await authenticationClient.getUserInfo(token.access_token);
+    return resp;
+};
+```
+
+该代码提供了几个帮助程序函数：
+
+- 'getAuthorizationUrl' 函数为我们的用户生成一个 URL，以便在以下情况下重定向到：
+启动三方身份验证工作流
+- 'authCallbackMiddleware'函数可以用作Express.js中间件
+当用户成功登录并被重定向回我们的应用程序时
+- 然后，将“authRefreshMiddleware”函数用作所有请求的Express.js中间件
+需要使用 APS 访问令牌
+- “getUserProfile”函数根据
+现有访问令牌

@@ -1,0 +1,26 @@
+다음 코드를 사용하여 프로젝트 폴더의 루트에 'server.js' 파일을 만듭니다.
+
+```js title="server.js"
+const express = require('express');
+const session = require('cookie-session');
+const { PORT, SERVER_SESSION_SECRET } = require('./config.js');
+let app = express();
+app.use(express.static('wwwroot'));
+app.use(session({ secret: SERVER_SESSION_SECRET, maxAge: 24 * 60 * 60 * 1000 }));
+app.listen(PORT, () => console.log(`Server listening on port ${PORT}...`));
+```
+
+현재 서버는 많은 작업을 수행하지 않고 'wwwroot'하위 폴더에서 클라이언트 측 자산을 제공합니다.
+쿠키에 저장된 세션 데이터에 액세스할 수 있습니다. 쿠키는 비밀 문구를 사용하여 암호화됩니다
+환경 변수 'SERVER_SESSION_SECRET'를 통해 애플리케이션에 전달해야 합니다.
+
+다음으로 '"start": "node server.js"' 스크립트를 'package.json' 파일에 추가하여 다음을 수행할 수 있도록 합니다.
+나중에 응용 프로그램을 쉽게 실행할 수 있습니다.
+
+```json
+// ...
+"scripts": {
+    "start": "node server.js"
+}
+// ...
+```

@@ -1,0 +1,44 @@
+import EnvTabs from '@site/src/components/EnvTabs.js';
+
+import NodeJsVsCodeTokens from './_shared/nodejs-vscode/auth/tokens.mdx';
+import NodeJsVsCodeEndpoints from './_shared/nodejs-vscode/auth/endpoints.mdx';
+import NodeJsVsCodeTest from './_shared/nodejs-vscode/auth/test.mdx';
+
+import DotNetTokens from './_shared/dotnet/auth/tokens.mdx';
+import DotNetEndpoints from './_shared/dotnet/auth/endpoints.mdx';
+import DotNetVsCodeTest from './_shared/dotnet-vscode/auth/test.mdx';
+import DotNetVs2022Test from './_shared/dotnet-vs2022/auth/test.mdx';
+
+# Autenticación
+
+En este paso, vamos a extender la implementación del servidor para que pueda autenticarse
+a la plataforma APS, guíe al usuario a través de un [flujo de trabajo OAuth de 3 patas](https://aps.autodesk.com/en/docs/oauth/v2/tutorials/get-3-legged-token),
+y generar tokens de acceso para diversas necesidades.
+
+
+
+:::tip
+
+Es una buena práctica generar un token "interno" con más capacidades (por ejemplo,
+permitir al propietario crear o eliminar archivos en el servicio de gestión de datos) que solo se utilizarán
+por el servidor, y un token "público" con menos capacidades que se puede compartir de forma segura con
+la lógica del lado del cliente.
+
+
+:::
+
+
+
+## Tokens de acceso
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeTokens} DotNetVsCode={DotNetTokens} DotNetVs2022={DotNetTokens} />
+
+## Puntos de conexión del servidor
+
+Ahora vamos a exponer esta funcionalidad a través de una colección de puntos finales en nuestro servidor.
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeEndpoints} DotNetVsCode={DotNetEndpoints} DotNetVs2022={DotNetEndpoints} />
+
+## Pruébalo
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeTest} DotNetVsCode={DotNetVsCodeTest} DotNetVs2022={DotNetVs2022Test} />

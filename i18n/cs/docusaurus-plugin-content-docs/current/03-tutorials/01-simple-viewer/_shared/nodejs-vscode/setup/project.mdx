@@ -1,0 +1,60 @@
+Vytvořte novou složku pro projekt, přejděte do ní v příkazovém řádku a inicializujte novou složku
+Node.js projektu:
+
+```bash
+npm init -y
+```
+
+Dále nainstalujte všechny Node.js závislosti, které budeme používat. V tomto případě to bude
+[dotenv](https://www.npmjs.com/package/dotenv) (utilita pro inicializaci proměnných prostředí ze souboru),
+[Express.js] Fotografie (https://expressjs.com) (webový framework), Express.js [middleware](https://expressjs.com/en/guide/using-middleware.html)
+pro zpracování požadavků 'multipart/form-data' a nakonec různé balíčky oficiálního APS SDK:
+
+
+
+:::caution
+
+Od dubna 2024 je APS SDK pro Node.js v beta verzi, což znamená, že veřejná rozhraní se mohou stále měnit.
+Abyste se vyhnuli případným problémům, doporučujeme nainstalovat konkrétní verze těchto balíčků, jak je uvedeno níže.
+
+
+:::
+
+
+
+```bash
+npm install --save dotenv express express-formidable
+npm install --save @aps_sdk/autodesk-sdkmanager@0.0.7-beta.1
+npm install --save @aps_sdk/authentication@0.1.0-beta.1
+npm install --save @aps_sdk/oss@0.1.0-beta.1
+npm install --save @aps_sdk/model-derivative@0.1.0-beta.1
+```
+
+'"závislosti"' ve vašem souboru 'package.json' by nyní měly vypadat nějak takto
+(případně s mírně odlišnými čísly verzí):
+
+```json
+// ...
+  "dependencies": {
+    "@aps_sdk/authentication": "0.1.0-beta.1",
+    "@aps_sdk/autodesk-sdkmanager": "0.0.7-beta.1",
+    "@aps_sdk/model-derivative": "0.1.0-beta.1",
+    "@aps_sdk/oss": "0.1.0-beta.1",
+    "dotenv": "^16.4.1",
+    "express": "^4.18.2",
+    "express-formidable": "^1.2.0"
+  },
+// ...
+```
+
+Nakonec vytvoříme několik dalších podsložek ve složce projektu, do které se chystáme
+Později potřebovat:
+
+- 'wwwroot' - to je místo, kam umístíme všechny prostředky na straně klienta (HTML, CSS, JavaScript, obrázky atd.)
+- 'routes' - zde budeme implementovat všechny koncové body serveru
+- "Služby" – tady zachováme veškerou logiku na straně serveru, kterou mohou sdílet různé koncové body
+
+Když teď poprvé otevřete složku projektu v editoru Visual Studio Code, struktura složek
+by měl vypadat podobně jako tento:
+
+![Folder Structure](folder-structure.webp)

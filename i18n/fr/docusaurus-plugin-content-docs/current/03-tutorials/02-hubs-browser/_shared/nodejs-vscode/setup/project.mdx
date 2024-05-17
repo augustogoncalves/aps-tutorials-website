@@ -1,0 +1,51 @@
+Créez un nouveau dossier pour votre projet, accédez-y dans la ligne de commande,
+et initialiser un nouveau projet Node.js :
+
+```bash
+npm init -y
+```
+
+Ensuite, installez toutes les dépendances Node.js que nous allons utiliser. Dans ce cas, ce sera [dotenv](https://www.npmjs.com/package/dotenv)
+(utilitaire pour initialiser des variables d’environnement à partir d’un fichier), [Express.js](https://expressjs.com) (framework web),
+et [cookie-session](https://www.npmjs.com/package/cookie-session) pour gérer les sessions basées sur les cookies, et enfin les modules SDK APS requis :
+
+
+
+:::caution
+
+Depuis avril 2024, le SDK APS pour Node.js est en version bêta, ce qui signifie que les interfaces publiques peuvent encore changer.
+Pour éviter tout problème potentiel, nous vous recommandons d’installer les versions spécifiques de ces packages comme indiqué ci-dessous.
+
+
+:::
+
+
+
+```bash
+npm install --save dotenv express cookie-session
+npm install --save @aps_sdk/autodesk-sdkmanager@0.0.7-beta.1
+npm install --save @aps_sdk/authentication@0.1.0-beta.1
+npm install --save @aps_sdk/data-management@0.1.0-beta.1
+```
+
+Les '"dépendances"' dans votre fichier 'package.json' devraient maintenant ressembler à ceci
+(potentiellement avec des numéros de version légèrement différents) :
+
+```json
+// ...
+  "dependencies": {
+    "@aps_sdk/authentication": "0.1.0-beta.1",
+    "@aps_sdk/autodesk-sdkmanager": "0.0.7-beta.1",
+    "@aps_sdk/data-management": "0.1.0-beta.1",
+    "cookie-session": "^1.4.0",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2"
+  },
+// ...
+```
+
+Enfin, créons quelques sous-dossiers supplémentaires dans votre dossier de projet dont nous aurons besoin plus tard :
+
+- 'wwwroot' - c’est là que nous allons mettre tous les actifs côté client (HTML, CSS, JavaScript, images, etc.)
+- 'routes' - c’est là que nous allons implémenter tous les points de terminaison du serveur
+- 'services' - ici, nous allons conserver toute la logique côté serveur qui peut être partagée par différents points de terminaison

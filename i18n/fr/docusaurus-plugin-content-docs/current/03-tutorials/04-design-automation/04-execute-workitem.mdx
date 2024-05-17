@@ -1,0 +1,82 @@
+import EnvTabs from "@site/src/components/EnvTabs.js";
+import WorkitemForNet from "./_shared/dotnet-vs2022/setup/workitem.mdx";
+import WorkitemForNodejs from "./_shared/nodejs-vscode/setup/workitem.mdx";
+import DebugForNet from "./_shared/dotnet-vs2022/setup/debug.mdx";
+import DebugForNodejs from "./_shared/nodejs-vscode/setup/debug.mdx";
+import ResponsiveVideo from "@site/src/components/ResponsiveVideo.js";
+import PreviewUrl from "@site/static/videos/modify-your-models.mp4";
+
+# Exécuter l’élément de travail
+
+Travail qui exécute une activité spécifiée, en utilisant des fichiers d’entrée spécifiés et en générant des fichiers de sortie appropriés.
+
+La relation entre une activité et un élément de travail peut être considérée comme une « définition de fonction » et un « appel de fonction », respectivement. L’activité spécifie le ou les AppBundles à utiliser, qui à leur tour spécifient le moteur à utiliser. L’élément de travail est ensuite appelé pour les exécuter.
+
+Dans cet exemple de didacticiel, l’élément de travail spécifie l’URL du fichier d’entrée, les données JSON d’entrée avec les nouvelles valeurs de paramètre et l’URL de destination du fichier de sortie. Cet exemple charge le fichier d’entrée dans un compartiment OSS avant de démarrer l’élément de travail.
+
+<EnvTabs
+  NodeJsVsCode={WorkitemForNodejs}
+  DotNetVsCode={WorkitemForNet}
+  DotNetVs2022={WorkitemForNet}
+/>
+
+Tout est prêt !
+
+## Exécuter et déboguer
+
+Maintenant que votre application est prête, il est temps de l’exécuter. C’est là que nous pouvons tester et vérifier les erreurs possibles (via le débogage).
+
+## Utilisation de l’exemple
+
+En haut, cliquez sur **Configurer** pour définir AppBundle et Activity. Cela ne doit être fait qu’une seule fois. Spécifiez les nouvelles 'largeur' et 'hauteur' dans le panneau de gauche, sélectionnez le 'fichier d’entrée' et cliquez sur 'Démarrer l’élément de travail'. Le panneau de droite devrait afficher les résultats.
+
+Vous pouvez trouver [exemples de fichiers ici](https://github.com/autodesk-platform-services/aps-design-automation-dotnet/tree/master/sample%20files).
+
+
+
+:::caution
+
+Si le code du plugin change, vous devez télécharger un nouvel AppBundle et augmenter la version (par exemple, v1 à v2). Cet exemple crée une nouvelle version chaque fois qu’un nouvel AppBundle est chargé.
+
+
+:::
+
+
+
+> Les fichiers d’entrée et de sortie sont enregistrés dans les compartiments OSS, vous pouvez utiliser [Afficher les modèles](.. /simple-viewer/) pour les visualiser.
+
+<ResponsiveVideo src={PreviewUrl} />
+
+## Dépannage
+
+**1. Le panneau des résultats n’affiche pas toutes les informations**
+
+Assurez-vous que le **ngrok** est en cours d’exécution et n’a pas expiré. Assurez-vous que l’adresse ngrok est correctement spécifiée dans la variable d’environnement.
+
+**2. Workitem s’exécute, mais le résultat n’est pas comme prévu**
+
+Pensez à utiliser le bouton **Effacer le compte**. Cela supprime tous les AppBundles et activités de votre compte. Ensuite, définissez-les à nouveau.
+
+**3. Impossible de voir mon AppBundle dans le formulaire de configuration**
+
+Les bundles ZIP sont copiés dans les 'bundles' après avoir construit le plugin respectif. Assurez-vous que l’événement « Post-build » est correctement défini et exécuté après la build.
+
+**4. Vérification du chargement de la DLL correcte**
+
+Une astuce simple pour s’assurer que la bonne DLL a été téléchargée dans Design Automation consiste à vérifier sa date. [Cette réponse StackOverflow](https://stackoverflow.com/a/1600990) montre comment obtenir la date de l’éditeur de liens (c’est-à-dire quand la DLL a été compilée), avec cela vous pouvez l’afficher au début de votre code. Notez que les dates sont sur le fuseau horaire du serveur.
+
+> plugin est écrit en 'C#' quelle que soit la langue du serveur.
+
+```cs
+LogTrace("DLL {0} compiled on {1}",
+    System.IO.Path.GetFileName(System.Reflection.Assembly.GetExecutingAssembly().Location),
+    GetLinkerTime(System.Reflection.Assembly.GetExecutingAssembly()));
+```
+
+Prêt? Courons-le !
+
+<EnvTabs
+  NodeJsVsCode={DebugForNodejs}
+  DotNetVsCode={DebugForNet}
+  DotNetVs2022={DebugForNet}
+/>

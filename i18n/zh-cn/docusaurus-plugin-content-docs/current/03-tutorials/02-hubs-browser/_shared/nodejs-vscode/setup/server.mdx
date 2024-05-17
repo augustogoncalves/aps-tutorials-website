@@ -1,0 +1,26 @@
+使用以下代码在项目文件夹的根目录中创建一个“server.js”文件：
+
+```js title="server.js"
+const express = require('express');
+const session = require('cookie-session');
+const { PORT, SERVER_SESSION_SECRET } = require('./config.js');
+let app = express();
+app.use(express.static('wwwroot'));
+app.use(session({ secret: SERVER_SESSION_SECRET, maxAge: 24 * 60 * 60 * 1000 }));
+app.listen(PORT, () => console.log(`Server listening on port ${PORT}...`));
+```
+
+目前，服务器没有做太多事情，只是从“wwwroot”子文件夹中提供客户端资产，
+以及访问存储在 Cookie 中的会话数据。Cookie 将使用密码短语进行加密
+我们需要通过环境变量“SERVER_SESSION_SECRET”传递给应用程序。
+
+接下来，让我们在 'package.json' 文件中添加一个 ''start“： ”node server.js“' 脚本，以便我们可以
+稍后轻松运行我们的应用程序：
+
+```json
+// ...
+"scripts": {
+    "start": "node server.js"
+}
+// ...
+```

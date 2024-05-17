@@ -1,0 +1,57 @@
+import ResponsiveVideo from '@site/src/components/ResponsiveVideo.js';
+import PreviewUrl from '@site/static/videos/aps-dashboards.mp4';
+
+# ダッシュボード
+
+## イントロダクション
+
+このチュートリアルでは、[シンプルビューア](../simple-viewer) アプリケーション
+ダッシュボードのような機能 (情報の取得や集計など)
+設計メタデータから、結果をチャートやデータグリッドに表示し、
+これらの新しいビジュアルとの相互作用に基づくビューアの状態。
+
+All the functionality in this tutorial is implemented as viewer extensions, and will only use
+the viewer UI, so you're free to use any APS application you want as your starting point.
+Note however that the names of folders, and the way you import JavaScript files into your
+web application, might be a little bit different.
+
+
+
+:::caution
+
+このチュートリアルのコードの一部は、設計要素に特定のプロパティが含まれていることを前提としています
+_Volume_、_Level_、_Price_など。作業したい特定のデザインがある場合は、
+もちろん、他のプロパティを使用するようにコードを変更しますが、そうでない場合は、公式の
+[Revit 2022 サンプル プロジェクト ファイル](https://knowledge.autodesk.com/support/revit/getting-started/caas/CloudHelp/cloudhelp/2022/ENU/Revit-GetStarted/files/GUID-61EF2F22-3A1F-4317-B925-1E85F138BE88-htm.html)
+ここで、これらのプロパティは常に存在します。
+
+
+:::
+
+
+
+<ResponsiveVideo src={PreviewUrl} />
+
+[Viewer](https://aps.autodesk.com/en/docs/viewer/v7/developers_guide/overview)を使用します。
+APIとそのさまざまな機能:
+
+- ビューア拡張機能の作成と読み込み
+- 読み込まれたモデルのメタデータのクエリ
+- 視聴者のイベントに反応する
+- ビューアの状態を制御する
+- ビューアツールバーのカスタマイズ
+- カスタム UI 要素の作成
+
+
+
+:::tip
+
+このチュートリアルの完全な実装は、[ダッシュボード](https://github.com/autodesk-platform-services/aps-simple-viewer-nodejs/tree/dashboards)
+https://github.com/autodesk-platform-services/aps-simple-viewer-nodejs の枝。
+
+
+:::
+
+
+
+よし、始めよう!

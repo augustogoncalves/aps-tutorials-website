@@ -1,0 +1,59 @@
+import EnvTabs from '@site/src/components/EnvTabs.js';
+
+import NodeJsVsCodeTokens from './_shared/nodejs-vscode/auth/tokens.mdx';
+import NodeJsVsCodeEndpoints from './_shared/nodejs-vscode/auth/endpoints.mdx';
+import NodeJsVsCodeTest from './_shared/nodejs-vscode/auth/test.mdx';
+
+import DotNetTokens from './_shared/dotnet/auth/tokens.mdx';
+import DotNetEndpoints from './_shared/dotnet/auth/endpoints.mdx';
+import DotNetVsCodeTest from './_shared/dotnet-vscode/auth/test.mdx';
+import DotNetVs2022Test from './_shared/dotnet-vs2022/auth/test.mdx';
+
+# Autenticación
+
+En este paso, vamos a extender la implementación del servidor para que pueda autenticarse
+a la plataforma APS, y generar tokens de acceso para diferentes casos de uso.
+
+
+
+:::tip
+
+Es una buena práctica generar un token "interno" con más capacidades (por ejemplo,
+que le permite crear o eliminar archivos en el servicio de gestión de datos) que solo se utilizarán
+por el servidor, y un token "público" con menos capacidades que se puede compartir de forma segura con
+la lógica del lado del cliente.
+
+
+:::
+
+
+
+## Tokens de acceso
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeTokens} DotNetVsCode={DotNetTokens} DotNetVs2022={DotNetTokens} />
+
+## Puntos de conexión del servidor
+
+Ahora podemos exponer esta funcionalidad a través del primer endpoint de nuestro servidor.
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeEndpoints} DotNetVsCode={DotNetEndpoints} DotNetVs2022={DotNetEndpoints} />
+
+## Pruébalo
+
+Veamos si nuestro nuevo punto final de servidor funciona.
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeTest} DotNetVsCode={DotNetVsCodeTest} DotNetVs2022={DotNetVs2022Test} />
+
+
+
+:::tip
+
+Si está utilizando Google Chrome, considere la posibilidad de instalar [Formateador JSON](https://chrome.google.com/webstore/detail/json-formatter/bcjindcccaagfpapjjmafapmmgkkhgoa?hl=en)
+o una extensión similar para dar formato automáticamente a las respuestas JSON.
+
+
+:::
+
+
+
+![Server Response](./_shared/auth-response.webp)

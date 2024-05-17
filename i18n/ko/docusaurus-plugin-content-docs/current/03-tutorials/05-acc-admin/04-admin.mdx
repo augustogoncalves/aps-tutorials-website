@@ -1,0 +1,49 @@
+
+import NodeJsVsCodeHubs from './_shared/nodejs-vscode/admin/account-admin.mdx';
+import NodeJsVsCodeEndpoints from './_shared/nodejs-vscode/admin/endpoints.mdx';
+
+# 계정 관리자
+
+이제 계정 관리자 액세스를 지원하기 위해 서버를 구현할 차례이며, 이 단계에서는 
+[계정 관리 API](https://aps.autodesk.com/en/docs/acc/v1/overview/field-guide/admin/)를 기반으로 서버를 계속 확장합니다.
+ACC 프로젝트 및 사용자의 데이터를 FETCH 및 CREATE 하려면:
+
+## 프로젝트 및 사용자
+
+First, let's add a couple of helper methods for getting and importing projects and users:
+
+<NodeJsVsCodeHubs />
+
+## 서버 엔드포인트
+
+다음으로, 다른 기능을 통해 클라이언트 쪽 코드에 새 기능을 노출해 보겠습니다.
+끝점 집합입니다.
+
+<NodeJsVsCodeEndpoints />
+
+## 사용해 보기
+
+서버 측은 여기까지입니다. 사용해 볼 시간입니다!
+
+평소와 같이 Visual Studio Code에서 앱을 시작(또는 다시 시작)합니다. 
+- 이전 단계에서 얻은 주소에서 얻은 것처럼 한 ACC 허브의 ID(**b.** 제거)를 사용합니다: http://localhost:8080/api/admin/projects?accountId={your-account-id}.
+이 경우 서버 애플리케이션은 모든 프로젝트의 JSON 목록으로 응답해야 합니다
+지정된 허브에서 사용할 수 있습니다.
+- 이전 단계에서 가져온 프로젝트 ID를 사용하여 주소를 호출해 봅니다. 
+http://localhost:8080/api/admin/project/users?projectId={your-project-id}인 경우 서버 애플리케이션은
+이 프로젝트의 모든 사용자에 대한 JSON 목록으로 응답합니다.
+
+
+
+:::info
+
+2 개의 다른 엔드 포인트에 의해 다른 프로젝트 목록을 얻을 수 있습니다.
+- Data Management API를 사용하면 현재 사용자가 관련된 모든 프로젝트를 반환합니다.
+- Account Admin API를 사용하면 현재 사용자가 Account Admin인 경우 계정의 모든 프로젝트를 반환합니다.
+
+
+:::
+
+
+
+![Account Admin Response](./_shared/account-admin.webp)

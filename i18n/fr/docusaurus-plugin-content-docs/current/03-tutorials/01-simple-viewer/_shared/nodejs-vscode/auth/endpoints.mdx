@@ -1,0 +1,32 @@
+Créez un fichier 'auth.js' dans le sous-dossier 'routes' avec le contenu suivant :
+
+```js title="routes/auth.js"
+const express = require('express');
+const { getPublicToken } = require('../services/aps.js');
+let router = express.Router();
+router.get('/api/auth/token', async function (req, res, next) {
+    try {
+        res.json(await getPublicToken());
+    } catch (err) {
+        next(err);
+    }
+});
+module.exports = router;
+```
+
+Ici, nous implémentons un nouveau [Express Router](http://expressjs.com/en/4x/api.html#router) qui gérera
+les requêtes arrivant sur notre serveur, dont l’URL se termine par '/token', en générant un jeton d’accès public
+et le renvoyer au client en tant que réponse JSON.
+
+Allons « monter » le routeur sur notre application serveur en modifiant le 'server.js' :
+
+```js title="server.js"
+const express = require('express');
+const { PORT } = require('./config.js');
+let app = express();
+app.use(express.static('wwwroot'));
+// highlight-start
+app.use(require('./routes/auth.js'));
+// highlight-end
+app.listen(PORT, function () { console.log(`Server listening on port ${PORT}...`); });
+```

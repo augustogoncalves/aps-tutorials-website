@@ -1,0 +1,32 @@
+import CliSetup from '../cli.mdx';
+import GitSetup from '../git.mdx';
+import VSCodeSetup from '../vscode.mdx';
+
+## Rozhraní příkazového řádku
+
+<CliSetup />
+
+## Správa zdrojového kódu
+
+<GitSetup />
+
+## Doba běhu
+
+Budeme také potřebovat Node.js _runtime_ ke spuštění našeho kódu a správce balíčků Node.js _NPM_,
+pro správu závislostí třetích stran. Instalační program pro vaši platformu můžete získat na https://nodejs.org/en/download
+který nainstaluje obojí.
+
+Abyste se ujistili, že jsou nástroje k dispozici, zkuste v 'bash' spustit následující dva příkazy:
+
+```bash
+node -v
+npm -v
+```
+
+Měli byste vidět něco takového:
+
+![Checking node in terminal](node.webp)
+
+## Editor
+
+<VSCodeSetup />

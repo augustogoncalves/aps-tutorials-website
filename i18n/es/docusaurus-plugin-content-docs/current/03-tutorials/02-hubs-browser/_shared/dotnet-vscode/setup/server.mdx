@@ -1,0 +1,60 @@
+Sustitúyase el contenido de «Program.cs» por el siguiente:
+
+```csharp title="Program.cs"
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        CreateHostBuilder(args).Build().Run();
+    }
+    public static IHostBuilder CreateHostBuilder(string[] args) =>
+        Host.CreateDefaultBuilder(args)
+            .ConfigureWebHostDefaults(webBuilder =>
+            {
+                webBuilder.UseStartup<Startup>();
+            });
+}
+```
+
+Este código se asegurará de que la aplicación .NET cree un servidor web con nuestro
+nueva clase 'Startup'.
+
+Y finalmente, actualicemos el archivo 'launchSettings.json' en la carpeta 'Propiedades' para hacer
+seguro de que nuestra aplicación de servidor está utilizando el protocolo predeterminado (HTTP) y el puerto (8080) que
+lo usaremos a lo largo de este tutorial. Actualice la propiedad 'applicationUrl' del valor predeterminado
+Inicie el perfil a 'http://localhost:8080':
+
+```json
+{
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:38524",
+      "sslPort": 44323
+    }
+  },
+  "profiles": {
+    "my_aps_app": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      // highlight-start
+      "applicationUrl": "http://localhost:8080",
+      // highlight-end
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+    "IIS Express": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
+```

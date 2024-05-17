@@ -1,0 +1,59 @@
+import EnvTabs from '@site/src/components/EnvTabs.js';
+
+import NodeJsVsCodeTokens from './_shared/nodejs-vscode/auth/tokens.mdx';
+import NodeJsVsCodeEndpoints from './_shared/nodejs-vscode/auth/endpoints.mdx';
+import NodeJsVsCodeTest from './_shared/nodejs-vscode/auth/test.mdx';
+
+import DotNetTokens from './_shared/dotnet/auth/tokens.mdx';
+import DotNetEndpoints from './_shared/dotnet/auth/endpoints.mdx';
+import DotNetVsCodeTest from './_shared/dotnet-vscode/auth/test.mdx';
+import DotNetVs2022Test from './_shared/dotnet-vs2022/auth/test.mdx';
+
+# Ověřování
+
+V tomto kroku rozšíříme implementaci serveru tak, aby se mohl sám ověřit
+na platformu APS a generovat přístupové tokeny pro různé případy použití.
+
+
+
+:::tip
+
+Osvědčeným postupem je vygenerovat "interní" token s více možnostmi (například
+umožňující vytvářet nebo mazat soubory ve službě Správa dat), které budou použity pouze
+serverem a "veřejný" token s menším počtem funkcí, se kterými lze bezpečně sdílet
+logika na straně klienta.
+
+
+:::
+
+
+
+## Přístupové tokeny
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeTokens} DotNetVsCode={DotNetTokens} DotNetVs2022={DotNetTokens} />
+
+## Koncové body serveru
+
+Nyní můžeme tuto funkci vystavit prostřednictvím prvního koncového bodu našeho serveru.
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeEndpoints} DotNetVsCode={DotNetEndpoints} DotNetVs2022={DotNetEndpoints} />
+
+## Vyzkoušejte si to
+
+Podívejme se, jestli náš nový koncový bod serveru funguje.
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeTest} DotNetVsCode={DotNetVsCodeTest} DotNetVs2022={DotNetVs2022Test} />
+
+
+
+:::tip
+
+Pokud používáte Google Chrome, zvažte instalaci [formátovače JSON](https://chrome.google.com/webstore/detail/json-formatter/bcjindcccaagfpapjjmafapmmgkkhgoa?hl=en)
+nebo podobné rozšíření pro automatické formátování odpovědí JSON.
+
+
+:::
+
+
+
+![Server Response](./_shared/auth-response.webp)

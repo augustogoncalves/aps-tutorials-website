@@ -1,0 +1,51 @@
+Cree una nueva carpeta para su proyecto, navegue hasta ella en la línea de comandos,
+e inicializar un nuevo proyecto Node.js:
+
+```bash
+npm init -y
+```
+
+A continuación, instalamos todas las dependencias Node.js que vamos a utilizar. En este caso será [dotenv](https://www.npmjs.com/package/dotenv)
+(utilidad para inicializar variables de entorno desde un archivo), [Express.js](https://expressjs.com) (marco web),
+y [cookie-session](https://www.npmjs.com/package/cookie-session) para manejar sesiones basadas en cookies y, por último, los módulos APS SDK necesarios:
+
+
+
+:::caution
+
+A partir de abril de 2024, el SDK de APS para Node.js está en versión beta, lo que significa que las interfaces públicas aún pueden cambiar.
+Para evitar posibles problemas, recomendamos instalar las versiones específicas de estos paquetes como se muestra a continuación.
+
+
+:::
+
+
+
+```bash
+npm install --save dotenv express cookie-session
+npm install --save @aps_sdk/autodesk-sdkmanager@0.0.7-beta.1
+npm install --save @aps_sdk/authentication@0.1.0-beta.1
+npm install --save @aps_sdk/data-management@0.1.0-beta.1
+```
+
+Las ''dependencias'' en su archivo 'package.json' ahora deberían verse así:
+(potencialmente con números de versión ligeramente diferentes):
+
+```json
+// ...
+  "dependencies": {
+    "@aps_sdk/authentication": "0.1.0-beta.1",
+    "@aps_sdk/autodesk-sdkmanager": "0.0.7-beta.1",
+    "@aps_sdk/data-management": "0.1.0-beta.1",
+    "cookie-session": "^1.4.0",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2"
+  },
+// ...
+```
+
+Finalmente, vamos a crear un par de subcarpetas más en la carpeta de tu proyecto que vamos a necesitar más adelante:
+
+- 'wwwroot': aquí es donde vamos a poner todos los activos del lado del cliente (HTML, CSS, JavaScript, imágenes, etc.)
+- 'routes': aquí es donde vamos a implementar todos los puntos finales del servidor
+- 'services' - aquí vamos a mantener toda la lógica del lado del servidor que pueden compartir los diferentes puntos finales

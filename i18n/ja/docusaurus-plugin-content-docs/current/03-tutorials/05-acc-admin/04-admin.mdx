@@ -1,0 +1,49 @@
+
+import NodeJsVsCodeHubs from './_shared/nodejs-vscode/admin/account-admin.mdx';
+import NodeJsVsCodeEndpoints from './_shared/nodejs-vscode/admin/endpoints.mdx';
+
+# アカウント管理者
+
+次に、アカウント管理者アクセスをサポートするためにサーバーを実装する時が来ましたが、このステップでは、
+[アカウント管理API](https://aps.autodesk.com/en/docs/acc/v1/overview/field-guide/admin/)に基づいてサーバーを拡張し続けます
+ACCプロジェクトとユーザーのデータをFETCHおよび作成するには:
+
+## プロジェクトとユーザ
+
+First, let's add a couple of helper methods for getting and importing projects and users:
+
+<NodeJsVsCodeHubs />
+
+## サーバーエンドポイント
+
+次に、別の
+エンドポイントのセット。
+
+<NodeJsVsCodeEndpoints />
+
+## 試してみる
+
+サーバー側は以上です。試してみる時が来ました!
+
+通常どおり、Visual Studio Code からアプリを起動 (または再起動) し、
+- アドレスの前の手順で取得した 1 つの ACC ハブの ID(**b.** を削除) を使用します: http://localhost:8080/api/admin/projects?accountId={your-account-id}。
+この場合、サーバー アプリケーションは、すべてのプロジェクトの JSON リストで応答する必要があります
+指定したハブで使用できます。
+- 前の手順で取得したプロジェクトIDを使用して、アドレスに電話をかけてみてください。
+http://localhost:8080/api/admin/project/users?projectId={your-project-id}の場合、サーバーアプリケーションは
+このプロジェクトのすべてのユーザーの JSON リストで応答します。
+
+
+
+:::info
+
+2つの異なるエンドポイントによって異なるプロジェクトリストを取得する場合がありますが、ここでは説明します。
+- データ管理 API を使用すると、現在のユーザーが関与しているすべてのプロジェクトが返されます。
+- アカウント管理APIでは、現在のユーザーがアカウント管理者の場合、アカウント内のすべてのプロジェクトを返します。
+
+
+:::
+
+
+
+![Account Admin Response](./_shared/account-admin.webp)

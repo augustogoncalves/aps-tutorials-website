@@ -1,0 +1,79 @@
+プロジェクトのルート フォルダーに、次の内容の 'Startup.cs' ファイルを作成します。
+
+```csharp title="Startup.cs"
+using System;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+public class Startup
+{
+    public Startup(IConfiguration configuration)
+    {
+        Configuration = configuration;
+    }
+    public IConfiguration Configuration { get; }
+    // This method gets called by the runtime. Use this method to add services to the container.
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services.AddControllers();
+        var clientID = Configuration["APS_CLIENT_ID"];
+        var clientSecret = Configuration["APS_CLIENT_SECRET"];
+        var bucket = Configuration["APS_BUCKET"]; // Optional
+        if (string.IsNullOrEmpty(clientID) || string.IsNullOrEmpty(clientSecret))
+        {
+            throw new ApplicationException("Missing required environment variables APS_CLIENT_ID or APS_CLIENT_SECRET.");
+        }
+    }
+    // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        if (env.IsDevelopment())
+        {
+            app.UseDeveloperExceptionPage();
+        }
+        app.UseDefaultFiles();
+        app.UseStaticFiles();
+        app.UseRouting();
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.MapControllers();
+        });
+    }
+}
+```
+
+「Startup」クラスは、サーバーとその「ミドルウェア」の構成を担当します。
+静的ファイルの提供。また、APS アプリケーションのクライアント ID とシークレットの取得も試みます
+環境変数から (または他の [構成プロバイダー](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-6.0#configuration-providers)) から)
+後で使用するため。
+
+Now, to pass actual configuration values to our application for debugging purposes,
+we will modify (or create) the _appsettings.Development.json_ file in our project folder
+with the following content (replacing `<client-id>` and `<client-secret>` with your
+APS Client ID and Client Secret):
+
+```json
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "APS_CLIENT_ID": "<client-id>",
+  "APS_CLIENT_SECRET": "<client-secret>"
+}
+```
+
+
+
+:::caution
+
+以来、'appsettings.Development.json」ファイルに機密情報が含まれている場合は、Git に含まれていないことを確認してください。
+これは、'appsettings.Development.json' 行を [.gitignore](https://git-scm.com/docs/gitignore) ファイルに追加します。
+
+
+:::
+

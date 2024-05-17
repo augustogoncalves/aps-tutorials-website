@@ -1,0 +1,49 @@
+
+import NodeJsVsCodeHubs from './_shared/nodejs-vscode/admin/account-admin.mdx';
+import NodeJsVsCodeEndpoints from './_shared/nodejs-vscode/admin/endpoints.mdx';
+
+# Administrador de la cuenta
+
+Ahora, es el momento de implementar nuestro servidor para admitir el acceso de administrador de cuentas, en este paso, 
+continuar extendiendo nuestro servidor basado en [API de administración de cuentas](https://aps.autodesk.com/en/docs/acc/v1/overview/field-guide/admin/)
+para FETCH y CREATE los datos de los Proyectos y Usuarios de ACC:
+
+## Proyectos y Usuarios
+
+First, let's add a couple of helper methods for getting and importing projects and users:
+
+<NodeJsVsCodeHubs />
+
+## Puntos de conexión del servidor
+
+A continuación, vamos a exponer la nueva funcionalidad al código del lado cliente a través de otro
+conjunto de puntos finales.
+
+<NodeJsVsCodeEndpoints />
+
+## Pruébalo
+
+Y eso es todo para el lado del servidor. ¡Es hora de probarlo!
+
+Inicie (o reinicie) la aplicación desde Visual Studio Code como de costumbre, 
+- Utilice el ID (eliminando **b.**) de un concentrador ACC como se obtiene en el paso anterior en la dirección: http://localhost:8080/api/admin/projects?accountId={your-account-id}.
+En este caso, la aplicación de servidor debe responder con una lista JSON de todos los proyectos
+disponible en el concentrador especificado.
+- Use el ID del proyecto como lo obtuvo en el paso anterior, intente llamar a la dirección: 
+http://localhost:8080/api/admin/project/users?projectId={your-project-id}, la aplicación de servidor debe
+responda con una lista JSON de todos los usuarios de este proyecto.
+
+
+
+:::info
+
+Puede obtener una lista de proyectos diferente por los 2 puntos finales diferentes, aquí están los explicaciones:
+- Con la API de gestión de datos, devolverá todos los proyectos en los que esté involucrado el usuario actual.
+- Con la API de administración de cuentas, devolverá todos los proyectos de la cuenta si el usuario actual es administrador de cuentas.
+
+
+:::
+
+
+
+![Account Admin Response](./_shared/account-admin.webp)

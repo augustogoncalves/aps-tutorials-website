@@ -1,0 +1,36 @@
+import Image from '@theme/IdealImage';
+
+
+
+:::caution
+
+Assurez-vous d’avoir un accès _admin_ à un compte Autodesk Construction Cloud (ACC en abrégé)
+
+
+:::
+
+
+
+1. Connectez-vous à votre compte ACC et accédez à _Account Administration_
+  - À partir de la vue d’ensemble des projets
+
+<Image img={require('./project-list.jpeg')} />
+
+- Depuis l’interface utilisateur d’un projet spécifique
+
+<Image img={require('./project-detail.jpeg')} />
+
+2. Sur la page _Account Admin_, allez dans _Custom Integrations_, utilisez le bouton _Add Integration_ personnalisé en haut pour ajouter une intégration personnalisée.
+
+<Image img={require('./account-admin.jpeg')} />
+
+3. Sur la page de dialogue _Add integration_ personnalisé, renseignez les champs _Client ID_, _Custom name_ d’intégration et _Description_.
+
+<Image img={require('./custom-integration.jpeg')} />
+
+4. Lorsque vous êtes prêt, appuyez sur le bouton _Ajouter_
+
+Une fois le processus terminé, votre demande pourra utiliser différents services APS
+telles que [API de gestion des données](https://aps.autodesk.com/en/docs/data/v2/developers_guide/overview)
+ou [API ACC](https://aps.autodesk.com/en/docs/acc/v1/overview/introduction)
+pour accéder aux informations de tous les projets de ce compte ACC.

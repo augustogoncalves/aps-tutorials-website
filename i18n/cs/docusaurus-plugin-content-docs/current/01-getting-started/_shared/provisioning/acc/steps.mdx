@@ -1,0 +1,36 @@
+import Image from '@theme/IdealImage';
+
+
+
+:::caution
+
+Ujistěte se, že máte _admin_ přístup k účtu Autodesk Construction Cloud (zkráceně ACC)
+
+
+:::
+
+
+
+1. Přihlaste se ke svému účtu ACC a přejděte na _Account Administration_
+  - Z přehledu projektů
+
+<Image img={require('./project-list.jpeg')} />
+
+- Z uživatelského rozhraní konkrétního projektu
+
+<Image img={require('./project-detail.jpeg')} />
+
+2. Na stránce _Account Admin_ přejděte na _Custom Integrations_ a pomocí tlačítka _Add Vlastní Integration_ v horní části přidejte vlastní integraci.
+
+<Image img={require('./account-admin.jpeg')} />
+
+3. Na _Add vlastní integration_ dialogové okno vyplňte pole _Client ID_, _Custom integrační name_ a _Popis_.
+
+<Image img={require('./custom-integration.jpeg')} />
+
+4. Až budete připraveni, stiskněte tlačítko _Přidat_
+
+Po dokončení procesu bude vaše aplikace moci využívat různé služby APS
+jako je [Data Management API](https://aps.autodesk.com/en/docs/data/v2/developers_guide/overview)
+nebo [ACC API](https://aps.autodesk.com/en/docs/acc/v1/overview/introduction)
+pro přístup k informacím ze všech projektů pod tímto účtem ACC.

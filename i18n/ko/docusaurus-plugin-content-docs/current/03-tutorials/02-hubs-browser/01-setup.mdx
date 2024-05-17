@@ -1,0 +1,42 @@
+import EnvTabs from '@site/src/components/EnvTabs.js';
+
+import NodeJsVsCodeProject from './_shared/nodejs-vscode/setup/project.mdx';
+import NodeJsVsCodeConfig from './_shared/nodejs-vscode/setup/config.mdx';
+import NodeJsVsCodeServer from './_shared/nodejs-vscode/setup/server.mdx';
+import NodeJsVsCodeTest from './_shared/nodejs-vscode/setup/test.mdx';
+
+import DotNetConfig from './_shared/dotnet/setup/config.mdx';
+import DotNetVsCodeServer from './_shared/dotnet-vscode/setup/server.mdx';
+import DotNetVs2022Server from './_shared/dotnet-vs2022/setup/server.mdx';
+import DotNetVsCodeProject from './_shared/dotnet-vscode/setup/project.mdx';
+import DotNetVsCodeTest from './_shared/dotnet-vscode/setup/test.mdx';
+import DotNetVs2022Project from './_shared/dotnet-vs2022/setup/project.mdx';
+import DotNetVs2022Test from './_shared/dotnet-vs2022/setup/test.mdx';
+
+# 애플리케이션 설정
+
+새 프로젝트를 만들고, 필요한 종속성을 설치하고, 설정하는 것부터 시작하겠습니다
+기본 서버 응용 프로그램.
+
+## 프로젝트 생성
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeProject} DotNetVsCode={DotNetVsCodeProject} DotNetVs2022={DotNetVs2022Project} />
+
+## 응용 프로그램 구성
+
+응용 프로그램이 제대로 실행되려면 다음과 같은 몇 가지 구성 매개 변수가 필요합니다.
+Autodesk 플랫폼 서비스와 통신하기 위한 APS 앱의 자격 증명 또는 콜백 URL
+사용자가 [3-legged authentication workflow](https://aps.autodesk.com/en/docs/oauth/v2/tutorials/get-3-legged-token/) 중에 리디렉션되는 위치입니다.
+환경 변수를 사용하여 이러한 매개 변수를 서버 앱에 전달합니다.
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeConfig} DotNetVsCode={DotNetConfig} DotNetVs2022={DotNetConfig} />
+
+## 기본 서버 생성
+
+다음으로 기본 서버 응용 프로그램을 설정합니다.
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeServer} DotNetVsCode={DotNetVsCodeServer} DotNetVs2022={DotNetVs2022Server} />
+
+## 사용해 보기
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeTest} DotNetVsCode={DotNetVsCodeTest} DotNetVs2022={DotNetVs2022Test} />

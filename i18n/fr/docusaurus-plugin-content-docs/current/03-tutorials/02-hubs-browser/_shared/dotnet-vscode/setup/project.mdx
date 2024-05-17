@@ -1,0 +1,52 @@
+Créez un dossier pour votre projet, accédez-y dans la ligne de commande et initialisez un nouveau dossier
+ASP.NET Projet principal :
+
+```bash
+dotnet new web
+```
+
+Ensuite, nous devrons installer les dépendances. Dans ce cas, il s’agira des packages APS SDK requis :
+
+```bash
+dotnet add package Autodesk.SdkManager
+dotnet add package Autodesk.Authentication
+dotnet add package Autodesk.DataManagement
+```
+
+Le fichier '*.csproj' de votre projet devrait maintenant ressembler à ceci (peut-être avec
+des numéros de version légèrement différents et des paramètres .NET supplémentaires) :
+
+```xml
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Autodesk.Authentication" Version="1.0.0" />
+    <PackageReference Include="Autodesk.DataManagement" Version="1.0.0" />
+    <PackageReference Include="Autodesk.SdkManager" Version="1.0.0" />
+  </ItemGroup>
+</Project>
+```
+
+Enfin, créons quelques sous-dossiers supplémentaires dans votre dossier de projet dont nous aurons besoin plus tard :
+
+- « Contrôleurs » - c’est là que nous allons implémenter tous les points de terminaison du serveur
+- « Modèles » - ici, nous allons conserver toute la logique côté serveur qui peut être partagée par différents points de terminaison
+- 'wwwroot' - c’est là que nous allons mettre tous les actifs côté client (HTML, CSS, JavaScript, images, etc.)
+
+
+
+
+:::note
+
+Si le dossier '.vscode' n’est pas créé automatiquement, vous pouvez le créer via le panneau latéral Exécuter et déboguer
+
+
+:::
+
+
+
+Pour créer le dossier '.vscode', cliquez sur l’outil *Exécuter et déboguer dans le panneau latéral gauche > créer un fichier launch.json > Sélectionner . NET5+ et .NET Core*.

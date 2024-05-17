@@ -1,0 +1,93 @@
+Créez un fichier 'models.js' sous le sous-dossier 'routes' avec le code suivant :
+
+```js title="routes/models.js"
+const express = require('express');
+const formidable = require('express-formidable');
+const { listObjects, uploadObject, translateObject, getManifest, urnify } = require('../services/aps.js');
+let router = express.Router();
+router.get('/api/models', async function (req, res, next) {
+    try {
+        const objects = await listObjects();
+        res.json(objects.map(o => ({
+            name: o.objectKey,
+            urn: urnify(o.objectId)
+        })));
+    } catch (err) {
+        next(err);
+    }
+});
+router.get('/api/models/:urn/status', async function (req, res, next) {
+    try {
+        const manifest = await getManifest(req.params.urn);
+        if (manifest) {
+            let messages = [];
+            if (manifest.derivatives) {
+                for (const derivative of manifest.derivatives) {
+                    messages = messages.concat(derivative.messages || []);
+                    if (derivative.children) {
+                        for (const child of derivative.children) {
+                            messages.concat(child.messages || []);
+                        }
+                    }
+                }
+            }
+            res.json({ status: manifest.status, progress: manifest.progress, messages });
+        } else {
+            res.json({ status: 'n/a' });
+        }
+    } catch (err) {
+        next(err);
+    }
+});
+router.post('/api/models', formidable({ maxFileSize: Infinity }), async function (req, res, next) {
+    const file = req.files['model-file'];
+    if (!file) {
+        res.status(400).send('The required field ("model-file") is missing.');
+        return;
+    }
+    try {
+        const obj = await uploadObject(file.name, file.path);
+        await translateObject(urnify(obj.objectId), req.fields['model-zip-entrypoint']);
+        res.json({
+            name: obj.objectKey,
+            urn: urnify(obj.objectId)
+        });
+    } catch (err) {
+        next(err);
+    }
+});
+module.exports = router;
+```
+
+
+
+:::info
+
+Le middleware 'formidable()' utilisé dans le gestionnaire de requêtes 'POST' s’assurera que tout
+Le contenu 'multipart/form-data' fourni avec la requête est analysé et disponible dans les 'req.files'
+et 'req.fields'.
+
+
+:::
+
+
+
+Et montez le routeur sur notre application serveur en modifiant 'server.js' :
+
+```js title="server.js"
+const express = require('express');
+const { PORT } = require('./config.js');
+let app = express();
+app.use(express.static('wwwroot'));
+app.use(require('./routes/auth.js'));
+// highlight-start
+app.use(require('./routes/models.js'));
+// highlight-end
+app.listen(PORT, function () { console.log(`Server listening on port ${PORT}...`); });
+```
+
+Le routeur va traiter 3 types de requêtes :
+
+- 'GET /api/models' - lorsque le client souhaite obtenir la liste de tous les modèles disponibles pour la visualisation
+- 'GET /api/models/ :urn/status' - utilisé pour vérifier l’état de la conversion (y compris les messages d’erreur s’il y en a)
+- 'POST /api/models' - lorsque le client souhaite télécharger un nouveau modèle et commencer sa traduction

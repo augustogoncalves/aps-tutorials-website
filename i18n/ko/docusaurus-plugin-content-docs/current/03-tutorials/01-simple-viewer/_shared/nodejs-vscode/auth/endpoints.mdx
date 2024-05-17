@@ -1,0 +1,32 @@
+'routes' 하위 폴더 아래에 다음 내용으로 'auth.js' 파일을 만듭니다.
+
+```js title="routes/auth.js"
+const express = require('express');
+const { getPublicToken } = require('../services/aps.js');
+let router = express.Router();
+router.get('/api/auth/token', async function (req, res, next) {
+    try {
+        res.json(await getPublicToken());
+    } catch (err) {
+        next(err);
+    }
+});
+module.exports = router;
+```
+
+여기서는 다음을 처리할 새로운 [Express Router](http://expressjs.com/en/4x/api.html#router)를 구현합니다.
+공개 액세스 토큰을 생성하여 URL이 '/token'으로 끝나는 서버로 들어오는 요청
+JSON 응답으로 클라이언트에 다시 보냅니다.
+
+'server.js'를 수정하여 라우터를 서버 응용 프로그램에 "마운트"해 보겠습니다.
+
+```js title="server.js"
+const express = require('express');
+const { PORT } = require('./config.js');
+let app = express();
+app.use(express.static('wwwroot'));
+// highlight-start
+app.use(require('./routes/auth.js'));
+// highlight-end
+app.listen(PORT, function () { console.log(`Server listening on port ${PORT}...`); });
+```

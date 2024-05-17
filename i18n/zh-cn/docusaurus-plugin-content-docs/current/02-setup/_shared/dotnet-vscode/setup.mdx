@@ -1,0 +1,41 @@
+import CliSetup from '../cli.mdx';
+import GitSetup from '../git.mdx';
+import VSCodeSetup from '../vscode.mdx';
+
+## 命令行界面
+
+<CliSetup />
+
+## 源码管理
+
+<GitSetup />
+
+## 运行时
+
+我们还需要 .NET 6 _runtime_ 来运行我们的代码并管理第三方依赖项。
+您可以在 https://dotnet.microsoft.com/download/dotnet/6.0 上为您的平台获取安装程序。
+
+
+
+:::info
+
+我们的示例应用程序已使用 .NET 6.0 进行开发和测试。
+
+
+:::
+
+
+
+要确保该工具可用，请尝试在“bash”中运行以下命令：
+
+```bash
+dotnet --version
+```
+
+您应该看到如下内容：
+
+![Checking dotnet in terminal](dotnet.webp)
+
+## 编辑器
+
+<VSCodeSetup />

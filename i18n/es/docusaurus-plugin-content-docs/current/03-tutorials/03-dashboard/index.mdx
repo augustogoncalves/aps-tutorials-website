@@ -1,0 +1,57 @@
+import ResponsiveVideo from '@site/src/components/ResponsiveVideo.js';
+import PreviewUrl from '@site/static/videos/aps-dashboards.mp4';
+
+# Panel de control
+
+## Introducción
+
+En este tutorial mejoraremos el [Visor simple](../simple-viewer)
+con una funcionalidad similar a la de un panel de control, por ejemplo, recuperar y agregar información
+a partir de nuestros metadatos de diseño, mostrando los resultados en gráficos y cuadrículas de datos, y controlando
+El estado del espectador en función de la interacción con estos nuevos objetos visuales.
+
+All the functionality in this tutorial is implemented as viewer extensions, and will only use
+the viewer UI, so you're free to use any APS application you want as your starting point.
+Note however that the names of folders, and the way you import JavaScript files into your
+web application, might be a little bit different.
+
+
+
+:::caution
+
+En algunas partes del código de este tutorial se supone que los elementos de diseño contienen propiedades específicas
+como _Volumen_, _Nivel_ o _Precio_. Si tienes un diseño específico con el que quieres trabajar, puedes hacerlo
+Por supuesto, modifique el código para usar otras propiedades, de lo contrario, le recomendamos que use una de las propiedades oficiales
+[Archivos de proyecto de ejemplo de Revit 2022](https://knowledge.autodesk.com/support/revit/getting-started/caas/CloudHelp/cloudhelp/2022/ENU/Revit-GetStarted/files/GUID-61EF2F22-3A1F-4317-B925-1E85F138BE88-htm.html)
+donde estas propiedades están siempre presentes.
+
+
+:::
+
+
+
+<ResponsiveVideo src={PreviewUrl} />
+
+Usaremos el [Visor](https://aps.autodesk.com/en/docs/viewer/v7/developers_guide/overview)
+API y sus diversas características como:
+
+- Creación y carga de extensiones de visor
+- Consulta de metadatos de modelos cargados
+- Reaccionar a los eventos de los espectadores
+- Controlar el estado del espectador
+- Personalización de la barra de herramientas del visor
+- Creación de elementos de interfaz de usuario personalizados
+
+
+
+:::tip
+
+La implementación completa de este tutorial está disponible en el [dashboard](https://github.com/autodesk-platform-services/aps-simple-viewer-nodejs/tree/dashboards)
+sucursal de https://github.com/autodesk-platform-services/aps-simple-viewer-nodejs.
+
+
+:::
+
+
+
+Muy bien, ¡comencemos!

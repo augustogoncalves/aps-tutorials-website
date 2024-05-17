@@ -1,0 +1,75 @@
+在项目文件夹的根目录中创建一个“config.js”文件，并添加以下代码：
+
+```js title="config.js"
+require('dotenv').config();
+let { APS_CLIENT_ID, APS_CLIENT_SECRET, APS_CALLBACK_URL, SERVER_SESSION_SECRET, PORT } = process.env;
+if (!APS_CLIENT_ID || !APS_CLIENT_SECRET || !APS_CALLBACK_URL || !SERVER_SESSION_SECRET) {
+    console.warn('Missing some of the environment variables.');
+    process.exit(1);
+}
+PORT = PORT || 8080;
+module.exports = {
+    APS_CLIENT_ID,
+    APS_CLIENT_SECRET,
+    APS_CALLBACK_URL,
+    SERVER_SESSION_SECRET,
+    PORT
+};
+```
+
+“dotenv”库从本地 _.env_ 文件（如果有）初始化环境变量。
+然后，我们只需从“process.env”中读取环境变量，然后退出应用程序
+如果缺少任何必需的属性，请立即执行。
+
+Next, let's create the _.env_ file in the project folder, and populate it with the required
+environment variables (replacing `<client-id>` and `<client-secret>` with your APS Client ID
+and Client Secret, and `<secret-phrase>` with an arbitrary string):
+
+``` title=".env"
+APS_CLIENT_ID="<client-id>"
+APS_CLIENT_SECRET="<client-secret>"
+APS_CALLBACK_URL="http://localhost:8080/api/auth/callback" # URL your users will be redirected to after logging in with their Autodesk account
+SERVER_SESSION_SECRET="<secret-phrase>" # secret phrase used to encrypt/decrypt server session cookies
+```
+
+
+
+:::caution
+
+由于“.env”文件包含敏感信息，请确保它**不**包含在 git 中！
+这可以通过在 [.gitignore](https://git-scm.com/docs/gitignore） 文件中添加“.env”行来确保。
+
+
+:::
+
+
+
+现在，为了能够从 Visual Studio Code 运行和调试我们的应用程序，我们需要创建
+a [启动配置](https://code.visualstudio.com/docs/editor/debugging#_launch-configurations）。
+使用菜单中的_Run >添加Configuration_创建新配置，并在出现提示时
+对于特定环境，选择 _Node.js_。这将创建一个新_.vscode_
+项目中带有 _launch.json_ 文件的子文件夹，您可以在其中定义不同的
+启动配置。将文件的内容替换为以下内容：
+
+```json title=".vscode/launch.json"
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Server",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "start"
+            ],
+            "skipFiles": [
+                "<node_internals>/**/*.js"
+            ]
+        }
+    ]
+}
+```
+
+我们正在定义一个名为 _Launch Server_ 的单一启动配置，该配置将简单地
+使用“npm start”命令启动我们的应用程序。

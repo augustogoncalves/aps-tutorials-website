@@ -1,0 +1,36 @@
+import Image from '@theme/IdealImage';
+
+
+
+:::caution
+
+确保您对 Autodesk Construction Cloud（简称 ACC）帐户具有 _admin_ 访问权限
+
+
+:::
+
+
+
+1. 登录您的 ACC 帐户，然后导航到_Account Administration_
+  - 从项目概述
+
+<Image img={require('./project-list.jpeg')} />
+
+- 从特定项目的用户界面
+
+<Image img={require('./project-detail.jpeg')} />
+
+2. 在_Account Admin_页面上，转到_Custom Integrations_，使用顶部的_Add自定义Integration_按钮添加自定义集成。
+
+<Image img={require('./account-admin.jpeg')} />
+
+3. 在“_Add自定义integration_”对话框页面上，填写“_Client ID_”、“_Custom集成name_”和“_Description_”字段。
+
+<Image img={require('./custom-integration.jpeg')} />
+
+4. 准备就绪后，点击 _Add_ 按钮
+
+完成该过程后，您的应用程序将能够使用不同的 APS 服务
+如 [数据管理 API](https://aps.autodesk.com/en/docs/data/v2/developers_guide/overview）
+或 [ACC API](https://aps.autodesk.com/en/docs/acc/v1/overview/introduction）
+访问此 ACC 帐户下所有项目的信息。

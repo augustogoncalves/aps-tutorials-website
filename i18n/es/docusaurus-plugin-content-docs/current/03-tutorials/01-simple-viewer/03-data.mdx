@@ -1,0 +1,120 @@
+import EnvTabs from '@site/src/components/EnvTabs.js';
+
+import NodeJsVsCodeData from './_shared/nodejs-vscode/data/data.mdx';
+import NodeJsVsCodeDerivatives from './_shared/nodejs-vscode/data/derivatives.mdx';
+import NodeJsVsCodeEndpoints from './_shared/nodejs-vscode/data/endpoints.mdx';
+
+import DotNetData from './_shared/dotnet/data/data.mdx';
+import DotNetDerivatives from './_shared/dotnet/data/derivatives.mdx';
+import DotNetEndpoints from './_shared/dotnet/data/endpoints.mdx';
+
+# Datos y derivados
+
+En este paso ampliaremos nuestro servidor para que podamos listar modelos, subirlos,
+y prepararlos para su visualización.
+
+## Gestión de datos
+
+En primer lugar, asegurémonos de que nuestra aplicación tiene un bucket en el servicio de administración de datos
+para almacenar sus archivos. Normalmente, el bucket se crearía una sola vez como parte de un aprovisionamiento
+pero en nuestro ejemplo implementaremos una función auxiliar que se asegurará de que el cubo
+está disponible y úselo en otras partes de la aplicación de servidor.
+
+Al crear depósitos, es necesario que las aplicaciones establezcan una política de retención para los objetos almacenados en el depósito. Esto no se puede cambiar en un momento posterior. La política de retención del bucket se aplica a todos los objetos almacenados en su interior. Al crear un bucket, establezca específicamente **policyKey** en **transitorio**, **temporal** o **persistente**.
+
+
+
+:::info
+
+**Política de retención de datos**
+
+**Transitorio**: los objetos con más de 24 horas de antigüedad se eliminan automáticamente.
+
+**Temporal**: cuando un objeto ha alcanzado los 30 días de antigüedad, se elimina.
+
+**Persistente**: disponible hasta que un usuario elimina el objeto.
+
+
+:::
+
+
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeData} DotNetVsCode={DotNetData} DotNetVs2022={DotNetData} />
+
+
+
+:::caution
+
+Tenga en cuenta que el servicio de administración de datos requiere que los nombres de los buckets sean **globalmente únicos**,
+y los intentos de crear un bucket con un nombre ya utilizado fallarán con '409 Conflict'.
+Consulte la [documentación](https://aps.autodesk.com/en/docs/data/v2/reference/http/buckets-POST)
+para obtener más detalles.
+
+
+:::
+
+
+
+## Derivados
+
+A continuación, implementaremos un par de funciones auxiliares que derivarán/extraerán varios tipos de información
+de los archivos cargados, por ejemplo, dibujos 2D, geometría 3D y metadatos, que luego podemos cargar
+en el Visor de nuestra página web. Para ello, tendremos que iniciar un nuevo trabajo de conversión
+en el [Derivado del modelo](https://aps.autodesk.com/en/docs/model-derivative/v2/developers_guide/overview)
+y comprobar el estado de la conversión.
+
+El servicio de derivado de modelos requiere que todos los identificadores que usamos en las llamadas a la API estén codificados en [base64](https://wikipedia.org/wiki/Base64).
+Así que incluimos una pequeña función de utilidad que ayudará con eso.
+
+
+
+:::info
+
+Los identificadores codificados en base64 se denominan _URN_.
+
+
+:::
+
+
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeDerivatives} DotNetVsCode={DotNetDerivatives} DotNetVs2022={DotNetDerivatives} />
+
+## Puntos de conexión del servidor
+
+Ahora vamos a poner la nueva funcionalidad a disposición del cliente a través de otro
+conjunto de puntos finales.
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeEndpoints} DotNetVsCode={DotNetEndpoints} DotNetVs2022={DotNetEndpoints} />
+
+## Pruébalo
+
+Inicie (o reinicie) la aplicación como de costumbre y navegue hasta [http://localhost:8080/api/models](http://localhost:8080/api/models)
+en el navegador. El servidor debe responder con una lista JSON con los nombres y URN de todos los objetos
+disponible en el bucket configurado.
+
+
+
+:::info
+
+Si es la primera vez que trabaja con APS, es posible que obtenga una respuesta JSON
+con una matriz vacía ('[]') que se espera. En la siguiente captura de pantalla podemos:
+Ya vemos un par de archivos que se cargaron en nuestro bucket en el pasado.
+
+
+:::
+
+
+
+
+
+:::tip
+
+Si está utilizando Google Chrome, considere la posibilidad de instalar [Formateador JSON](https://chrome.google.com/webstore/detail/json-formatter/bcjindcccaagfpapjjmafapmmgkkhgoa?hl=en)
+o una extensión similar para dar formato automáticamente a las respuestas JSON.
+
+
+:::
+
+
+
+![Server Response](./_shared/data-response.webp)

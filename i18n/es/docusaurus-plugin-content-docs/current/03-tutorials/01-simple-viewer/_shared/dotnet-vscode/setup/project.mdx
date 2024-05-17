@@ -1,0 +1,59 @@
+Cree una nueva carpeta para el proyecto, navegue hasta ella en la línea de comandos e inicialice una nueva carpeta
+ASP.NET Proyecto principal:
+
+```bash
+dotnet new web
+```
+
+A continuación, necesitaremos instalar las dependencias. En este caso solo serán un par de
+paquetes del SDK oficial de APS:
+
+```bash
+dotnet add package Autodesk.SdkManager
+dotnet add package Autodesk.Authentication
+dotnet add package Autodesk.OSS
+dotnet add package Autodesk.ModelDerivative
+```
+
+El archivo '*.csproj' en su proyecto ahora debería ser similar a este (posiblemente con
+números de versión ligeramente diferentes y configuraciones adicionales de .NET):
+
+```xml
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Autodesk.Authentication" Version="1.0.0" />
+    <PackageReference Include="Autodesk.ModelDerivative" Version="1.0.0" />
+    <PackageReference Include="Autodesk.OSS" Version="1.0.0" />
+    <PackageReference Include="Autodesk.SdkManager" Version="1.0.0" />
+  </ItemGroup>
+</Project>
+```
+
+Finalmente, vamos a crear un par de subcarpetas más en la carpeta de tu proyecto que vamos a necesitar más adelante:
+
+- 'Controladores': aquí es donde vamos a implementar todos los puntos finales del servidor
+- 'Modelos': aquí vamos a mantener toda la lógica del lado del servidor que pueden compartir los diferentes puntos finales
+- 'wwwroot': aquí es donde vamos a poner todos los activos del lado del cliente (HTML, CSS, JavaScript, imágenes, etc.)
+
+Ahora, cuando abra la carpeta del proyecto en Visual Studio Code por primera vez, se le preguntará
+para configurar el proyecto para el desarrollo de .NET. Acepte el mensaje y el editor creará automáticamente
+una subcarpeta '.vscode' con configuraciones específicas adicionales de .NET, como la predeterminada [launch configuration](https://code.visualstudio.com/docs/editor/debugging#_launch-configurations).
+La estructura de carpetas en el editor debería ser similar a esta:
+
+![Folder Structure](folder-structure.webp)
+
+
+
+:::note
+
+Si la carpeta '.vscode' no se crea automáticamente, puede crearla a través del panel lateral Ejecutar y depurar
+
+
+:::
+
+
+
+Para crear la carpeta '.vscode', haga clic en la herramienta *Ejecutar y depurar en el panel lateral izquierdo > crear un archivo launch.json > Seleccionar . NET5+ y .NET Core*.

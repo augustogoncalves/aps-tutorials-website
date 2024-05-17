@@ -1,0 +1,378 @@
+# 模型摘要
+
+在此步骤中，我们将创建另一个查看器扩展，这次引入了自定义 UI 元素
+也。我们将在查看器工具栏中添加一个自定义按钮，当单击该按钮时，
+我们显示一个停靠面板，其中包含不同设计元素中的属性值摘要。
+
+## 扩展骨架
+
+就像以前的扩展名一样，在“extensions”子文件夹下创建一个新文件，
+将其命名为“SummaryExtension.js”，并使用以下代码填充它：
+
+```js title="wwwroot/extensions/SummaryExtension.js"
+import { BaseExtension } from './BaseExtension.js';
+class SummaryExtension extends BaseExtension {
+    constructor(viewer, options) {
+        super(viewer, options);
+    }
+    load() {
+        super.load();
+        console.log('SummaryExtension loaded.');
+        return true;
+    }
+    unload() {
+        super.unload();
+        console.log('SummaryExtension unloaded.');
+        return true;
+    }
+    onModelLoaded(model) {
+        super.onModelLoaded(model);
+        this.update();
+    }
+    onSelectionChanged(model, dbids) {
+        super.onSelectionChanged(model, dbids);
+        this.update();
+    }
+    onIsolationChanged(model, dbids) {
+        super.onIsolationChanged(model, dbids);
+        this.update();
+    }
+    async update() {
+        // TODO
+    }
+}
+Autodesk.Viewing.theExtensionManager.registerExtension('SummaryExtension', SummaryExtension);
+```
+
+Next, in `wwwroot/viewer.js`, import the extension code to our application, and pass the extension ID
+to the viewer constructor:
+
+```js
+import './extensions/LoggerExtension.js';
+// highlight-start
+import './extensions/SummaryExtension.js';
+// highlight-end
+```
+
+```js
+const config = {
+    extensions: [
+        'LoggerExtension',
+        // highlight-start
+        'SummaryExtension',
+        // highlight-end
+    ]
+};
+const viewer = new Autodesk.Viewing.GuiViewer3D(container, config);
+```
+
+## 工具栏按钮
+
+现在，我们将在查看器工具栏中创建一个新按钮。由于其他扩展将需要
+这个功能，让我们更新我们的'BaseExtension'类（在'BaseExtension.js'文件中）
+使用以下帮助程序方法：
+
+```js title="wwwroot/extensions/BaseExtension.js"
+export class BaseExtension extends Autodesk.Viewing.Extension {
+    constructor(viewer, options) {
+        super(viewer, options);
+        this._onObjectTreeCreated = (ev) => this.onModelLoaded(ev.model);
+        this._onSelectionChanged = (ev) => this.onSelectionChanged(ev.model, ev.dbIdArray);
+        this._onIsolationChanged = (ev) => this.onIsolationChanged(ev.model, ev.nodeIdArray);
+    }
+    load() {
+        this.viewer.addEventListener(Autodesk.Viewing.OBJECT_TREE_CREATED_EVENT, this._onObjectTreeCreated);
+        this.viewer.addEventListener(Autodesk.Viewing.SELECTION_CHANGED_EVENT, this._onSelectionChanged);
+        this.viewer.addEventListener(Autodesk.Viewing.ISOLATE_EVENT, this._onIsolationChanged);
+        return true;
+    }
+    unload() {
+        this.viewer.removeEventListener(Autodesk.Viewing.OBJECT_TREE_CREATED_EVENT, this._onObjectTreeCreated);
+        this.viewer.removeEventListener(Autodesk.Viewing.SELECTION_CHANGED_EVENT, this._onSelectionChanged);
+        this.viewer.removeEventListener(Autodesk.Viewing.ISOLATE_EVENT, this._onIsolationChanged);
+        return true;
+    }
+    onToolbarCreated() {}
+    onModelLoaded(model) {}
+    onSelectionChanged(model, dbids) {}
+    onIsolationChanged(model, dbids) {}
+    findLeafNodes(model) {
+        return new Promise(function (resolve, reject) {
+            model.getObjectTree(function (tree) {
+                let leaves = [];
+                tree.enumNodeChildren(tree.getRootId(), function (dbid) {
+                    if (tree.getChildCount(dbid) === 0) {
+                        leaves.push(dbid);
+                    }
+                }, true);
+                resolve(leaves);
+            }, reject);
+        });
+    }
+    async findPropertyNames(model) {
+        const dbids = await this.findLeafNodes(model);
+        return new Promise(function (resolve, reject) {
+            model.getBulkProperties(dbids, {}, function (results) {
+                let propNames = new Set();
+                for (const result of results) {
+                    for (const prop of result.properties) {
+                        propNames.add(prop.displayName);
+                    }
+                }
+                resolve(Array.from(propNames.values()));
+            }, reject);
+        });
+    }
+    // highlight-start
+    createToolbarButton(buttonId, buttonIconUrl, buttonTooltip) {
+        let group = this.viewer.toolbar.getControl('dashboard-toolbar-group');
+        if (!group) {
+            group = new Autodesk.Viewing.UI.ControlGroup('dashboard-toolbar-group');
+            this.viewer.toolbar.addControl(group);
+        }
+        const button = new Autodesk.Viewing.UI.Button(buttonId);
+        button.setToolTip(buttonTooltip);
+        group.addControl(button);
+        const icon = button.container.querySelector('.adsk-button-icon');
+        if (icon) {
+            icon.style.backgroundImage = `url(${buttonIconUrl})`; 
+            icon.style.backgroundSize = `24px`; 
+            icon.style.backgroundRepeat = `no-repeat`; 
+            icon.style.backgroundPosition = `center`; 
+        }
+        return button;
+    }
+    // highlight-end
+    // highlight-start
+    removeToolbarButton(button) {
+        const group = this.viewer.toolbar.getControl('dashboard-toolbar-group');
+        group.removeControl(button);
+    }
+    // highlight-end
+}
+```
+
+新代码使用“Autodesk.Viewing.UI”命名空间中的类来创建
+一个新的工具栏按钮组，以及一个具有特定 ID、图标 URL 的新工具栏按钮、
+和工具提示消息。
+
+现在，让我们在“SummaryExtension”类中使用这些帮助程序方法：
+
+```js title="wwwroot/extensions/SummaryExtension.js"
+import { BaseExtension } from './BaseExtension.js';
+class SummaryExtension extends BaseExtension {
+    constructor(viewer, options) {
+        super(viewer, options);
+        // highlight-start
+        this._button = null;
+        // highlight-end
+    }
+    load() {
+        super.load();
+        console.log('SummaryExtension loaded.');
+        return true;
+    }
+    unload() {
+        super.unload();
+        // highlight-start
+        if (this._button) {
+            this.removeToolbarButton(this._button);
+            this._button = null;
+        }
+        // highlight-end
+        console.log('SummaryExtension unloaded.');
+        return true;
+    }
+    onToolbarCreated() {
+        // highlight-start
+        this._button = this.createToolbarButton('summary-button', 'https://img.icons8.com/small/32/brief.png', 'Show Model Summary');
+        this._button.onClick = () => {
+            // TODO
+        };
+        // highlight-end
+    }
+    onModelLoaded(model) {
+        super.onModelLoaded(model);
+        this.update();
+    }
+    onSelectionChanged(model, dbids) {
+        super.onSelectionChanged(model, dbids);
+        this.update();
+    }
+    onIsolationChanged(model, dbids) {
+        super.onIsolationChanged(model, dbids);
+        this.update();
+    }
+    async update() {
+        // TODO
+    }
+}
+Autodesk.Viewing.theExtensionManager.registerExtension('SummaryExtension', SummaryExtension);
+```
+
+查看器将在以下时间（以及如果）自动调用“onToolbarCreated”方法
+工具栏已准备就绪。请注意，查看器可能会在“无头”模式下激活，
+在这种情况下，不会创建任何 UI，也不会调用“onToolbarCreated”方法。
+
+## 自定义面板
+
+最后，我们更新了“SummaryExtension”扩展，以便当用户单击
+在工具栏按钮下，我们显示一个自定义查看器面板，其中包含从 Properites 聚合的数据
+当前加载的设计。
+
+首先在“SummaryExtension.js”的同一文件夹中创建一个“SummaryPanel.js”文件
+，并向其添加以下代码：
+
+```js title="wwwroot/extensions/SummaryPanel.js"
+export class SummaryPanel extends Autodesk.Viewing.UI.PropertyPanel {
+    constructor(extension, id, title) {
+        super(extension.viewer.container, id, title);
+        this.extension = extension;
+    }
+    async update(model, dbids, propNames) {
+        this.removeAllProperties();
+        for (const propName of propNames) {
+            const initialValue = { sum: 0, count: 0, min: Infinity, max: -Infinity };
+            const aggregateFunc = (aggregate, value, property) => {
+                return {
+                    count: aggregate.count + 1,
+                    sum: aggregate.sum + value,
+                    min: Math.min(aggregate.min, value),
+                    max: Math.max(aggregate.max, value),
+                    units: property.units,
+                    precision: property.precision
+                };
+            };
+            const { sum, count, min, max, units, precision } = await this.aggregatePropertyValues(model, dbids, propName, aggregateFunc, initialValue);
+            if (count > 0) {
+                const category = propName;
+                this.addProperty('Count', count, category);
+                this.addProperty('Sum', this.toDisplayUnits(sum, units, precision), category);
+                this.addProperty('Avg', this.toDisplayUnits((sum / count), units, precision), category);
+                this.addProperty('Min', this.toDisplayUnits(min, units, precision), category);
+                this.addProperty('Max', this.toDisplayUnits(max, units, precision), category);
+            }
+        }
+    }
+    async aggregatePropertyValues(model, dbids, propertyName, aggregateFunc, initialValue = 0) {
+        return new Promise(function (resolve, reject) {
+            let aggregatedValue = initialValue;
+            model.getBulkProperties(dbids, { propFilter: [propertyName] }, function (results) {
+                for (const result of results) {
+                    if (result.properties.length > 0) {
+                        const prop = result.properties[0];
+                        aggregatedValue = aggregateFunc(aggregatedValue, prop.displayValue, prop);
+                    }
+                }
+                resolve(aggregatedValue);
+            }, reject);
+        });
+    }
+    toDisplayUnits(value, units, precision) {
+        return Autodesk.Viewing.Private.formatValueWithUnits(value, units, 3, precision);
+    }
+}
+```
+
+新类派生自 [Autodesk.Viewing.UI.PropertyPanel](https://aps.autodesk.com/en/docs/viewer/v7/reference/UI/PropertyPanel/）
+这是用于显示所选设计元素属性的标准面板 UI。
+在本例中，我们使用“removeAllProperties”和“addProperty”方法来显示不同的
+数据类型。给定一组特定的对象 ID 和属性名称，“SummaryPanel”将
+显示这些属性的聚合值（计数、总和、平均值、最小值和最大值）
+跨所有对象。
+
+最后，让我们将面板添加到我们的扩展中：
+
+```js title="wwwroot/extensions/SummaryExtension.js"
+import { BaseExtension } from './BaseExtension.js';
+// highlight-start
+import { SummaryPanel } from './SummaryPanel.js';
+// highlight-end
+// highlight-start
+const SUMMARY_PROPS = ['Length', 'Area', 'Volume', 'Density', 'Mass', 'Price'];
+// highlight-end
+class SummaryExtension extends BaseExtension {
+    constructor(viewer, options) {
+        super(viewer, options);
+        this._button = null;
+        // highlight-start
+        this._panel = null;
+        // highlight-end
+    }
+    load() {
+        super.load();
+        console.log('SummaryExtension loaded.');
+        return true;
+    }
+    unload() {
+        super.unload();
+        if (this._button) {
+            this.removeToolbarButton(this._button);
+            this._button = null;
+        }
+        // highlight-start
+        if (this._panel) {
+            this._panel.setVisible(false);
+            this._panel.uninitialize();
+            this._panel = null;
+        }
+        // highlight-end
+        console.log('SummaryExtension unloaded.');
+        return true;
+    }
+    onToolbarCreated() {
+        // highlight-start
+        this._panel = new SummaryPanel(this, 'model-summary-panel', 'Model Summary');
+        // highlight-end
+        this._button = this.createToolbarButton('summary-button', 'https://img.icons8.com/small/32/brief.png', 'Show Model Summary');
+        this._button.onClick = () => {
+            // highlight-start
+            this._panel.setVisible(!this._panel.isVisible());
+            this._button.setState(this._panel.isVisible() ? Autodesk.Viewing.UI.Button.State.ACTIVE : Autodesk.Viewing.UI.Button.State.INACTIVE);
+            if (this._panel.isVisible()) {
+                this.update();
+            }
+            // highlight-end
+        };
+    }
+    onModelLoaded(model) {
+        super.onModelLoaded(model);
+        this.update();
+    }
+    onSelectionChanged(model, dbids) {
+        super.onSelectionChanged(model, dbids);
+        this.update();
+    }
+    onIsolationChanged(model, dbids) {
+        super.onIsolationChanged(model, dbids);
+        this.update();
+    }
+    async update() {
+        // highlight-start
+        if (this._panel) {
+            const selectedIds = this.viewer.getSelection();
+            const isolatedIds = this.viewer.getIsolatedNodes();
+            if (selectedIds.length > 0) { // If any nodes are selected, compute the aggregates for them
+                this._panel.update(this.viewer.model, selectedIds, SUMMARY_PROPS);
+            } else if (isolatedIds.length > 0) { // Or, if any nodes are isolated, compute the aggregates for those
+                this._panel.update(this.viewer.model, isolatedIds, SUMMARY_PROPS);
+            } else { // Otherwise compute the aggregates for all nodes
+                const dbids = await this.findLeafNodes(this.viewer.model);
+                this._panel.update(this.viewer.model, dbids, SUMMARY_PROPS);
+            }
+        }
+        // highlight-end
+    }
+}
+Autodesk.Viewing.theExtensionManager.registerExtension('SummaryExtension', SummaryExtension);
+```
+
+## 试一试
+
+这一次，我们可以直接在查看器中测试我们的新扩展。尝试单击新工具栏
+按钮打开我们的摘要面板。该面板显示各种属性聚合
+我们在“SUMMARY_PROPS”常量（_Length_， _Area_， _Volume_， _Density_，
+_Mass_ 和 _Price_） 用于所有对象。当我们隔离或选择一些设计时
+元素，聚合值也应该反映这一点。
+
+![Aggregates Result](model-summary-final-app.webp)

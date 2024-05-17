@@ -1,0 +1,71 @@
+import Image from '@theme/IdealImage';
+
+
+
+:::caution
+
+BIM 360 계정에 대한 _admin_ 액세스 권한이 있는지 확인합니다.
+
+
+:::
+
+
+
+1. BIM 360 계정에 로그인하고 _Account Admin_
+
+2. _Account Admin_ 페이지에서 _설정_으로 이동하여 _Custom Integrations_ 탭으로 이동합니다.
+
+<Image img={require('./custom-integrations.jpeg')} />
+
+3. 왼쪽에 있는 _Add 사용자 지정 Integration_ 버튼을 사용하여 간단한 마법사를 시작합니다.
+프로세스를 안내합니다
+
+4. _Select Access_ 페이지에서 _BIM 360 계정 Administration_
+_Document Management_ 옵션을 선택하고 _Next_ 버튼을 누르십시오.
+
+<Image img={require('../select-access.jpeg')} />
+
+5. 마법사의 다음 페이지에서 _I developer_ 옵션을 선택하고
+_다음_ 버튼
+
+<Image img={require('../i-am-developer.jpeg')} />
+
+
+
+:::info
+
+여기서는 _account admin_가 APS 응용 프로그램의 소유자이기도 하다고 가정합니다.
+그렇지 않은 경우 계정 관리자는 _Invite developer_ 사용할 수 있습니다
+옵션을 대신 사용하면 초대된 개발자가 나중에 APS 애플리케이션 세부 정보를 입력합니다.
+
+
+:::
+
+
+
+6. 다음 페이지이자 마지막 페이지에서 _BIM 360 계정 ID_ 기록하고
+확인란을 선택하고 _Client ID_ 및 _App Name_ 필드를 채웁니다.
+https://aps.autodesk.com/myapps 의 응용 프로그램 페이지에 표시되는 것과 정확히 일치합니다.
+
+<Image img={require('../bim360-info.jpeg')} />
+
+
+
+:::tip
+
+클라이언트 ID를 _App Description_ 어딘가에 저장하는 것이 좋습니다. 클라이언트 ID는 _ 하지 _ 않습니다 _
+사용자 지정 통합이 생성된 후 사용자 지정 통합에 나타나며, 통합 수
+계정에서 성장하기 시작하면 APS 응용 프로그램을 빠르게 식별하는 데 도움이 됩니다
+각 사용자 지정 통합은 다음과 연결됩니다.
+
+
+:::
+
+
+
+7. 준비가 되면 아래로 스크롤하여 _저장_ 버튼을 누르십시오.
+
+그리고 그게 다야. 이제 응용 프로그램에서 다음과 같은 다른 APS 서비스를 사용할 수 있습니다.
+[데이터 관리 API](https://aps.autodesk.com/en/docs/data/v2/developers_guide/overview)
+또는 [BIM 360 API](https://aps.autodesk.com/en/docs/bim360/v1/overview/introduction)
+을 클릭하여 이 BIM 360 계정에 있는 모든 프로젝트의 정보에 액세스할 수 있습니다.

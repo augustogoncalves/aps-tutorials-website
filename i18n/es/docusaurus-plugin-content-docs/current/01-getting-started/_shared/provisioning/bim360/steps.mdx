@@ -1,0 +1,71 @@
+import Image from '@theme/IdealImage';
+
+
+
+:::caution
+
+Asegúrese de que tiene acceso _admin_ a una cuenta de BIM 360.
+
+
+:::
+
+
+
+1. Inicie sesión en su cuenta de BIM 360 y vaya a _Account Admin_
+
+2. En la página _Account Admin_, vaya a _Configuración_ y navegue hasta la pestaña _Custom Integrations_
+
+<Image img={require('./custom-integrations.jpeg')} />
+
+3. Utilice el botón _Add Custom Integration_ en el lado izquierdo para iniciar un asistente simple
+que te guiará a través del proceso
+
+4. En la página _Select Access_, mantenga la cuenta de _BIM 360 Administration_
+y las opciones _Document Management_ marcadas, y presione el botón _Siguiente_
+
+<Image img={require('../select-access.jpeg')} />
+
+5. En la página siguiente del asistente, elija la opción _I soy la developer_ y presione
+el botón _Siguiente_
+
+<Image img={require('../i-am-developer.jpeg')} />
+
+
+
+:::info
+
+Aquí asumimos que el _account admin_ también es el propietario de la aplicación APS.
+Si ese no es el caso, el administrador de la cuenta puede usar el _Invite un developer_
+en su lugar, y el desarrollador invitado ingresará los detalles de la aplicación APS más tarde.
+
+
+:::
+
+
+
+6. En la página siguiente y última, tome nota de la ID_ de la cuenta de _BIM 360, marque el
+junto a él y rellene los campos _Client ID_ y _App Name_
+exactamente como aparecen en la página de su aplicación en https://aps.autodesk.com/myapps
+
+<Image img={require('../bim360-info.jpeg')} />
+
+
+
+:::tip
+
+Considere la posibilidad de almacenar su ID de cliente en algún lugar de _App Description_. El ID de cliente _no_
+aparecen en la integración personalizada después de que se haya creado, y si el número de integraciones
+en su cuenta comienza a crecer, esto le ayudará a identificar rápidamente la aplicación APS
+Cada integración personalizada está asociada con.
+
+
+:::
+
+
+
+7. Cuando esté listo, desplácese hacia abajo y presione el botón _Guardar_
+
+Y eso es todo. Ahora su aplicación puede usar diferentes servicios APS, tales como:
+[API de gestión de datos](https://aps.autodesk.com/en/docs/data/v2/developers_guide/overview)
+o [API de BIM 360](https://aps.autodesk.com/en/docs/bim360/v1/overview/introduction)
+para acceder a la información de todos los proyectos de esta cuenta de BIM 360.

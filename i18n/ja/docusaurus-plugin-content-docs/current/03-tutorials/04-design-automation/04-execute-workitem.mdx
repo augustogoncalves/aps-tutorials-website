@@ -1,0 +1,82 @@
+import EnvTabs from "@site/src/components/EnvTabs.js";
+import WorkitemForNet from "./_shared/dotnet-vs2022/setup/workitem.mdx";
+import WorkitemForNodejs from "./_shared/nodejs-vscode/setup/workitem.mdx";
+import DebugForNet from "./_shared/dotnet-vs2022/setup/debug.mdx";
+import DebugForNodejs from "./_shared/nodejs-vscode/setup/debug.mdx";
+import ResponsiveVideo from "@site/src/components/ResponsiveVideo.js";
+import PreviewUrl from "@site/static/videos/modify-your-models.mp4";
+
+# ワークアイテムの実行
+
+指定された入力ファイルを使用し、適切な出力ファイルを生成して、指定されたアクティビティを実行するジョブ。
+
+Activity と WorkItem の関係は、それぞれ "関数定義" と "関数呼び出し" と考えることができます。アクティビティは使用する AppBundle を指定し、AppBundle は使用するエンジンを指定します。その後、Workitem が呼び出されて、それらが実行されます。
+
+このチュートリアル サンプルでは、作業項目は、入力ファイルの URL、新しいパラメーター値を含む入力 JSON データ、および出力ファイルの宛先 URL を指定します。このサンプルでは、作業項目を開始する前に、入力ファイルを OSS バケットにアップロードします。
+
+<EnvTabs
+  NodeJsVsCode={WorkitemForNodejs}
+  DotNetVsCode={WorkitemForNet}
+  DotNetVs2022={WorkitemForNet}
+/>
+
+すべての準備が整いました!
+
+## 実行とデバッグ
+
+アプリの準備ができたので、次はアプリを実行します。ここで、起こりうるエラーをテストおよびチェックできます(デバッグを介して)。
+
+## サンプルを使う
+
+一番上の位置で、**Configure** をクリックして AppBundle & Activity を定義します。これは一度だけ行う必要があります。左側のパネルで新しい「幅」と「高さ」を指定し、「入力ファイル」を選択して「作業項目の開始」をクリックします。右側のパネルに結果が表示されます。
+
+[サンプルファイルはこちら](https://github.com/autodesk-platform-services/aps-design-automation-dotnet/tree/master/sample%20files)にあります。
+
+
+
+:::caution
+
+プラグインコードが変更された場合は、新しいAppBundleをアップロードしてバージョンを上げる必要があります(例:v1からv2)。このサンプルでは、新しい AppBundle がアップロードされるたびに新しいバージョンが作成されます。
+
+
+:::
+
+
+
+> 入力ファイルと出力ファイルの両方が OSS バケットに保存され、[モデルの表示](../simple-viewer/)チュートリアルで表示できます。
+
+<ResponsiveVideo src={PreviewUrl} />
+
+## トラブルシューティング
+
+**1.結果パネルに情報全体が表示されない**
+
+**ngrok** が実行されていて、有効期限が切れていないことを確認します。環境変数で ngrok アドレスが正しく指定されていることを確認します。
+
+**2.作業項目は実行されましたが、結果が期待どおりではありません**
+
+**[アカウントのクリア]** ボタンの使用を検討してください。これにより、アカウント上のすべての AppBundle とアクティビティが削除されます。次に、それらを再度定義します。
+
+**3.設定フォームに AppBundle が表示されない**
+
+ZIPバンドルは、それぞれのプラグインをビルドした後、「バンドル」にコピーされます。「Post-build」イベントが適切に定義され、ビルド後に実行されることを確認してください。
+
+**4.正しい DLL がアップロードされたことを確認する**
+
+正しい DLL が Design Automation にアップロードされたことを確認する簡単な方法は、その日付を確認することです。[このStackOverflowの答え](https://stackoverflow.com/a/1600990)は、リンカの日付(つまり、DLLがコンパイルされた日付)を取得する方法を示しており、コードの先頭に表示できます。日付はサーバーのタイムゾーンにあることに注意してください。
+
+>プラグインは、サーバーの言語に関係なく「C#」で記述されています。
+
+```cs
+LogTrace("DLL {0} compiled on {1}",
+    System.IO.Path.GetFileName(System.Reflection.Assembly.GetExecutingAssembly().Location),
+    GetLinkerTime(System.Reflection.Assembly.GetExecutingAssembly()));
+```
+
+用意。さっそく実行してみましょう!
+
+<EnvTabs
+  NodeJsVsCode={DebugForNodejs}
+  DotNetVsCode={DebugForNet}
+  DotNetVs2022={DebugForNet}
+/>

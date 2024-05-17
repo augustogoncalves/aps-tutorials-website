@@ -1,0 +1,23 @@
+import NodeJsVsCodeTokens from './_shared/nodejs-vscode/auth/tokens.mdx';
+import NodeJsVsCodeEndpoints from './_shared/nodejs-vscode/auth/endpoints.mdx';
+import NodeJsVsCodeTest from './_shared/nodejs-vscode/auth/test.mdx';
+
+# 認証
+
+このステップでは、サーバーの実装を拡張して、サーバー自体を認証できるようにします
+APSプラットフォームに、[3-legged OAuthワークフロー](https://aps.autodesk.com/en/docs/oauth/v2/tutorials/get-3-legged-token)を案内します。
+さまざまなニーズに対応するアクセストークンを生成します。
+
+## アクセストークン
+
+<NodeJsVsCodeTokens />
+
+## サーバーエンドポイント
+
+次に、サーバー内のエンドポイントのコレクションを介してこの機能を公開しましょう。
+
+<NodeJsVsCodeEndpoints />
+
+## 試してみる
+
+<NodeJsVsCodeTest />

@@ -1,0 +1,23 @@
+import NodeJsVsCodeTokens from './_shared/nodejs-vscode/auth/tokens.mdx';
+import NodeJsVsCodeEndpoints from './_shared/nodejs-vscode/auth/endpoints.mdx';
+import NodeJsVsCodeTest from './_shared/nodejs-vscode/auth/test.mdx';
+
+# 身份验证
+
+在此步骤中，我们将扩展服务器实现，以便它可以对自己进行身份验证
+到 APS 平台，引导用户完成 [3 条 OAuth 工作流](https://aps.autodesk.com/en/docs/oauth/v2/tutorials/get-3-legged-token），
+并生成满足各种需求的访问令牌。
+
+## 访问令牌
+
+<NodeJsVsCodeTokens />
+
+## 服务器端点
+
+现在，让我们通过服务器中的终结点集合来公开此功能。
+
+<NodeJsVsCodeEndpoints />
+
+## 试一试
+
+<NodeJsVsCodeTest />

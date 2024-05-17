@@ -1,0 +1,60 @@
+V průzkumníku řešení vyberte projekt designAutomationSample v části Vlastnosti,
+Vyberte a otevřete 'launchSettings.json'
+
+- Změňte applicationUrl na "http://localhost:8080".
+- V launchSettings.json přejděte na profiles\designAutomationSample\environmentVariables a přidejte následující prostředí.
+
+```bash
+ASPNETCORE_URLS:"http://localhost:8080"
+APS_CLIENT_ID:"Your Id Here"
+APS_CLIENT_SECRET:"Your Secret Here"
+```
+
+- Vyberte projekt designAutomationSample, klikněte pravým tlačítkem myši na Přidat > Nová položka a vyberte JSON.
+- Pojmenujte jej jako "appsettings.user.json".
+- Přidejte následující nastavení konfigurace, které vyžaduje [DesignAutomation SDK](https://www.nuget.org/packages/Autodesk.Forge.DesignAutomation)
+  vytvářet oAuth a spouštět požadavky API.
+
+```json title=appsettings.user.json
+{
+  "Forge": {
+    "ClientId": "your client id",
+    "ClientSecret": "your secret"
+  }
+}
+```
+
+Vzhledem k tomu, že běží místně, 'sslPort' je nastavený na 0. Mělo by to vypadat tak, jak je znázorněno níže.
+
+```json title="launchSettings.json"
+{
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:8080",
+      "sslPort": 0
+    }
+  },
+  "profiles": {
+    "designAutomationSample": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "applicationUrl": "http://localhost:8080",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "APS_CLIENT_ID": "your client id here",
+        "APS_CLIENT_SECRET": "your secret here"
+      }
+    },
+    "IIS Express": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
+```

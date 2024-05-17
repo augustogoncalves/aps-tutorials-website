@@ -1,0 +1,32 @@
+在“routes”子文件夹下创建一个包含以下内容的“auth.js”文件：
+
+```js title="routes/auth.js"
+const express = require('express');
+const { getPublicToken } = require('../services/aps.js');
+let router = express.Router();
+router.get('/api/auth/token', async function (req, res, next) {
+    try {
+        res.json(await getPublicToken());
+    } catch (err) {
+        next(err);
+    }
+});
+module.exports = router;
+```
+
+在这里，我们实现了一个新的 [Express Router](http://expressjs.com/en/4x/api.html#router），它将处理
+通过生成公共访问令牌，请求进入我们的服务器，URL 以“/token”结尾
+并将其作为 JSON 响应发送回客户端。
+
+让我们通过修改“server.js”将路由器“挂载”到我们的服务器应用程序：
+
+```js title="server.js"
+const express = require('express');
+const { PORT } = require('./config.js');
+let app = express();
+app.use(express.static('wwwroot'));
+// highlight-start
+app.use(require('./routes/auth.js'));
+// highlight-end
+app.listen(PORT, function () { console.log(`Server listening on port ${PORT}...`); });
+```

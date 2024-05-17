@@ -1,0 +1,120 @@
+import EnvTabs from '@site/src/components/EnvTabs.js';
+
+import NodeJsVsCodeData from './_shared/nodejs-vscode/data/data.mdx';
+import NodeJsVsCodeDerivatives from './_shared/nodejs-vscode/data/derivatives.mdx';
+import NodeJsVsCodeEndpoints from './_shared/nodejs-vscode/data/endpoints.mdx';
+
+import DotNetData from './_shared/dotnet/data/data.mdx';
+import DotNetDerivatives from './_shared/dotnet/data/derivatives.mdx';
+import DotNetEndpoints from './_shared/dotnet/data/endpoints.mdx';
+
+# Données et dérivés
+
+Dans cette étape, nous allons étendre notre serveur afin de pouvoir lister les modèles, les télécharger,
+et les préparer pour le visionnage.
+
+## Gestion des données
+
+Tout d’abord, assurons-nous que notre application dispose d’un compartiment dans le service de gestion des données
+pour stocker ses fichiers. En règle générale, le compartiment n’est créé qu’une seule fois dans le cadre d’un provisionnement
+mais dans notre exemple, nous allons implémenter une fonction d’assistance qui s’assurera que le bucket
+est disponible et utilisez-le dans d’autres parties de l’application serveur.
+
+Lors de la création de compartiments, les applications doivent définir une stratégie de rétention pour les objets stockés dans le compartiment. Cela ne peut pas être modifié ultérieurement. La stratégie de rétention sur le compartiment s’applique à tous les objets qui y sont stockés. Lors de la création d’un compartiment, définissez spécifiquement la **policyKey** sur **transitoire**, **temporaire** ou **persistant**.
+
+
+
+:::info
+
+**Politique de conservation des données**
+
+**Transitoire** - Les objets datant de plus de 24 heures sont automatiquement supprimés.
+
+**Temporaire** - Lorsqu’un objet a atteint l’âge de 30 jours, il est supprimé.
+
+**Persistant** - Disponible jusqu’à ce qu’un utilisateur supprime l’objet.
+
+
+:::
+
+
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeData} DotNetVsCode={DotNetData} DotNetVs2022={DotNetData} />
+
+
+
+:::caution
+
+Notez que le service de gestion des données nécessite que les noms de compartiment soient **globalement uniques**,
+et les tentatives de création d’un compartiment avec un nom déjà utilisé échoueront avec « Conflit 409 ».
+Voir la [documentation](https://aps.autodesk.com/en/docs/data/v2/reference/http/buckets-POST)
+pour plus de détails.
+
+
+:::
+
+
+
+## Dérivés
+
+Ensuite, nous allons implémenter quelques fonctions d’assistance qui dériveront/extrairont divers types d’informations
+à partir des fichiers téléchargés - par exemple, des dessins 2D, des géométries 3D et des métadonnées - que nous pouvons charger ultérieurement
+dans le visualiseur de notre page Web. Pour ce faire, nous devrons démarrer une nouvelle tâche de conversion
+dans la [Dérivée du modèle](https://aps.autodesk.com/en/docs/model-derivative/v2/developers_guide/overview)
+et vérifier l’état de la conversion.
+
+Le service Model Derivative exige que tous les ID que nous utilisons dans les appels d’API soient encodés en [base64](https://wikipedia.org/wiki/Base64),
+Nous incluons donc une petite fonction utilitaire qui vous aidera.
+
+
+
+:::info
+
+Les identifiants codés en Base64 sont appelés _URNs_.
+
+
+:::
+
+
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeDerivatives} DotNetVsCode={DotNetDerivatives} DotNetVs2022={DotNetDerivatives} />
+
+## Points de terminaison du serveur
+
+Rendons maintenant la nouvelle fonctionnalité disponible pour le client via une autre
+ensemble de points de terminaison.
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeEndpoints} DotNetVsCode={DotNetEndpoints} DotNetVs2022={DotNetEndpoints} />
+
+## Essayez-le
+
+Démarrez (ou redémarrez) l’application comme d’habitude, puis accédez à [http://localhost:8080/api/models](http://localhost:8080/api/models)
+dans le navigateur. Le serveur doit répondre avec une liste JSON avec les noms et les URN de tous les objets
+disponible dans votre compartiment configuré.
+
+
+
+:::info
+
+Si c’est la première fois que vous travaillez avec APS, vous pouvez obtenir une réponse JSON
+avec un tableau vide ('[]') qui est attendu. Dans la capture d’écran ci-dessous, nous pouvons
+Nous voyons déjà quelques fichiers qui ont été téléchargés dans notre compartiment dans le passé.
+
+
+:::
+
+
+
+
+
+:::tip
+
+Si vous utilisez Google Chrome, envisagez d’installer [JSON Formatter](https://chrome.google.com/webstore/detail/json-formatter/bcjindcccaagfpapjjmafapmmgkkhgoa?hl=en)
+ou une extension similaire pour formater automatiquement les réponses JSON.
+
+
+:::
+
+
+
+![Server Response](./_shared/data-response.webp)

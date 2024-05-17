@@ -1,0 +1,118 @@
+---
+slug: /
+---
+
+import Image from '@theme/IdealImage';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import AccProvisioningSteps from './_shared/provisioning/acc/steps.mdx';
+import Bim360ProvisioningSteps from './_shared/provisioning/bim360/steps.mdx';
+
+# はじめに
+
+ここでは、最初の
+[オートデスク プラットフォーム サービス](https://aps.autodesk.com)アプリケーション。
+
+## アカウント作成
+
+まだお持ちでない場合 APS アカウントは、https://aps.autodesk.com でサインアップしてください。
+
+
+
+:::tip
+
+3 か月間有効な試用版サブスクリプションを利用できます。
+
+
+:::
+
+
+
+<Image img={require('./_shared/developer-portal-logged-out.png')} />
+
+## アプリの認証情報を作成する
+
+APSプラットフォームに対して自分自身を認証するには、
+_app credentials_(具体的には、_client ID_と_client secret_)をアプリケーションに使用してください。
+開発者ポータルにログインした後、右上隅にあるプロファイルメニューに移動し、
+をクリックし、「アプリケーション」をクリックします。
+
+<Image img={require('./_shared/developer-portal-logged-in.png')} />
+
+次に、_Create application_ボタンをクリックします。
+
+<Image img={require('./_shared/my-apps.png')} />
+
+アプリケーションの名前を入力します。該当するアプリケーションの種類を選択し、「作成」ボタンをクリックします。
+
+<Image img={require('./_shared/create-app.png')} />
+
+これでアプリケーションの準備が整いました。_Client ID_と_Client Secret_を保存しましょう
+これらはすぐに必要になるので、資格情報!
+
+<Image img={require('./_shared/app-overview.png')} />
+
+最後に、_General Settings_下の_Callback URL_を「http://localhost:8080/api/auth/callback」に設定し、
+をクリックし、アプリケーションがアクセスできるようにする API を有効にします。特別な理由がない限り
+さまざまなサービスへのアプリケーションのアクセスを制限するには、すべてを有効にします。
+
+<Image img={require('./_shared/apis.png')} />
+
+
+
+:::caution
+
+_Callback URL_に細心の注意を払ってください。これは、アプリケーションのアドレスです
+ユーザは、オートデスクの資格情報でログインした後、にリダイレクトされます。それは可能です
+任意の URL ですが、サーバー アプリケーションが期待する URL と完全に一致する必要があります。
+チュートリアルでは、常に同じアドレス「http://localhost:8080/api/auth/callback」を使用します。
+
+
+:::
+
+
+
+最後に、_Save changes_ボタンをクリックしてアプリケーションを更新すると、準備は完了です。
+
+<Image img={require('./_shared/save-changes.png')} />
+
+## 他の製品でアクセスをプロビジョニングする
+
+場合によっては、アプリケーションを他の APS ベースの製品と統合することができます
+[Autodesk Construction Cloud](https://construction.autodesk.com)など、
+または [Autodesk BIM 360](https://www.autodesk.com/bim-360)この機能を
+[Hubs Browser](./tutorials/hubs-browser) と [ACC Administrator](./tutorials/acc-admin) のチュートリアルでは、デザインへのアクセスについて学ぶことができます。
+[Autodesk Docs](https://www.autodesk.com/products/autodesk-docs/overview)から、
+[BIM 360 ドキュメント](https://www.autodesk.com/bim-360/construction-document-management-software/)、
+または[Fusion Teams](https://www.autodesk.com/products/fusion-360/overview)。
+
+ただし、これらの製品の一部は、特定の APS アプリケーション用に_provision access_する必要があります
+クライアントIDに基づいて、次の手順に従ってください。
+を使用して、アプリケーションを統合します。
+
+
+
+:::info
+
+今のところ、アプリケーションを他の製品と統合する予定がない場合は、
+このページの残りの部分はスキップして、後で必要に応じて戻ることができます。
+
+
+:::
+
+
+
+<Tabs groupId="access-provisioning">
+    <TabItem value="acc" label="Autodesk Construction Cloud" default>
+        <AccProvisioningSteps />
+    </TabItem>
+    <TabItem value="bim360" label="Autodesk BIM 360">
+        <Bim360ProvisioningSteps />
+    </TabItem>
+<TabItem value="fusion360" label="Autodesk Fusion Team">
+
+プロビジョニング手順は必要ありません。APS アプリケーションは、自動的に
+この製品の認証済みユーザーのデータ。
+
+</TabItem>
+</Tabs>

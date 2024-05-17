@@ -1,0 +1,80 @@
+V kořenové složce projektu vytvořte soubor Startup.cs s následujícím obsahem:
+
+```csharp title="Startup.cs"
+using System;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+public class Startup
+{
+    public Startup(IConfiguration configuration)
+    {
+        Configuration = configuration;
+    }
+    public IConfiguration Configuration { get; }
+    // This method gets called by the runtime. Use this method to add services to the container.
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services.AddControllers();
+        var clientID = Configuration["APS_CLIENT_ID"];
+        var clientSecret = Configuration["APS_CLIENT_SECRET"];
+        var callbackURL = Configuration["APS_CALLBACK_URL"];
+        if (string.IsNullOrEmpty(clientID) || string.IsNullOrEmpty(clientSecret) || string.IsNullOrEmpty(callbackURL))
+        {
+            throw new ApplicationException("Missing required environment variables APS_CLIENT_ID, APS_CLIENT_SECRET, or APS_CALLBACK_URL.");
+        }
+    }
+    // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        if (env.IsDevelopment())
+        {
+            app.UseDeveloperExceptionPage();
+        }
+        app.UseDefaultFiles();
+        app.UseStaticFiles();
+        app.UseRouting();
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.MapControllers();
+        });
+    }
+}
+```
+
+Třída 'Startup' je zodpovědná za konfiguraci našeho serveru a jeho "middlewaru" (například
+obsluha statických souborů) a pro načtení konfiguračního intpus z proměnných prostředí
+(nebo od jiných [poskytovatelů konfigurace](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-6.0#configuration-providers))
+pro pozdější použití.
+
+Now, to pass actual configuration values to our application for debugging purposes,
+we will modify the _appsettings.Development.json_ file in our project folder
+(or create one of it does not exist) with the following content, replacing
+`<client-id>` and `<client-secret>` with your APS Client ID and Client Secret:
+
+```json
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "APS_CLIENT_ID": "<client-id>",
+  "APS_CLIENT_SECRET": "<client-secret>",
+  "APS_CALLBACK_URL": "http://localhost:8080/api/auth/callback"
+}
+```
+
+
+
+:::caution
+
+Od roku _appsettings. Development.json_ soubor obsahuje citlivé informace, ujistěte se, že **není** zahrnut v systému Git!
+To lze zajistit přidáním 'appsettings. Development.json' do souboru [.gitignore](https://git-scm.com/docs/gitignore).
+
+
+:::
+

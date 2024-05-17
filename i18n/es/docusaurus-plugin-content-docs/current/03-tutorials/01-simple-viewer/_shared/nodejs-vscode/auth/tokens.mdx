@@ -1,0 +1,37 @@
+Cree un archivo 'aps.js' en la carpeta 'services'. Aquí es donde implementaremos
+toda la lógica APS que se utilizará en diferentes áreas de nuestra aplicación de servidor. Empecemos
+agregando el siguiente código al archivo:
+
+```js title="services/aps.js"
+const { SdkManagerBuilder } = require('@aps_sdk/autodesk-sdkmanager');
+const { AuthenticationClient, Scopes } = require('@aps_sdk/authentication');
+const { OssClient, CreateBucketsPayloadPolicyKeyEnum, CreateBucketXAdsRegionEnum } = require('@aps_sdk/oss');
+const { ModelDerivativeClient, View, Type } = require('@aps_sdk/model-derivative');
+const { APS_CLIENT_ID, APS_CLIENT_SECRET, APS_BUCKET } = require('../config.js');
+const sdk = SdkManagerBuilder.create().build();
+const authenticationClient = new AuthenticationClient(sdk);
+const ossClient = new OssClient(sdk);
+const modelDerivativeClient = new ModelDerivativeClient(sdk);
+const service = module.exports = {};
+service.getInternalToken = async () => {
+    const credentials = await authenticationClient.getTwoLeggedToken(APS_CLIENT_ID, APS_CLIENT_SECRET, [
+        Scopes.DataRead,
+        Scopes.DataCreate,
+        Scopes.DataWrite,
+        Scopes.BucketCreate,
+        Scopes.BucketRead
+    ]);
+    return credentials;
+};
+service.getPublicToken = async () => {
+    const credentials = await authenticationClient.getTwoLeggedToken(APS_CLIENT_ID, APS_CLIENT_SECRET, [
+        Scopes.DataRead
+    ]);
+    return credentials;
+};
+```
+
+El código proporciona dos funciones auxiliares: una para generar tokens de acceso para uso interno
+(lo que nos da acceso de lectura/escritura a los cubos y objetos de Data Management), y uno para generar
+tokens para uso público (solo dando acceso de lectura a los resultados de traducción de la Derivada del Modelo)
+servicio).

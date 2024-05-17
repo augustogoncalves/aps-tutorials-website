@@ -1,0 +1,30 @@
+import ResponsiveVideo from "@site/src/components/ResponsiveVideo.js";
+import PreviewUrl from "@site/static/videos/vs2022-proj-setup.mp4";
+
+- Spusťte Visual Studio 2022 a vyberte Vytvořit nový projekt.
+- Do vyhledávacího pole šablon zadejte "ASP.NET Core Empty". Vyberte a Další.
+- V dalším dialogovém okně ho pojmenujeme 'designAutomationSample', Další.
+- V dalším dialogovém okně se ujistěte, že je vybraná možnost .NET 6.0 (dlouhodobá podpora), a zrušte zaškrtnutí políčka Konfigurovat pro protokol HTTPS.
+- Zakažte používání příkazů nejvyšší úrovně zaškrtnutím políčka "Nepoužívat příkazy nejvyšší úrovně" a poté klikněte na "vytvořit".
+- Nainstalujte balíček NuGet Autodesk Forge: klikněte pravým tlačítkem myši na projekt (Průzkumník řešení), vyberte Spravovat balíček NuGet, poté v části Procházet vyhledejte Autodesk.Forge a nainstalujte Autodesk.Forge. To se použije k nahrání vstupních a výstupních výsledků do [OSS bucketů](https://aps.autodesk.com/en/docs/data/v2/developers_guide/basics/).
+- Nainstalujte také verzi následujících balíčků kompatibilní s .NET 6:
+
+
+
+:::note
+
+Při psaní této dokumentace se v kurzu používá zadaná verze vedle názvu balíčku.
+
+
+:::
+
+
+
+```bash
+Autodesk.Forge v1.9.7
+Autodesk.Forge.DesignAutomation v5.1.1
+Microsoft.AspNetCore.Mvc.NewtonsoftJson v6.0.16
+Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson v6.0.16
+```
+
+<ResponsiveVideo src={PreviewUrl} />

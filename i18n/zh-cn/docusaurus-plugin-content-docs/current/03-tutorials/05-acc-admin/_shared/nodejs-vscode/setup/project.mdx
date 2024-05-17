@@ -1,0 +1,59 @@
+为您的项目创建一个新文件夹，在命令行中导航到它，
+并初始化一个新的 Node.js 项目：
+
+```bash
+npm init -y
+```
+
+接下来，安装我们将要使用的所有Node.js依赖项。在本例中，它将是 [dotenv](https://www.npmjs.com/package/dotenv）
+（用于从文件初始化环境变量的实用程序）、[Express.js](https://expressjs.com）（Web 框架）、
+和 [cookie-session](https://www.npmjs.com/package/cookie-session） 用于处理基于 cookie 的会话，最后是必要的 APS SDK，包括：
+- [@aps_sdk/autodesk-sdkmanager](https://www.npmjs.com/package/@aps_sdk/autodesk-sdkmanager），
+- [@aps_sdk/身份验证](https://www.npmjs.com/package/@aps_sdk/authentication），
+- [@aps_sdk/数据管理](https://www.npmjs.com/package/@aps_sdk/data-management），
+- [@aps_sdk/帐户管理员](https://www.npmjs.com/package/@aps_sdk/account-admin）：
+
+
+
+
+:::caution
+
+截至 2024 年 4 月，适用于 Node.js 的 APS SDK 处于测试阶段，这意味着公众
+接口仍然可以更改。为避免任何潜在问题，我们建议安装
+这些软件包的具体版本如下所示。
+
+
+:::
+
+
+
+```bash
+npm install --save dotenv express cookie-session 
+npm install --save @aps_sdk/autodesk-sdkmanager@0.0.7-beta.1 
+npm install --save @aps_sdk/authentication@0.1.0-beta.1 
+npm install --save @aps_sdk/data-management@0.1.0-beta.1 
+npm install --save @aps_sdk/account-admin@0.1.0-beta.1
+```
+
+“package.json”文件中的“依赖项”现在应该如下所示
+（版本号可能略有不同）：
+
+```json
+// ...
+  "dependencies": {
+    "@aps_sdk/authentication": "^0.1.0-beta.1",
+    "@aps_sdk/autodesk-sdkmanager": "^0.0.7-beta.1",
+    "@aps_sdk/data-management": "^0.1.0-beta.1",
+    "@aps_sdk/account-admin": "^0.1.0-beta.1",
+    "cookie-session": "^2.1.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
+  },
+// ...
+```
+
+最后，让我们在项目文件夹中再创建几个子文件夹，稍后我们将需要这些子文件夹：
+
+- 'wwwroot' - 这是我们要放置所有客户端资产（HTML、CSS、JavaScript、图像等）的地方。
+- 'routes' - 这是我们要实现所有服务器端点的地方
+- 'services' - 在这里，我们将保留所有可以由不同端点共享的服务器端逻辑

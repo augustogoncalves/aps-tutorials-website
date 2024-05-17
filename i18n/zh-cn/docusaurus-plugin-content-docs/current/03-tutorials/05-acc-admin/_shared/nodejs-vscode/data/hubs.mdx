@@ -1,0 +1,47 @@
+让我们实现浏览各个中心和项目的逻辑。
+
+First, let's include the Data Management SDK, add the `@aps_sdk/data-management` library, and also create an instance of
+SDK client of `DataManagementClient` at the beginning of `services/aps.js` file:
+```js title="services/aps.js"
+const { SdkManagerBuilder } = require('@aps_sdk/autodesk-sdkmanager');
+const { AuthenticationClient, Scopes, ResponseType } = require('@aps_sdk/authentication');
+// highlight-start
+const { DataManagementClient } = require('@aps_sdk/data-management');
+// highlight-end
+const { APS_CLIENT_ID, APS_CLIENT_SECRET, APS_CALLBACK_URL } = require('../config.js');
+const service = module.exports = {};
+const sdk = SdkManagerBuilder.create().build();
+const authenticationClient = new AuthenticationClient(sdk);
+// highlight-start
+const dataManagementClient = new DataManagementClient(sdk);
+// highlight-end
+```
+
+然后将以下代码附加到“services/aps.js”文件的末尾：
+
+```js title="services/aps.js"
+// Data Management APIs
+service.getHubs = async (token) => {
+    const resp = await dataManagementClient.getHubs(token.access_token);
+    return resp.data.filter((item)=>{
+        return item.id.startsWith('b.');
+    })
+};
+service.getProjects = async (hubId, token) => {
+    const resp = await dataManagementClient.getHubProjects(token.access_token, hubId);
+    return resp.data.filter( (item)=>{
+        return item.attributes.extension.data.projectType == 'ACC';
+    } )
+};
+```
+
+
+:::tip
+
+dataManagementClient.getHubProjects（） 方法将返回
+当前用户参与其中，它与 ACC Admin GET Projects API 不同，后者
+返回所有项目，包括用户未参与的项目。
+
+
+:::
+

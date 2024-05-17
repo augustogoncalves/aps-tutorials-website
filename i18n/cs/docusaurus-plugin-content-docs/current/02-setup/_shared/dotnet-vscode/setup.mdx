@@ -1,0 +1,41 @@
+import CliSetup from '../cli.mdx';
+import GitSetup from '../git.mdx';
+import VSCodeSetup from '../vscode.mdx';
+
+## Rozhraní příkazového řádku
+
+<CliSetup />
+
+## Správa zdrojového kódu
+
+<GitSetup />
+
+## Doba běhu
+
+Budeme také potřebovat .NET 6 _runtime_ ke spuštění našeho kódu a správě závislostí třetích stran.
+Instalační program pro vaši platformu můžete získat na https://dotnet.microsoft.com/download/dotnet/6.0.
+
+
+
+:::info
+
+Naše ukázkové aplikace byly vyvinuty a testovány pomocí .NET 6.0.
+
+
+:::
+
+
+
+Abyste se ujistili, že je nástroj dostupný, zkuste spustit následující příkaz v 'bash':
+
+```bash
+dotnet --version
+```
+
+Měli byste vidět něco takového:
+
+![Checking dotnet in terminal](dotnet.webp)
+
+## Editor
+
+<VSCodeSetup />

@@ -1,0 +1,44 @@
+import EnvTabs from '@site/src/components/EnvTabs.js';
+
+import NodeJsVsCodeTokens from './_shared/nodejs-vscode/auth/tokens.mdx';
+import NodeJsVsCodeEndpoints from './_shared/nodejs-vscode/auth/endpoints.mdx';
+import NodeJsVsCodeTest from './_shared/nodejs-vscode/auth/test.mdx';
+
+import DotNetTokens from './_shared/dotnet/auth/tokens.mdx';
+import DotNetEndpoints from './_shared/dotnet/auth/endpoints.mdx';
+import DotNetVsCodeTest from './_shared/dotnet-vscode/auth/test.mdx';
+import DotNetVs2022Test from './_shared/dotnet-vs2022/auth/test.mdx';
+
+# 身份验证
+
+在此步骤中，我们将扩展服务器实现，以便它可以对自己进行身份验证
+到 APS 平台，引导用户完成 [3 条 OAuth 工作流](https://aps.autodesk.com/en/docs/oauth/v2/tutorials/get-3-legged-token），
+并生成满足各种需求的访问令牌。
+
+
+
+:::tip
+
+最好生成具有更多功能的“内部”令牌（例如，
+允许所有者在数据管理服务中创建或删除文件），这些文件将仅被使用
+由服务器提供，以及具有较少功能的“公共”令牌，可以安全地与之共享
+客户端逻辑。
+
+
+:::
+
+
+
+## 访问令牌
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeTokens} DotNetVsCode={DotNetTokens} DotNetVs2022={DotNetTokens} />
+
+## 服务器端点
+
+现在，让我们通过服务器中的终结点集合来公开此功能。
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeEndpoints} DotNetVsCode={DotNetEndpoints} DotNetVs2022={DotNetEndpoints} />
+
+## 试一试
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeTest} DotNetVsCode={DotNetVsCodeTest} DotNetVs2022={DotNetVs2022Test} />

@@ -1,0 +1,46 @@
+让我们实现OSS（[对象存储服务](https://aps.autodesk.com/en/docs/data/v2/developers_guide/basics/#object-storage-service-oss））
+我们的服务器应用程序的逻辑。将以下代码添加到“services/aps.js”文件的末尾：
+
+```js title="services/aps.js"
+service.ensureBucketExists = async (bucketKey) => {
+    const { access_token } = await service.getInternalToken();
+    try {
+        await ossClient.getBucketDetails(access_token, bucketKey);
+    } catch (err) {
+        if (err.axiosError.response.status === 404) {
+            await ossClient.createBucket(access_token, CreateBucketXAdsRegionEnum.Us, {
+                bucketKey: bucketKey,
+                policyKey: CreateBucketsPayloadPolicyKeyEnum.Temporary
+            });
+        } else {
+            throw err;  
+        }
+    }
+};
+service.listObjects = async () => {
+    await service.ensureBucketExists(APS_BUCKET);
+    const { access_token } = await service.getInternalToken();
+    let resp = await ossClient.getObjects(access_token, APS_BUCKET, { limit: 64 });
+    let objects = resp.items;
+    while (resp.next) {
+        const startAt = new URL(resp.next).searchParams.get('startAt');
+        resp = await ossClient.getObjects(access_token, APS_BUCKET, { limit: 64, startAt });
+        objects = objects.concat(resp.items);
+    }
+    return objects;
+};
+service.uploadObject = async (objectName, filePath) => {
+    await service.ensureBucketExists(APS_BUCKET);
+    const { access_token } = await service.getInternalToken();
+    const obj = await ossClient.upload(APS_BUCKET, objectName, filePath, access_token);
+    return obj;
+};
+```
+
+“ensureBucketExists”函数将简单地尝试并请求其他信息
+关于使用 APS SDK 的特定存储桶，以及如果响应
+来自 APS 是“404 Not Found”，它将尝试创建具有此名称的新存储桶。
+
+如您所见，“getObjects”方法（负责列出文件
+在数据管理存储桶中）使用分页。在我们的代码中，我们只是遍历所有页面
+并在单个列表中返回应用程序存储桶中的所有文件。

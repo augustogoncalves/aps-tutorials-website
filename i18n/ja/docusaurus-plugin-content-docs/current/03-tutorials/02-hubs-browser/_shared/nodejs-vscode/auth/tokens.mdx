@@ -1,0 +1,78 @@
+「services」フォルダの下に「aps.js」ファイルを作成します。ここで実装します
+サーバーアプリケーションのさまざまな領域で使用されるすべてのAPSロジック。さぁ、始めよう
+次のコードをファイルに追加します。
+
+```js title="services/aps.js"
+const { SdkManagerBuilder } = require('@aps_sdk/autodesk-sdkmanager');
+const { AuthenticationClient, Scopes, ResponseType } = require('@aps_sdk/authentication');
+const { DataManagementClient } = require('@aps_sdk/data-management');
+const { APS_CLIENT_ID, APS_CLIENT_SECRET, APS_CALLBACK_URL } = require('../config.js');
+const sdkManager = SdkManagerBuilder.create().build();
+const authenticationClient = new AuthenticationClient(sdkManager);
+const dataManagementClient = new DataManagementClient(sdkManager);
+const service = module.exports = {};
+service.getAuthorizationUrl = () => authenticationClient.authorize(APS_CLIENT_ID, ResponseType.Code, APS_CALLBACK_URL, [
+    Scopes.DataRead,
+    Scopes.DataCreate,
+    Scopes.ViewablesRead
+]);
+service.authCallbackMiddleware = async (req, res, next) => {
+    const internalCredentials = await authenticationClient.getThreeLeggedToken(APS_CLIENT_ID, req.query.code, APS_CALLBACK_URL, {
+        clientSecret: APS_CLIENT_SECRET
+    });
+    const publicCredentials = await authenticationClient.getRefreshToken(APS_CLIENT_ID, internalCredentials.refresh_token, {
+        clientSecret: APS_CLIENT_SECRET,
+        scopes: [Scopes.ViewablesRead]
+    });
+    req.session.public_token = publicCredentials.access_token;
+    req.session.internal_token = internalCredentials.access_token;
+    req.session.refresh_token = publicCredentials.refresh_token;
+    req.session.expires_at = Date.now() + internalCredentials.expires_in * 1000;
+    next();
+};
+service.authRefreshMiddleware = async (req, res, next) => {
+    const { refresh_token, expires_at } = req.session;
+    if (!refresh_token) {
+        res.status(401).end();
+        return;
+    }
+    if (expires_at < Date.now()) {
+        const internalCredentials = await authenticationClient.getRefreshToken(APS_CLIENT_ID, refresh_token, {
+            clientSecret: APS_CLIENT_SECRET,
+            scopes: [Scopes.DataRead, Scopes.DataCreate]
+        });
+        const publicCredentials = await authenticationClient.getRefreshToken(APS_CLIENT_ID, internalCredentials.refresh_token, {
+            clientSecret: APS_CLIENT_SECRET,
+            scopes: [Scopes.ViewablesRead]
+        });
+        req.session.public_token = publicCredentials.access_token;
+        req.session.internal_token = internalCredentials.access_token;
+        req.session.refresh_token = publicCredentials.refresh_token;
+        req.session.expires_at = Date.now() + internalCredentials.expires_in * 1000;
+    }
+    req.internalOAuthToken = {
+        access_token: req.session.internal_token,
+        expires_in: Math.round((req.session.expires_at - Date.now()) / 1000),
+    };
+    req.publicOAuthToken = {
+        access_token: req.session.public_token,
+        expires_in: Math.round((req.session.expires_at - Date.now()) / 1000),
+    };
+    next();
+};
+service.getUserProfile = async (accessToken) => {
+    const resp = await authenticationClient.getUserInfo(accessToken);
+    return resp;
+};
+```
+
+このコードには、いくつかのヘルパー関数が用意されています。
+
+- 「getAuthorizationUrl」関数は、ユーザーがリダイレクトされるURLを生成します。
+3-legged 認証ワークフローの開始
+- 「authCallbackMiddleware」関数をExpress.jsミドルウェアとして使用できます
+ユーザーが正常にログインし、アプリケーションにリダイレクトされたとき
+- 「authRefreshMiddleware」関数は、すべてのリクエストのExpress.jsミドルウェアとして使用されます。
+APSアクセストークンを利用する必要があります
+- 「getUserProfile」関数は、以下に基づいて認証されたユーザーに関する追加の詳細を返します。
+既存のアクセストークン

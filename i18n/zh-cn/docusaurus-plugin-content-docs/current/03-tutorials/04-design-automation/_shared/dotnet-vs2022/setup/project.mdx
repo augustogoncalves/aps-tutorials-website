@@ -1,0 +1,30 @@
+import ResponsiveVideo from "@site/src/components/ResponsiveVideo.js";
+import PreviewUrl from "@site/static/videos/vs2022-proj-setup.mp4";
+
+- 启动 Visual Studio 2022，选择“创建新项目”
+- 在模板搜索栏中输入“ASP.NET Core Empty”。选择和下一步。
+- 在下一个对话框中，我们将其命名为“designAutomationSample”，Next。
+- 在下一个对话框中，确保选中“.NET 6.0（长期支持）”，取消选中“配置 HTTPS”。
+- 通过选中“不使用顶级语句”框，然后单击“创建”来禁用顶级语句的使用。
+- 安装 Autodesk Forge NuGet 包：右键单击项目（解决方案资源管理器），选择“管理 NuGet 包”，然后在“浏览”中搜索 Autodesk.Forge 并安装 Autodesk.Forge。这将用于将输入和输出结果上传到 [OSS 存储桶](https://aps.autodesk.com/en/docs/data/v2/developers_guide/basics/）。
+- 请同时安装以下包的 .NET 6 兼容版本：
+
+
+
+:::note
+
+在编写本文档时，本教程使用的是包名称旁边的指定版本。
+
+
+:::
+
+
+
+```bash
+Autodesk.Forge v1.9.7
+Autodesk.Forge.DesignAutomation v5.1.1
+Microsoft.AspNetCore.Mvc.NewtonsoftJson v6.0.16
+Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson v6.0.16
+```
+
+<ResponsiveVideo src={PreviewUrl} />

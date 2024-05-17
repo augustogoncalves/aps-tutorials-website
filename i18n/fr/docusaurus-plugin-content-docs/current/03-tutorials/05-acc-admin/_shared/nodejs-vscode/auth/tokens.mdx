@@ -1,0 +1,64 @@
+Créez un fichier 'aps.js' dans le dossier 'services'. C’est là que nous allons mettre en œuvre
+toute la logique APS qui sera utilisée dans différents domaines de notre application serveur. Commençons
+en ajoutant le code suivant au fichier :
+
+```js title="services/aps.js"
+const { SdkManagerBuilder } = require('@aps_sdk/autodesk-sdkmanager');
+const { AuthenticationClient, Scopes, ResponseType } = require('@aps_sdk/authentication');
+const { APS_CLIENT_ID, APS_CLIENT_SECRET, APS_CALLBACK_URL } = require('../config.js');
+const service = module.exports = {};
+const sdk = SdkManagerBuilder.create().build();
+const authenticationClient = new AuthenticationClient(sdk);
+service.getAuthorizationUrl = () => authenticationClient.authorize(APS_CLIENT_ID, ResponseType.Code, APS_CALLBACK_URL, [
+    Scopes.DataRead,
+    Scopes.AccountRead,
+    Scopes.AccountWrite
+]);
+service.authCallbackMiddleware = async (req, res, next) => {
+    const credentials = await authenticationClient.getThreeLeggedToken(APS_CLIENT_ID, req.query.code, APS_CALLBACK_URL,{clientSecret:APS_CLIENT_SECRET});
+    req.session.token = credentials.access_token;
+    req.session.refresh_token = credentials.refresh_token;
+    req.session.expires_at = Date.now() + credentials.expires_in * 1000;
+    next();
+};
+service.authRefreshMiddleware = async (req, res, next) => {
+    const { refresh_token, expires_at } = req.session;
+    if (!refresh_token) {
+        res.status(401).end();
+        return;
+    }
+    if (expires_at < Date.now()) {
+        const credentials = await authenticationClient.getRefreshToken(APS_CLIENT_ID, refresh_token, {
+            clientSecret: APS_CLIENT_SECRET,
+            scopes: [
+                Scopes.DataRead,
+                Scopes.AccountRead,
+                Scopes.AccountWrite
+            ]
+        });
+        req.session.token = credentials.access_token;
+        req.session.refresh_token = credentials.refresh_token;
+        req.session.expires_at = Date.now() + credentials.expires_in * 1000;
+    }
+    req.oAuthToken = {
+        access_token: req.session.token,
+        expires_in: Math.round((req.session.expires_at - Date.now()) / 1000)
+    };
+    next();
+};
+service.getUserProfile = async (token) => {
+    const resp = await authenticationClient.getUserInfo(token.access_token);
+    return resp;
+};
+```
+
+Le code fournit quelques fonctions d’assistance :
+
+- la fonction 'getAuthorizationUrl' génère une URL vers laquelle nos utilisateurs peuvent être redirigés lorsque
+Lancement du workflow d’authentification à 3 volets
+- la fonction 'authCallbackMiddleware' peut être utilisée comme intergiciel Express.js
+lorsque l’utilisateur se connecte avec succès et est redirigé vers notre application
+- la fonction 'authRefreshMiddleware' est alors utilisée comme middleware Express.js pour toutes les requêtes
+qui devront utiliser les jetons d’accès APS
+- la fonction 'getUserProfile' renvoie des détails supplémentaires sur l’utilisateur authentifié en fonction de
+un jeton d’accès existant

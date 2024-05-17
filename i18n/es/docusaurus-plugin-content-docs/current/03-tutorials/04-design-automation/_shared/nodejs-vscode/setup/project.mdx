@@ -1,0 +1,29 @@
+Cree una nueva carpeta para el proyecto, navegue hasta ella en la línea de comandos e inicialice una nueva carpeta
+Node.js proyecto:
+
+```bash
+mkdir designAutomationSample
+cd designAutomationSample
+npm init -y
+```
+
+A continuación, instalamos todas las dependencias Node.js que vamos a utilizar. En este caso será
+el marco [Express.js](https://expressjs.com), un Express.js [middleware](https://expressjs.com/en/guide/using-middleware.html)
+para manejar solicitudes 'multipart/form-data' y, finalmente, el [SDK de APS](https://www.npmjs.com/package/forge-apis):
+
+```bash
+npm install --save express express-formidable forge-apis
+```
+
+Las ''dependencias'' en su archivo 'package.json' ahora deberían verse así:
+(potencialmente con números de versión ligeramente diferentes):
+
+```json
+// ...
+"dependencies": {
+    "express": "^4.17.1",
+    "express-formidable": "^1.2.0",
+    "forge-apis": "^0.9.1"
+}
+// ...
+```

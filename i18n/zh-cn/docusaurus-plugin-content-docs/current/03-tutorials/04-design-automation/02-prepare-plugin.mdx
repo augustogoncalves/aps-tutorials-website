@@ -1,0 +1,59 @@
+import ActivityBundleConfigureImg from "./_shared/_images/activity-bundle-configure.webp";
+import VsCodeFolderExplorerImg from "./_shared/_images/vscode_nodejsfs.webp";
+import BundleNet6 from "./_shared/dotnet-vs2022/setup/upload-bundle.mdx";
+import BundleNodeJS from "./_shared/nodejs-vscode/setup/upload-bundle.mdx";
+import AutoCADPlugin from "./_shared/_plugins/autocad-plugin.mdx";
+import InventorPlugin from "./_shared/_plugins/inventor-plugin.mdx";
+import RevitPlugin from "./_shared/_plugins/revit-plugin.mdx";
+import MaxPlugin from "./_shared/_plugins/max-plugin.mdx";
+import EngineTabs from "@site/src/components/EngineTabs.js";
+import EnvTabs from "@site/src/components/EnvTabs.js";
+
+# 创建插件
+
+Design Automation 使用“.bundle”，就像 [Autodesk App Store](https://www.autodesk.com/developer-network/app-store） 一样，这意味着您需要使用 DLL（和其他必需文件）创建PackageContents.xml和 ZIP。有关如何创建它们的详细信息，请访问 Autodesk App Store 开发人员中心。
+
+在本节中，我们将创建一个基本插件，用于更新宽度和高度参数并保存生成的文件。还有支持文件 （PackageContents.xml） 和放置它们的文件夹结构。最后，创建一个.ZIP文件，准备上传到设计自动化。
+
+在根文件夹中，创建一个“bundles”文件夹。
+
+<img src={VsCodeFolderExplorerImg} style={{ width: 300 }} />
+
+### 先决条件
+
+- 7zip：用于创建包含捆绑包文件的.ZIP，请从此处安装。本教程假设默认文件夹中安装了 7zip：“C：\Program Files\7-Zip\7z.exe”。
+
+### 其他先决条件
+
+对于下一个会话，您可以使用预构建插件。或者，如果您决定构建它，您将需要
+
+- **Visual Studio**：需要 Visual Studio 2019 或更高版本，请访问 [此链接](https://visualstudio.microsoft.com/vs/）。
+
+- **AutoCAD、Inventor、Revit 或 3ds Max**：要开发、测试和调试 Design Automation 插件：[AutoCAD](https://www.autodesk.com/products/autocad/overview） |[发明人](https://www.autodesk.com/products/inventor/overview） |[Revit的](https://www.autodesk.com/products/revit/overview） |[3ds 最大](https://www.autodesk.com/products/3ds-max/overview）。
+
+---
+
+对于下一步，选择“**引擎**”，这是将运行插件的Autodesk应用程序。您需要安装相应的应用程序才能在本地编译、调试和测试。
+
+### 选择引擎
+
+<EngineTabs
+  AutoCAD={AutoCADPlugin}
+  Inventor={InventorPlugin}
+  Revit={RevitPlugin}
+  Max={MaxPlugin}
+/>
+
+### 上传插件包
+
+现在ZIP包已经准备好了，让我们上传到Design Automation。
+
+<EnvTabs
+  NodeJsVsCode={BundleNodeJS}
+  DotNetVsCode={BundleNet6}
+  DotNetVs2022={BundleNet6}
+/>
+
+如果您现在运行 Web 应用程序并单击“配置”（右上角），您应该会看到 AppBundle 和所有可用引擎的列表。按钮还不起作用...让我们继续前进。
+
+<img src={ActivityBundleConfigureImg} style={{ width: 800 }} />

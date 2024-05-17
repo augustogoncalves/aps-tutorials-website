@@ -1,0 +1,29 @@
+프로젝트에 대한 새 폴더를 만들고, 명령줄에서 해당 폴더로 이동하고, 새
+Node.js 프로젝트:
+
+```bash
+mkdir designAutomationSample
+cd designAutomationSample
+npm init -y
+```
+
+다음으로, 사용할 모든 Node.js 종속성을 설치합니다. 이 경우
+[Express.js](https://expressjs.com) 프레임워크, Express.js [미들웨어](https://expressjs.com/en/guide/using-middleware.html)
+'multipart / form-data'요청을 처리하고 마지막으로 [APS SDK](https://www.npmjs.com/package/forge-apis) :
+
+```bash
+npm install --save express express-formidable forge-apis
+```
+
+'package.json' 파일의 ''dependencies''는 이제 다음과 같아야 합니다.
+(잠재적으로 약간 다른 버전 번호 사용) :
+
+```json
+// ...
+"dependencies": {
+    "express": "^4.17.1",
+    "express-formidable": "^1.2.0",
+    "forge-apis": "^0.9.1"
+}
+// ...
+```

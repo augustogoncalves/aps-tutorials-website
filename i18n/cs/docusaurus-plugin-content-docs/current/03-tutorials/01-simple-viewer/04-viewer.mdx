@@ -1,0 +1,316 @@
+import EnvTabs from '@site/src/components/EnvTabs.js';
+
+import NodeJsVsCodeStructure from './_shared/nodejs-vscode/final-folder-structure.mdx';
+import DotNetVsCodeStructure from './_shared/dotnet-vscode/final-folder-structure.mdx';
+import DotNetVs2022Structure from './_shared/dotnet-vs2022/final-folder-structure.mdx';
+
+# Prohlížeč a uživatelské rozhraní
+
+Nakonec jsme připraveni sestavit část naší aplikace na straně klienta.
+
+
+
+:::tip
+
+ 
+If you're developing with Node.js, you can use TypeScript definitions for the Viewer API.
+Run
+```bash
+npm install --dev @types/forge-viewer
+``` 
+in your terminal to add the TypeScript definition file to your project.
+
+
+:::
+
+
+
+## Logika prohlížeče
+
+Začněme implementací funkce prohlížeče pro naši aplikaci.
+V podsložce wwwroot vytvořte soubor viewer.js s následujícím kódem:
+
+```js title="wwwroot/viewer.js"
+/// import * as Autodesk from "@types/forge-viewer";
+async function getAccessToken(callback) {
+    try {
+        const resp = await fetch('/api/auth/token');
+        if (!resp.ok) {
+            throw new Error(await resp.text());
+        }
+        const { access_token, expires_in } = await resp.json();
+        callback(access_token, expires_in);
+    } catch (err) {
+        alert('Could not obtain access token. See the console for more details.');
+        console.error(err);
+    }
+}
+export function initViewer(container) {
+    return new Promise(function (resolve, reject) {
+        Autodesk.Viewing.Initializer({ env: 'AutodeskProduction', getAccessToken }, function () {
+            const config = {
+                extensions: ['Autodesk.DocumentBrowser']
+            };
+            const viewer = new Autodesk.Viewing.GuiViewer3D(container, config);
+            viewer.start();
+            viewer.setTheme('light-theme');
+            resolve(viewer);
+        });
+    });
+}
+export function loadModel(viewer, urn) {
+    return new Promise(function (resolve, reject) {
+        function onDocumentLoadSuccess(doc) {
+            resolve(viewer.loadDocumentNode(doc, doc.getRoot().getDefaultGeometry()));
+        }
+        function onDocumentLoadFailure(code, message, errors) {
+            reject({ code, message, errors });
+        }
+        viewer.setLightPreset(0);
+        Autodesk.Viewing.Document.load('urn:' + urn, onDocumentLoadSuccess, onDocumentLoadFailure);
+    });
+}
+```
+
+Skript je [modul ES6](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules)
+, která exportuje dvě funkce, 'initViewer', která vytvoří novou instanci Viewer
+v zadaném kontejneru modelu DOM a 'loadModel', který načte konkrétní model do prohlížeče.
+Při inicializaci prohlížeče zařadíme malou pomocnou funkci ('getAccessToken'), která
+Načte veřejný token z naší serverové aplikace. Prohlížeč pak může tento token použít
+a začněte načítat aktiva ze služby Odvozený model.
+
+## Aplikační logika
+
+Dále definujeme logiku samotné webové aplikace. Budeme muset naplnit
+uživatelské rozhraní se všemi modely, které jsou k dispozici pro prohlížení, a také přidání uživatelského rozhraní pro nahrávání a
+překládání nových modelů. V podsložce wwwroot vytvořte soubor main.js s následujícím kódem:
+
+```js title="wwwroot/main.js"
+import { initViewer, loadModel } from './viewer.js';
+initViewer(document.getElementById('preview')).then(viewer => {
+    const urn = window.location.hash?.substring(1);
+    setupModelSelection(viewer, urn);
+    setupModelUpload(viewer);
+});
+async function setupModelSelection(viewer, selectedUrn) {
+    const dropdown = document.getElementById('models');
+    dropdown.innerHTML = '';
+    try {
+        const resp = await fetch('/api/models');
+        if (!resp.ok) {
+            throw new Error(await resp.text());
+        }
+        const models = await resp.json();
+        dropdown.innerHTML = models.map(model => `<option value=${model.urn} ${model.urn === selectedUrn ? 'selected' : ''}>${model.name}</option>`).join('\n');
+        dropdown.onchange = () => onModelSelected(viewer, dropdown.value);
+        if (dropdown.value) {
+            onModelSelected(viewer, dropdown.value);
+        }
+    } catch (err) {
+        alert('Could not list models. See the console for more details.');
+        console.error(err);
+    }
+}
+async function setupModelUpload(viewer) {
+    const upload = document.getElementById('upload');
+    const input = document.getElementById('input');
+    const models = document.getElementById('models');
+    upload.onclick = () => input.click();
+    input.onchange = async () => {
+        const file = input.files[0];
+        let data = new FormData();
+        data.append('model-file', file);
+        if (file.name.endsWith('.zip')) { // When uploading a zip file, ask for the main design file in the archive
+            const entrypoint = window.prompt('Please enter the filename of the main design inside the archive.');
+            data.append('model-zip-entrypoint', entrypoint);
+        }
+        upload.setAttribute('disabled', 'true');
+        models.setAttribute('disabled', 'true');
+        showNotification(`Uploading model <em>${file.name}</em>. Do not reload the page.`);
+        try {
+            const resp = await fetch('/api/models', { method: 'POST', body: data });
+            if (!resp.ok) {
+                throw new Error(await resp.text());
+            }
+            const model = await resp.json();
+            setupModelSelection(viewer, model.urn);
+        } catch (err) {
+            alert(`Could not upload model ${file.name}. See the console for more details.`);
+            console.error(err);
+        } finally {
+            clearNotification();
+            upload.removeAttribute('disabled');
+            models.removeAttribute('disabled');
+            input.value = '';
+        }
+    };
+}
+async function onModelSelected(viewer, urn) {
+    if (window.onModelSelectedTimeout) {
+        clearTimeout(window.onModelSelectedTimeout);
+        delete window.onModelSelectedTimeout;
+    }
+    window.location.hash = urn;
+    try {
+        const resp = await fetch(`/api/models/${urn}/status`);
+        if (!resp.ok) {
+            throw new Error(await resp.text());
+        }
+        const status = await resp.json();
+        switch (status.status) {
+            case 'n/a':
+                showNotification(`Model has not been translated.`);
+                break;
+            case 'inprogress':
+                showNotification(`Model is being translated (${status.progress})...`);
+                window.onModelSelectedTimeout = setTimeout(onModelSelected, 5000, viewer, urn);
+                break;
+            case 'failed':
+                showNotification(`Translation failed. <ul>${status.messages.map(msg => `<li>${JSON.stringify(msg)}</li>`).join('')}</ul>`);
+                break;
+            default:
+                clearNotification();
+                loadModel(viewer, urn);
+                break; 
+        }
+    } catch (err) {
+        alert('Could not load model. See the console for more details.');
+        console.error(err);
+    }
+}
+function showNotification(message) {
+    const overlay = document.getElementById('overlay');
+    overlay.innerHTML = `<div class="notification">${message}</div>`;
+    overlay.style.display = 'flex';
+}
+function clearNotification() {
+    const overlay = document.getElementById('overlay');
+    overlay.innerHTML = '';
+    overlay.style.display = 'none';
+}
+```
+
+Skripty inicializují prohlížeč, naplní rozevírací prvek v uživatelském rozhraní modely
+načteno z koncového bodu /api/models a nastavte nahrání souboru. A když jeden z modelů
+v rozevíracím seznamu je vybraná, logika aplikace zkontroluje stav modelu v APS (například
+bez ohledu na to, zda se stále překládá, nebo zda se překlad nezdařil) a načtěte model, když
+Je to k dispozici.
+
+## Uživatelské rozhraní
+
+Nakonec definujme uživatelské rozhraní naší aplikace pomocí jednoduchého kódu HTML a CSS.
+
+V podsložce wwwroot vytvořte soubor index.html s následujícím obsahem:
+
+```html title="wwwroot/index.html"
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="icon" type="image/x-icon" href="https://cdn.autodesk.io/favicon.ico">
+    <link rel="stylesheet" href="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/style.css">
+    <link rel="stylesheet" href="/main.css">
+    <title>Autodesk Platform Services: Simple Viewer</title>
+</head>
+<body>
+    <div id="header">
+        <img class="logo" src="https://cdn.autodesk.io/logo/black/stacked.png" alt="Autodesk Platform Services">
+        <span class="title">Simple Viewer</span>
+        <select name="models" id="models"></select>
+        <button id="upload" title="Upload New Model">Upload</button>
+        <input style="display: none" type="file" id="input">
+    </div>
+    <div id="preview"></div>
+    <div id="overlay"></div>
+    <script src="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.js"></script>
+    <script src="/main.js" type="module"></script>
+</body>
+</html>
+```
+
+The HTML markup simply uses a `<select>` element as the dropdown for listing the viewable models,
+and an `<input type="file">` element with a `<button>` to handle the uploading of a new model.
+
+Vytvořte soubor main.css, také v podsložce wwwroot, a naplňte ho těmito pravidly CSS:
+
+```css title="wwwroot/main.css"
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    font-family: ArtifaktElement;
+}
+#header, #preview, #overlay {
+    position: absolute;
+    width: 100%;
+}
+#header {
+    height: 3em;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    align-items: center;
+}
+#preview, #overlay {
+    top: 3em;
+    bottom: 0;
+}
+#overlay {
+    z-index: 1;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 1em;
+    display: none;
+}
+#overlay > .notification {
+    margin: auto;
+    padding: 1em;
+    max-width: 50%;
+    background: white;
+}
+#header > * {
+    height: 2em;
+    margin: 0 0.5em;
+    font-size: 1em;
+    font-family: ArtifaktElement;
+}
+#header .title {
+    flex: 1 0 auto;
+    height: auto;
+}
+#models {
+    flex: 0 1 auto;
+    min-width: 2em;
+}
+```
+
+Konečná struktura složek zdrojového kódu vaší aplikace by teď měla vypadat nějak takto:
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeStructure} DotNetVsCode={DotNetVsCodeStructure} DotNetVs2022={DotNetVs2022Structure} />
+
+## Vyzkoušejte si to
+
+A to je vše! Vaše přihláška je nyní kompletní. Spusťte (nebo restartujte) aplikaci obvyklým způsobem a přejděte na
+na [http://localhost:8080](http://localhost:8080) ve vašem prohlížeči. Mělo by vám být předloženo
+jednoduché uživatelské rozhraní s rozevíracím seznamem v pravém horním rohu, které se nakonec naplní všemi modely
+K dispozici v kontejneru vaší aplikace a s tlačítkem pro nahrávání nových modelů. Jakmile vy
+vyberte jeden z názvů z rozevíracího seznamu, odpovídající model se načte do prohlížeče, který zabírá
+zbytek webové stránky.
+
+
+
+:::tip
+
+Pokud nemáte k dispozici žádné testovací soubory návrhů, můžete některé z nich vyzkoušet veřejně
+K dispozici:
+
+- [Ukázkové soubory projektu Revit 2022](https://knowledge.autodesk.com/support/revit/getting-started/caas/CloudHelp/cloudhelp/2022/ENU/Revit-GetStarted/files/GUID-61EF2F22-3A1F-4317-B925-1E85F138BE88-htm.html)
+- [Ukázkové soubory aplikace AutoCAD Mechanical 2022](https://knowledge.autodesk.com/support/autocad-mechanical/downloads/caas/downloads/content/autocad-mechanical-2022-sample-files.html)
+
+
+:::
+
+
+
+![Final App](./_shared/aps-simple-viewer-final-app.webp)

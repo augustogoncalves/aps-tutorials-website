@@ -1,0 +1,234 @@
+此步骤将帮助您创建用于设计自动化的基本 3ds Max 插件。整个教程使用 Microsoft .NET 框架，包括 3ds Max 插件。请注意，3ds Max 可由 MAXScript、Python、NET API 和 C++ 自动执行。3ds Max .NET API 可能不是最常用于插件的 API，但是，对于其他 Design Automatiuon 产品，它是典型的 API。可在此处找到适用于 .NET API 的 3ds Max 资源（2019 链接，但 3ds Max 设计自动化引擎的所有可用版本都支持 .NET API）：
+
+- [编写 3ds Max .NET 插件](http://help.autodesk.com/view/3DSMAX/2019/ENU/?guid=__developer_3ds_max_sdk___the_learning_path_lesson_7_writing__net_plug_ins_html）
+- [3ds Max .NET SDK](http://help.autodesk.com/view/3DSMAX/2019/ENU/?guid=__developer_3ds_max__net_sdk_html）
+- [GetCOREInterface 博客 .NET 示例](https://getcoreinterface.typepad.com/blog/2017/10/updated-net-api-samples-for-3ds-max-2018.html）
+
+请记住，对于设计自动化，不应有无法自动化的 UI 或提示。要自动执行 3ds Max DA 引擎，必须提供一些 MAXScript。这通常非常容易，因为大多数自定义可以快速向 MAXScript 公开（请参阅 [C++ 函数发布](http://help.autodesk.com/view/3DSMAX/2019/ENU/?guid=__developer_3ds_max_sdk_features_function_publishing_html） 和 [MAXScript .NET 处理](http://help.autodesk.com/view/3DSMAX/2019/ENU/?guid=GUID-779FD7AC-953D-4567-B2A8-60B1D8695B95））
+
+> 您可以 [下载 Bundle ZIP](https://github.com/autodesk-platform-services/aps-design-automation-nodejs/tree/nodejs/bundles/UpdateMAXParam.zip） 到 'bundles/' （Node.js） 或 '/designAutomationSample/wwwroot/bundles' （.NET 6） 文件夹和 [跳到 **上传插件包** 部分](#upload-plugin-bundle）。
+
+### 创建新的 .NET 项目
+
+右键单击解决方案，即“**添加**”>>“**新建项目**”。选择“Windows 桌面”，然后选择“类库”，最后将其命名为“UpdateMAXParam”。然后，您需要引用“Autodesk.Max.Dll”托管部件（3ds Max .NET API 核心模块）。此模块位于“3dsmax.exe”文件夹中，引用时，请确保关闭“复制本地”标志。还有一些其他模块用于 .NET API 支持（请参见 [3ds Max .NET SDK](http://help.autodesk.com/view/3DSMAX/2019/ENU/?guid=__developer_3ds_max__net_sdk_html）），但在本教程中，我们将仅使用Autodesk.Max.dll。然后搜索并安装“Newtonsoft.Json”（用于解析 JSON 格式的输入数据）。
+
+> 请选择 .NET Framework 4.8。如果未列出，[请安装开发包](https://dotnet.microsoft.com/download/dotnet-framework/net48）。
+
+![](../_images/_max/new_project.gif)
+
+因此，Newtonsoft.Json 模块的 **package.config** 应如下所示。
+
+```xml title=package.config
+<?xml version="1.0" encoding="utf-8"?>
+<packages>
+    <package id="Newtonsoft.Json" version="12.0.1" targetFramework="net47" />
+</packages>
+```
+
+这是将与 3ds Max 一起运行的主代码。 将以下内容复制到“Command.cs”中。有三个类来处理设计自动化。首先是“InputParams”，它将用于与 JSON 输入数据进行交互。接下来是“ParameterChanger”类，用于迭代场景，并查找所有平开窗口（但可以是类 ID 标识的任何对象类型）。最后，“RuntimeExecute”用于获取输入并驱动自动化。另请注意，有一个专门的日志记录，它将信息输出到设计自动化控制台。请参阅 LogTrace 函数。请注意，'ILogSys' 3ds Max 托管类用于此目的，并且与指示的“LogEntry”API 一起使用的标志是输出在 Design Automation 控制台中显示所必需的。
+
+```cs title=Commands.cs
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.IO;
+using Newtonsoft.Json;
+using Autodesk.Max;
+namespace Autodesk.Forge.Sample.DesignAutomation.Max
+{
+    /// <summary>
+    /// Used to hold the parameters to change
+    /// </summary>
+    public class InputParams
+    {
+        public float Width { get; set; }
+        public float Height { get; set; }
+    }
+    /// <summary>
+    /// Changes parameters in automated way.
+    /// Iterate entire scene to get all nodes
+    /// In this example we specifically find Casement Windows by object class ID
+    /// Then modify the width and height based on inputs.
+    ///
+    /// Could be expanded to find other window types, other objects, etc.
+    /// </summary>
+    static public class ParameterChanger
+    {
+        static List<IINode> m_sceneNodes = new List<IINode> { };
+        /// <summary>
+        /// Recursively go through the scene and get all nodes
+        /// Use the Autodesk.Max APIs to get the children nodes
+        /// </summary>
+        static private void GetSceneNodes(IINode node)
+        {
+            m_sceneNodes.Add(node);
+            for (int i = 0; i < node.NumberOfChildren; i++)
+                GetSceneNodes(node.GetChildNode(i));
+        }
+        /// <summary>
+        /// Function to specifically update Case Windows with input wedth and height parameters
+        /// </summary>
+        /// <param name="width">The new Width to set the Window</param>
+        /// <param name="height">The new Height to set the Window</param>
+        /// <returns>window count</returns>
+        static public int UpdateWindowNodes(float width, float height)
+        {
+            IGlobal globalInterface = Autodesk.Max.GlobalInterface.Instance;
+            IInterface14 coreInterface = globalInterface.COREInterface14;
+            IINode nodeRoot = coreInterface.RootNode;
+            m_sceneNodes.Clear();
+            GetSceneNodes(nodeRoot);
+            // 3ds Max uses a class ID for all object types. This is easiest way to find specific type.
+            // ClassID (1902665597L, 1593788199L) == 0x71685F7D, 0x5EFF4727 for casement window
+            IClass_ID cidCasementWindow = globalInterface.Class_ID.Create(0x71685F7D, 0x5EFF4727);
+            // Use LINQ to filter for windows only - in case scene has more than one,
+            // but this should still give us at least one for single window scene!
+            var sceneWindows = from node in m_sceneNodes
+                               where ((node.ObjectRef != null) && // In some cases the ObjectRef can be null for certain node types.
+                                      (node.ObjectRef.ClassID.PartA == cidCasementWindow.PartA) &&
+                                      (node.ObjectRef.ClassID.PartB == cidCasementWindow.PartB))
+                               select node;
+            // Iterate the casement windws and update the hight and width parameters.
+            foreach (IINode item in sceneWindows)
+            {
+                // window is using old-style ParamArray rather than newer ParamBlk2
+                IIParamArray pb = item.ObjectRef.ParamBlock;
+                pb.SetValue(0, coreInterface.Time, height); // window height is at index zero.
+                pb.SetValue(1, coreInterface.Time, width); // window width is at index one.
+            }
+            // If there are windows, save the window updates
+            int status;
+            if (sceneWindows.Count() > 0)
+            {
+                // The output file name must match what the Design Automation work item is specifying as output file.
+                string full_filename = coreInterface.CurFilePath;
+                string filename = coreInterface.CurFileName;
+                string new_filename = full_filename.Replace(filename, "outputFile.max");
+                status = coreInterface.SaveToFile(new_filename, true, false);
+                if (status == 0) //error
+                    return -1;
+            }
+            // return how many windows were modified.
+            return sceneWindows.Count();
+        }
+    }
+    /// <summary>
+    /// This class is used to execute the automation. Above class could be connected to UI elements, or run by scripts directly.
+    /// This class takes the input from JSON input and uses those values. This way it is more cohesive to web development.
+    /// </summary>
+    static public class RuntimeExecute
+    {
+        static public int ModifyWindowWidthHeight()
+        {
+            int count = 0;
+            // Run entire code block with try/catch to help determine errors
+            try
+            {
+                // read input parameters from JSON file
+                InputParams inputParams = JsonConvert.DeserializeObject<InputParams>(File.ReadAllText("params.json"));
+                count = ParameterChanger.UpdateWindowNodes(inputParams.Width, inputParams.Height);
+            }
+            catch (Exception e)
+            {
+                LogTrace("Exception Error: " + e.Message);
+                return -1; //fail
+            }
+            LogTrace("Changed {0} Window objects.", count);
+            return count; // 0+ means success, and how many objects were changed.
+        }
+        /// <summary>
+        /// Information sent to this LogTrace will appear on the Design Automation output
+        /// </summary>
+        private static void LogTrace(string format, params object[] args)
+        {
+            System.Reflection.Assembly a = System.Reflection.Assembly.GetExecutingAssembly();
+            string output_msg = string.Format("DLL {0} compiled on {1}; {2}",
+                System.IO.Path.GetFileName(a.Location),
+                File.GetLastWriteTime(a.Location),
+                string.Format(format, args));
+            IGlobal globalInterface = Autodesk.Max.GlobalInterface.Instance;
+            IInterface14 coreInterface = globalInterface.COREInterface14;
+            ILogSys log = coreInterface.Log;
+            // Note flags are necessary to produce Design Automation output. This is same as C++:
+            // SYSLOG_INFO | SYSLOG_IGNORE_VERBOSITY | SYSLOG_BROADCAST
+            log.LogEntry(0x00000004 | 0x00040000 | 0x00010000, false, "", output_msg);
+        }
+    }
+}
+```
+
+创建一个名为“UpdateMAXParam.bundle”的文件夹，并在此文件夹中添加一个名为“PackageContents.xml”的文件。将下面 XML 部分中列出的内容复制到 PackageContents.xml 文件中。有关详细信息，请参阅 [PackageContents.xml 格式参考](https://help.autodesk.com/view/ACD/2023/ENU/?guid=GUID-BC76355D-682B-46ED-B9B7-66C95EEF2BD0）。有关打包 3ds Max 插件的更多 3ds Max 特定信息，请参见此处 [打包插件](http://help.autodesk.com/view/3DSMAX/2019/ENU/?guid=__developer_writing_plug_ins_packaging_plugins_html）
+
+此文件将告诉 3ds Max 要加载的模块（在本例中，我们正在创建的 .NET API 插件程序集，但也可以包括 MAXScripts、Python 和/或 C++ 插件。由于插件是通过此功能加载的，因此您只需要担心触发自动化作业的说明。请注意，3ds Max 需要 ProductCode 和 UpgradeCode 的唯一 ID 才能正确加载代码。有关详细信息，请参阅上面提到的文档。
+
+```xml tilte=PackageContents.xml
+<?xml version="1.0" encoding="utf-8"?>
+<ApplicationPackage
+    SchemaVersion="1.0"
+    AutodeskProduct="3ds Max"
+    Name="Sample Design Automation Plugin for 3ds Max"
+    Description="A sample package to update parameters of a 3ds Max scene file containing a casement window"
+    AppVersion="2019.0.0"
+    FriendlyVersion="2019.0.0"
+    ProductType="Application"
+    SupportedLocales="Enu"
+    AppNameSpace="apps.autodesk.com"
+    Author="Autodesk Forge"
+    ProductCode="{6A8D06F4-C3DD-42DD-A69E-9B9617A7ABC0}"
+    UpgradeCode="{CE88CEA5-47F6-423E-B9EC-E9FA683B5228}"
+    >
+    <CompanyDetails Name="Autodesk"
+        Phone=" "
+        Url="http://forge.autodesk.com"
+        Email="noreply@autodesk.com" />
+    <RuntimeRequirements OS="Win64" Platform="3ds Max" SeriesMin="2019" SeriesMax="2021" />
+    <Components Description="assemblies parts">
+        <RuntimeRequirements OS="Win64" Platform="3ds Max" SeriesMin="2019" SeriesMax="2021" />
+        <ComponentEntry AppName="UpdateMAXParam" Version="2019.0.0" ModuleName="./Contents/UpdateMAXParam.dll" AppDescription="The Sample Design Automation Plugin managed assembly module" />
+    </Components>
+</ApplicationPackage>
+```
+
+Finally, create a subfolder named `Contents` and leave it empty. At this point, the project should look like.
+![](../_images/_max/bundle_folders.png)
+
+## 构建后事件
+
+> 对于Node.js，需要调整 AppBundle ZIP 输出文件夹。
+
+现在我们需要压缩“.bundle”文件夹。右键单击项目，选择“**属性**”，然后打开“**生成事件**”，并将以下内容复制到“**生成后事件命令行**”字段中，如下图所示。
+
+```
+xcopy /Y /F "$(TargetDir)*.dll" "$(ProjectDir)UpdateMAXParam.bundle\Contents\"
+del /F "$(ProjectDir)..\designAutomationSample\wwwroot\bundles\UpdateMAXParam.zip"
+"C:\Program Files\7-Zip\7z.exe" a -tzip "$(ProjectDir)../designAutomationSample/wwwroot/bundles/UpdateMAXParam.zip" "$(ProjectDir)UpdateMAXParam.bundle\" -xr0!*.pdb
+```
+
+这会将 DLL 从“/bin/debug/”复制到“.bundle/Contents”文件夹中，然后使用 [7zip](https://www.7-zip.org/） 创建一个 zip，最后将 ZIP 复制到 Web 应用程序的 /bundles 文件夹中。
+
+![](../_images/_max/post_build.png)
+
+> 请注意 **生成后事件** 如何使用项目和文件夹名称，因此请确保使用这些名称。
+
+如果现在生成“UpdateMAXParam”项目，则应在“**输出**”窗口中看到如下内容。请注意，压缩了 2 个文件夹和 3 个文件。zip 文件直接在 /wwwroot/bundles 文件夹中创建。这意味着你做得很好！
+
+![](../_images/_max/build_output.png)
+
+此时，您可以使用 3ds Max 批处理工具测试功能。它的工作方式类似于 3ds Max Design Automation 引擎，是在将作业发送到 Forge DA 云服务之前在本地测试所有自动化的好方法。对于要在 MAXScript 环境中实例化的 .NET 类，我们可以使用“dotNetClass”MAXScript 函数。对于此示例项目，MAXScript 代码如下所示：
+
+```ms title=MAXScript
+fn UpdateParam =
+(
+	da = dotNetClass("Autodesk.Forge.Sample.DesignAutomation.Max.RuntimeExecute")
+	da.ModifyWindowWidthHeight()
+)
+UpdateParam()
+```
+
+为了在本地执行它，我们可以用如下内容测试命令行提示符：
+
+```CommandLine
+"%ADSK_3DSMAX_x64_2019%\3dsmaxbatch.exe" -sceneFile <myTestScene>.max da_script.ms
+```
+
+在本教程的后面部分，您将看到这些相同的说明被发送到 3ds Max Design Automation 引擎。

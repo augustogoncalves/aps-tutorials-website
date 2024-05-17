@@ -1,0 +1,37 @@
+在“services”文件夹下创建一个“aps.js”文件。这就是我们将要实施的地方
+所有 APS 逻辑，将用于我们服务器应用程序的不同区域。让我们开始吧
+通过将以下代码添加到文件中：
+
+```js title="services/aps.js"
+const { SdkManagerBuilder } = require('@aps_sdk/autodesk-sdkmanager');
+const { AuthenticationClient, Scopes } = require('@aps_sdk/authentication');
+const { OssClient, CreateBucketsPayloadPolicyKeyEnum, CreateBucketXAdsRegionEnum } = require('@aps_sdk/oss');
+const { ModelDerivativeClient, View, Type } = require('@aps_sdk/model-derivative');
+const { APS_CLIENT_ID, APS_CLIENT_SECRET, APS_BUCKET } = require('../config.js');
+const sdk = SdkManagerBuilder.create().build();
+const authenticationClient = new AuthenticationClient(sdk);
+const ossClient = new OssClient(sdk);
+const modelDerivativeClient = new ModelDerivativeClient(sdk);
+const service = module.exports = {};
+service.getInternalToken = async () => {
+    const credentials = await authenticationClient.getTwoLeggedToken(APS_CLIENT_ID, APS_CLIENT_SECRET, [
+        Scopes.DataRead,
+        Scopes.DataCreate,
+        Scopes.DataWrite,
+        Scopes.BucketCreate,
+        Scopes.BucketRead
+    ]);
+    return credentials;
+};
+service.getPublicToken = async () => {
+    const credentials = await authenticationClient.getTwoLeggedToken(APS_CLIENT_ID, APS_CLIENT_SECRET, [
+        Scopes.DataRead
+    ]);
+    return credentials;
+};
+```
+
+该代码提供了两个辅助函数 - 一个用于生成供内部使用的访问令牌
+（赋予我们对数据管理存储桶和对象的读/写访问权限），以及一个用于生成
+供公众使用的令牌（仅授予对模型导数的翻译输出的读取访问权限
+服务）。

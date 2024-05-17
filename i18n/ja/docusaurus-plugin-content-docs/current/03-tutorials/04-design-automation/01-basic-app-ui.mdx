@@ -1,0 +1,26 @@
+import IndexHtmlForNode from "./_shared/nodejs-vscode/ui/index.mdx";
+import DAJSForNode from "./_shared/nodejs-vscode/ui/design-automation.mdx";
+import IndexHtmlForNET from "./_shared/dotnet-vs2022/ui/index.mdx";
+import DAJSForNET from "./_shared/dotnet-vs2022/ui/design-automation.mdx";
+import EnvTabs from "@site/src/components/EnvTabs.js";
+
+# 基本的なUI
+
+インターフェイスは、バニラの HTML5 と 'JavaScript' に基づいています。基本的にはどのサーバー側でも同じですが、いくつかの違いがあります。 Websocket の実装では、socket.io ('Node.js') または SignalR ('.NET 6') が使用されます。
+UI ('HTML' と 'JavaScript') ファイルから始めましょう。「wwwroot」フォルダの下に、次の内容の「index.html」ファイルを作成します。
+
+<EnvTabs
+  NodeJsVsCode={IndexHtmlForNode}
+  DotNetVsCode={IndexHtmlForNET}
+  DotNetVs2022={IndexHtmlForNET}
+/>
+
+## ApsDesignAutomation.js
+
+「wwwroot」フォルダの下に「js」フォルダを作成します。次に、「wwwroot/js」フォルダー内に、次の内容の「ApsDesignAutomation.js」ファイルを作成します。
+
+<EnvTabs
+  NodeJsVsCode={DAJSForNode}
+  DotNetVsCode={DAJSForNET}
+  DotNetVs2022={DAJSForNET}
+/>

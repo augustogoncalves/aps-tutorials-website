@@ -1,0 +1,49 @@
+
+import NodeJsVsCodeHubs from './_shared/nodejs-vscode/admin/account-admin.mdx';
+import NodeJsVsCodeEndpoints from './_shared/nodejs-vscode/admin/endpoints.mdx';
+
+# Správce účtu
+
+Nyní je čas implementovat náš server pro podporu přístupu správce účtu, v tomto kroku budeme 
+pokračovat v rozšiřování našeho serveru na základě [rozhraní API pro správu účtu](https://aps.autodesk.com/en/docs/acc/v1/overview/field-guide/admin/)
+NAČÍST a VYTVOŘIT data projektů ACC a uživatelů:
+
+## Projekty a uživatelé
+
+First, let's add a couple of helper methods for getting and importing projects and users:
+
+<NodeJsVsCodeHubs />
+
+## Koncové body serveru
+
+V dalším kroku zpřístupníme novou funkci kódu na straně klienta prostřednictvím jiného
+sada koncových bodů.
+
+<NodeJsVsCodeEndpoints />
+
+## Vyzkoušejte si to
+
+A to je ze strany serveru vše. Je čas to vyzkoušet!
+
+Spusťte (nebo restartujte) aplikaci z editoru Visual Studio Code obvyklým způsobem, 
+- Použijte ID (odstranění **b.**) jednoho rozbočovače ACC, jak jste se dostali v předchozím kroku v adrese: http://localhost:8080/api/admin/projects?accountId={your-account-id}.
+V takovém případě by serverová aplikace měla odpovědět seznamem JSON všech projektů
+K dispozici v zadaném rozbočovači.
+- Použijte ID projektu, jak jste se dostali v předchozím kroku, zkuste zavolat na adresu: 
+http://localhost:8080/api/admin/project/users?projectId={your-project-id}, serverová aplikace by měla
+odpovězte seznamem JSON všech uživatelů z tohoto projektu.
+
+
+
+:::info
+
+Můžete získat různý seznam projektů podle 2 různých koncových bodů, zde je vysvětlení:
+- S rozhraním Data Management API vrátí všechny projekty, kterých se aktuální uživatel účastní.
+- Rozhraní API pro správu účtu vrátí všechny projekty v účtu, pokud je aktuální uživatel správcem účtu.
+
+
+:::
+
+
+
+![Account Admin Response](./_shared/account-admin.webp)

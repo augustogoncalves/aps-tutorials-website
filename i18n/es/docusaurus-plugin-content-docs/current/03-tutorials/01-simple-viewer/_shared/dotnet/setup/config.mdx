@@ -1,0 +1,79 @@
+Crea un archivo 'Startup.cs' en la carpeta raíz de tu proyecto con el siguiente contenido:
+
+```csharp title="Startup.cs"
+using System;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+public class Startup
+{
+    public Startup(IConfiguration configuration)
+    {
+        Configuration = configuration;
+    }
+    public IConfiguration Configuration { get; }
+    // This method gets called by the runtime. Use this method to add services to the container.
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services.AddControllers();
+        var clientID = Configuration["APS_CLIENT_ID"];
+        var clientSecret = Configuration["APS_CLIENT_SECRET"];
+        var bucket = Configuration["APS_BUCKET"]; // Optional
+        if (string.IsNullOrEmpty(clientID) || string.IsNullOrEmpty(clientSecret))
+        {
+            throw new ApplicationException("Missing required environment variables APS_CLIENT_ID or APS_CLIENT_SECRET.");
+        }
+    }
+    // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        if (env.IsDevelopment())
+        {
+            app.UseDeveloperExceptionPage();
+        }
+        app.UseDefaultFiles();
+        app.UseStaticFiles();
+        app.UseRouting();
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.MapControllers();
+        });
+    }
+}
+```
+
+La clase 'Startup' se encarga de configurar nuestro servidor y su "middleware", por ejemplo,
+Entrega de archivos estáticos. También intentamos recuperar el ID de cliente y el secreto de la aplicación APS
+de variables de entorno (o de otros [proveedores de configuración](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-6.0#configuration-providers))
+para su uso posterior.
+
+Now, to pass actual configuration values to our application for debugging purposes,
+we will modify (or create) the _appsettings.Development.json_ file in our project folder
+with the following content (replacing `<client-id>` and `<client-secret>` with your
+APS Client ID and Client Secret):
+
+```json
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "APS_CLIENT_ID": "<client-id>",
+  "APS_CLIENT_SECRET": "<client-secret>"
+}
+```
+
+
+
+:::caution
+
+Dado que la aplicación 'appsettings. Development.json' contiene información confidencial, ¡asegúrate de que **no** esté incluido en git!
+Esto se puede garantizar agregando la 'appsettings. Development.json' al archivo [.gitignore](https://git-scm.com/docs/gitignore).
+
+
+:::
+

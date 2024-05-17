@@ -1,0 +1,16 @@
+就是这样！您的应用程序现在已准备好运行。像往常一样从命令行启动它：
+
+```bash
+export APS_CLIENT_ID=your-own-aps-client-id
+export APS_CLIENT_SECRET=your-own-aps-client-secret
+export APS_BUCKET=optional-custom-bucket-name
+dotnet run
+```
+
+然后导航到浏览器中的 [http://localhost:8080](http://localhost:8080）。你应该是
+呈现一个简单的 UI，右上角有一个下拉列表，最终将被填充
+所有模型都可以在您配置的存储桶中使用，并带有用于上传新模型的按钮。
+一旦您从下拉列表中选择其中一个选项，相应的模型就会被加载
+在占据网页其余部分的查看器中。
+
+![Final App](./final-app.webp)

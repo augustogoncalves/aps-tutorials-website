@@ -1,0 +1,36 @@
+import Image from '@theme/IdealImage';
+
+
+
+:::caution
+
+Autodesk Construction Cloud(줄여서 ACC) 계정에 대한 _admin_ 액세스 권한이 있는지 확인하십시오.
+
+
+:::
+
+
+
+1. ACC 계정에 로그인하고 _Account Administration_로 이동합니다.
+  - 프로젝트 개요에서
+
+<Image img={require('./project-list.jpeg')} />
+
+- 특정 프로젝트의 사용자 인터페이스에서
+
+<Image img={require('./project-detail.jpeg')} />
+
+2. _Account Admin_ 페이지에서 _Custom Integrations_로 이동하여 상단의 _Add 사용자 지정 Integration_ 버튼을 사용하여 사용자 지정 통합을 추가합니다.
+
+<Image img={require('./account-admin.jpeg')} />
+
+3. _Add 사용자 지정 integration_ 대화 상자 페이지에서 _Client ID_, _Custom 통합 name_ 및 _Description_ 필드를 입력합니다.
+
+<Image img={require('./custom-integration.jpeg')} />
+
+4. 준비가 되면 _추가_ 버튼을 누르십시오.
+
+프로세스를 완료하면 응용 프로그램에서 다른 APS 서비스를 사용할 수 있습니다
+[Data Management API](https://aps.autodesk.com/en/docs/data/v2/developers_guide/overview) 등
+또는 [ACC API](https://aps.autodesk.com/en/docs/acc/v1/overview/introduction)
+이 ACC 계정에 있는 모든 프로젝트의 정보에 액세스할 수 있습니다.

@@ -1,0 +1,141 @@
+'Models' 하위 폴더 아래에 'APS.cs' 파일을 만듭니다. 이것이 우리가 구현할 곳입니다
+서버 응용 프로그램의 다른 영역에서 사용될 APS 관련 논리입니다. 하자
+먼저 파일에 다음 코드를 추가합니다.
+
+```csharp title="Models/APS.cs"
+using System;
+using Autodesk.SDKManager;
+using Autodesk.Authentication.Model;
+using System.Collections.Generic;
+public class Tokens
+{
+    public string InternalToken;
+    public string PublicToken;
+    public string RefreshToken;
+    public DateTime ExpiresAt;
+}
+public partial class APS
+{
+    private readonly SDKManager _sdkManager;
+    private readonly string _clientId;
+    private readonly string _clientSecret;
+    private readonly string _callbackUri;
+    private readonly List<Scopes> InternalTokenScopes = new List<Scopes> { Scopes.DataRead, Scopes.ViewablesRead };
+    private readonly List<Scopes> PublicTokenScopes = new List<Scopes> { Scopes.ViewablesRead };
+    public APS(string clientId, string clientSecret, string callbackUri)
+    {
+        _sdkManager = SdkManagerBuilder.Create().Build();
+        _clientId = clientId;
+        _clientSecret = clientSecret;
+        _callbackUri = callbackUri;
+    }
+}
+```
+
+'APS' 클래스는 'partial'로 선언됩니다. 우리는 그것을 확장 할 것입니다
+나중에 다른 '*.cs' 파일에서. 그러면 'APS' 싱글톤이 서버에 제공됩니다
+ASP. NET의 [종속성 주입](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/dependency-injection?view=aspnetcore-6.0).
+
+다음으로 'APS. Auth.cs' 파일을 'Models' 하위 폴더 아래에 다음 코드로 바꿉니다.
+
+```csharp title="Models/APS.Auth.cs"
+using System;
+using System.Threading.Tasks;
+using Autodesk.Authentication;
+using Autodesk.Authentication.Model;
+public partial class APS
+{
+    public string GetAuthorizationURL()
+    {
+        var authenticationClient = new AuthenticationClient(_sdkManager);
+        return authenticationClient.Authorize(_clientId, ResponseType.Code, _callbackUri, InternalTokenScopes);
+    }
+    public async Task<Tokens> GenerateTokens(string code)
+    {
+        var authenticationClient = new AuthenticationClient(_sdkManager);
+        var internalAuth = await authenticationClient.GetThreeLeggedTokenAsync(_clientId, _clientSecret, code, _callbackUri);
+        var publicAuth = await authenticationClient.GetRefreshTokenAsync(_clientId, _clientSecret, internalAuth.RefreshToken, PublicTokenScopes);
+        return new Tokens
+        {
+            PublicToken = publicAuth.AccessToken,
+            InternalToken = internalAuth.AccessToken,
+            RefreshToken = publicAuth._RefreshToken,
+            ExpiresAt = DateTime.Now.ToUniversalTime().AddSeconds((double)internalAuth.ExpiresIn)
+        };
+    }
+    public async Task<Tokens> RefreshTokens(Tokens tokens)
+    {
+        var authenticationClient = new AuthenticationClient(_sdkManager);
+        var internalAuth = await authenticationClient.GetRefreshTokenAsync(_clientId, _clientSecret, tokens.RefreshToken, InternalTokenScopes);
+        var publicAuth = await authenticationClient.GetRefreshTokenAsync(_clientId, _clientSecret, internalAuth._RefreshToken, PublicTokenScopes);
+        return new Tokens
+        {
+            PublicToken = publicAuth.AccessToken,
+            InternalToken = internalAuth.AccessToken,
+            RefreshToken = publicAuth._RefreshToken,
+            ExpiresAt = DateTime.Now.ToUniversalTime().AddSeconds((double)internalAuth.ExpiresIn)
+        };
+    }
+    public async Task<UserInfo> GetUserProfile(Tokens tokens)
+    {
+        var authenticationClient = new AuthenticationClient(_sdkManager);
+        UserInfo userInfo = await authenticationClient.GetUserInfoAsync(tokens.InternalToken);
+        return userInfo;
+    }
+}
+```
+
+이러한 도우미 메서드는 나중에 서버의 컨트롤러에서
+인증과 관련된 다양한 유형의 요청(예: 사용자 리디렉션)
+Autodesk 로그인 페이지로 이동하여 사용자가 다시 리디렉션될 때 콜백을 처리합니다.
+응용 프로그램에 추가하거나 만료된 토큰을 새로 고칩니다.
+
+마지막으로 'Startup.cs' 파일을 업데이트하여 'APS' 클래스의 싱글톤 인스턴스를 만들어 보겠습니다
+서버 응용 프로그램에서 사용 가능:
+
+```csharp title="Startup.cs"
+using System;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+public class Startup
+{
+    public Startup(IConfiguration configuration)
+    {
+        Configuration = configuration;
+    }
+    public IConfiguration Configuration { get; }
+    // This method gets called by the runtime. Use this method to add services to the container.
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services.AddControllers();
+        var clientID = Configuration["APS_CLIENT_ID"];
+        var clientSecret = Configuration["APS_CLIENT_SECRET"];
+        var callbackURL = Configuration["APS_CALLBACK_URL"];
+        if (string.IsNullOrEmpty(clientID) || string.IsNullOrEmpty(clientSecret) || string.IsNullOrEmpty(callbackURL))
+        {
+            throw new ApplicationException("Missing required environment variables APS_CLIENT_ID, APS_CLIENT_SECRET, or APS_CALLBACK_URL.");
+        }
+        // highlight-start
+        services.AddSingleton<APS>(new APS(clientID, clientSecret, callbackURL));
+        // highlight-end
+    }
+    // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        if (env.IsDevelopment())
+        {
+            app.UseDeveloperExceptionPage();
+        }
+        app.UseDefaultFiles();
+        app.UseStaticFiles();
+        app.UseRouting();
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.MapControllers();
+        });
+    }
+}
+```

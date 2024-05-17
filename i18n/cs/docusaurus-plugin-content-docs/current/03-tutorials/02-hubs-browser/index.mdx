@@ -1,0 +1,43 @@
+import Image from '@theme/IdealImage';
+import PreviewUrl from '@site/static/videos/hubs-browser.gif';
+
+# Prohlížeč rozbočovačů
+
+## Úvod
+
+V tomto tutoriálu vytvoříme aplikaci APS, která nám umožní procházet obsah
+našich ověřených uživatelů v jiných aplikacích založených na APS, jako je [BIM 360 Docs](https://www.autodesk.com/bim-360/construction-document-management-software/),
+[Autodesk Docs](https://www.autodesk.com/products/autodesk-docs/overview) nebo [Fusion Team](https://www.autodesk.com/products/fusion-360/overview).
+
+
+
+:::note
+
+Ujistěte se, že [zřídit přístup](../../01-getting-started/index.mdx#provision-access-in-other-products) na jeden z vašich účtů ACC nebo BIM360
+aby aplikace viděla vaše projekty, složky a dokumenty.
+
+
+:::
+
+
+
+<Image img={PreviewUrl} />
+
+Využijeme následující komponenty platformy:
+
+- [Ověření](https://aps.autodesk.com/en/docs/oauth/v2/developers_guide/overview)
+- [Správa dat](https://aps.autodesk.com/en/docs/data/v2/developers_guide/overview)
+- [Prohlížeč](https://aps.autodesk.com/en/docs/viewer/v7/developers_guide/overview)
+
+
+
+:::tip
+
+Pokud nemáte zájem sestavovat aplikaci od nuly a chcete si ji jen vyzkoušet
+a spusťte jej lokálně, kompletní implementace je k dispozici na GitHubu:
+- https://github.com/autodesk-platform-services/aps-hubs-browser-nodejs
+- https://github.com/autodesk-platform-services/aps-hubs-browser-dotnet
+
+
+:::
+

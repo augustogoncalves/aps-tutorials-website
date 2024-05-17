@@ -1,0 +1,118 @@
+---
+slug: /
+---
+
+import Image from '@theme/IdealImage';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import AccProvisioningSteps from './_shared/provisioning/acc/steps.mdx';
+import Bim360ProvisioningSteps from './_shared/provisioning/bim360/steps.mdx';
+
+# Primeros pasos
+
+Aquí hay un par de cosas que debes hacer antes de construir tu primer
+[Servicios de plataforma de Autodesk](https://aps.autodesk.com) aplicación.
+
+## Crear una cuenta
+
+Si aún no tiene una cuenta APS, regístrese para obtener una en https://aps.autodesk.com.
+
+
+
+:::tip
+
+Puede aprovechar una suscripción de prueba que es válida durante 3 meses.
+
+
+:::
+
+
+
+<Image img={require('./_shared/developer-portal-logged-out.png')} />
+
+## Crear credenciales de aplicación
+
+Para autenticarnos en la plataforma APS, necesitaremos generar
+_app credentials_ (específicamente, un _client ID_ y _client secret_) para nuestra aplicación.
+Después de iniciar sesión en el portal para desarrolladores, vaya al menú de su perfil en la esquina superior derecha,
+y haga clic en _Aplicaciones_:
+
+<Image img={require('./_shared/developer-portal-logged-in.png')} />
+
+A continuación, haga clic en el botón _Create application_:
+
+<Image img={require('./_shared/my-apps.png')} />
+
+Escriba el nombre de la aplicación. Seleccione el tipo de aplicación que le corresponda y haga clic en el botón _Crear_:
+
+<Image img={require('./_shared/create-app.png')} />
+
+Y su aplicación ya está lista. Guardemos su _Client ID_ y _Client Secret_
+credenciales, ya que las necesitaremos pronto.
+
+<Image img={require('./_shared/app-overview.png')} />
+
+Finalmente, establezca el _Callback URL_ debajo de _General Settings_ en 'http://localhost:8080/api/auth/callback',
+y habilite las API a las que desea que tenga acceso su aplicación. A menos que tenga alguna razón específica
+Para limitar el acceso de la aplicación a los diferentes servicios, habilite todo.
+
+<Image img={require('./_shared/apis.png')} />
+
+
+
+:::caution
+
+Presta mucha atención a los _Callback URL_. Esta es la dirección de la aplicación
+se redirigirá a los usuarios después de iniciar sesión con sus credenciales de Autodesk. Puede ser
+cualquier URL arbitraria, pero tiene que coincidir exactamente con la URL que espera la aplicación de servidor.
+En nuestros tutoriales siempre usaremos la misma dirección: 'http://localhost:8080/api/auth/callback'.
+
+
+:::
+
+
+
+Finalmente, actualice la aplicación haciendo clic en el botón _Save changes_, ¡y listo!
+
+<Image img={require('./_shared/save-changes.png')} />
+
+## Aprovisionar acceso en otros productos
+
+En ciertos casos, es posible que la aplicación se integre con otros productos basados en APS
+como [Autodesk Construction Cloud](https://construction.autodesk.com),
+o [Autodesk BIM 360](https://www.autodesk.com/bim-360). Aprovechamos esta capacidad en
+los tutoriales [Hubs Browser](./tutorials/hubs-browser) y [ACC Administrator](./tutorials/acc-admin) donde puede obtener información sobre cómo acceder a los diseños
+desde [Autodesk Docs](https://www.autodesk.com/products/autodesk-docs/overview),
+[Documentos de BIM 360](https://www.autodesk.com/bim-360/construction-document-management-software/),
+o [Equipos de fusión](https://www.autodesk.com/products/fusion-360/overview).
+
+Sin embargo, algunos de estos productos deben _provision access_ para una aplicación APS específica
+basado en su ID de cliente. Siga los pasos a continuación para cualquier producto específico que desee
+para integrar su aplicación.
+
+
+
+:::info
+
+Si _no_ planea integrar su aplicación con otros productos por ahora,
+Puede omitir el resto de esta página y volver a ella más tarde cuando sea necesario.
+
+
+:::
+
+
+
+<Tabs groupId="access-provisioning">
+    <TabItem value="acc" label="Autodesk Construction Cloud" default>
+        <AccProvisioningSteps />
+    </TabItem>
+    <TabItem value="bim360" label="Autodesk BIM 360">
+        <Bim360ProvisioningSteps />
+    </TabItem>
+<TabItem value="fusion360" label="Autodesk Fusion Team">
+
+No se necesitan pasos de aprovisionamiento. Su aplicación APS puede acceder automáticamente
+los datos de los usuarios autenticados en este producto.
+
+</TabItem>
+</Tabs>

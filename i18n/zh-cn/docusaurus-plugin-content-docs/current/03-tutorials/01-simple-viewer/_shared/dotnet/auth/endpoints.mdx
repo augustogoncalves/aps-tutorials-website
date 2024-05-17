@@ -1,0 +1,32 @@
+在“Controllers”子文件夹下创建一个包含以下内容的“AuthController.cs”文件：
+
+```csharp title="Controllers/AuthController.cs"
+using System;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+[ApiController]
+[Route("api/[controller]")]
+public class AuthController : ControllerBase
+{
+    public record AccessToken(string access_token, long expires_in);
+    private readonly APS _aps;
+    public AuthController(APS aps)
+    {
+        _aps = aps;
+    }
+    [HttpGet("token")]
+    public async Task<AccessToken> GetAccessToken()
+    {
+        var token = await _aps.GetPublicToken();
+        return new AccessToken(
+            token.AccessToken,
+            (long)Math.Round((token.ExpiresAt - DateTime.UtcNow).TotalSeconds)
+        );
+    }
+}
+```
+
+控制器将通过 ASP 接收“APS”（我们的 Autodesk Platform Services 客户端）实例。NET的
+[依赖注入](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/dependency-injection?view=aspnetcore-6.0），
+它将通过生成新的访问令牌来处理对“/api/auth/token”的请求
+并将其作为 JSON 有效负载发送回客户端。

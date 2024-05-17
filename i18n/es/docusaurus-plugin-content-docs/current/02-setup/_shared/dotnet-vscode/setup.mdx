@@ -1,0 +1,41 @@
+import CliSetup from '../cli.mdx';
+import GitSetup from '../git.mdx';
+import VSCodeSetup from '../vscode.mdx';
+
+## Interfaz de línea de comandos
+
+<CliSetup />
+
+## Gestión del código fuente
+
+<GitSetup />
+
+## Tiempo de ejecución
+
+También necesitaremos el _runtime_ de .NET 6 para ejecutar nuestro código y administrar las dependencias de terceros.
+Puede obtener un instalador para su plataforma en https://dotnet.microsoft.com/download/dotnet/6.0.
+
+
+
+:::info
+
+Nuestras aplicaciones de ejemplo se han desarrollado y probado con .NET 6.0.
+
+
+:::
+
+
+
+Para asegurarse de que la herramienta está disponible, intente ejecutar el siguiente comando en 'bash':
+
+```bash
+dotnet --version
+```
+
+Deberías ver algo como esto:
+
+![Checking dotnet in terminal](dotnet.webp)
+
+## Editor
+
+<VSCodeSetup />

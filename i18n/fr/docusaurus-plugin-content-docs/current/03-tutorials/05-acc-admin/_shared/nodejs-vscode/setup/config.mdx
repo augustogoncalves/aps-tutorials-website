@@ -1,0 +1,75 @@
+Créez un fichier 'config.js' à la racine de votre dossier de projet et ajoutez le code suivant :
+
+```js title="config.js"
+require('dotenv').config();
+let { APS_CLIENT_ID, APS_CLIENT_SECRET, APS_CALLBACK_URL, SERVER_SESSION_SECRET, PORT } = process.env;
+if (!APS_CLIENT_ID || !APS_CLIENT_SECRET || !APS_CALLBACK_URL || !SERVER_SESSION_SECRET) {
+    console.warn('Missing some of the environment variables.');
+    process.exit(1);
+}
+PORT = PORT || 8080;
+module.exports = {
+    APS_CLIENT_ID,
+    APS_CLIENT_SECRET,
+    APS_CALLBACK_URL,
+    SERVER_SESSION_SECRET,
+    PORT
+};
+```
+
+La bibliothèque 'dotenv' initialise les variables d’environnement à partir d’un fichier _.env_ local (s’il y en a un).
+Nous lisons ensuite simplement les variables d’environnement à partir de 'process.env' et quittons l’application
+immédiatement si l’une des propriétés requises est manquante.
+
+Next, let's create the _.env_ file in the project folder, and populate it with the required
+environment variables (replacing `<client-id>` and `<client-secret>` with your APS Client ID
+and Client Secret, and `<secret-phrase>` with an arbitrary string):
+
+``` title=".env"
+APS_CLIENT_ID="<client-id>"
+APS_CLIENT_SECRET="<client-secret>"
+APS_CALLBACK_URL="http://localhost:8080/api/auth/callback" # URL your users will be redirected to after logging in with their Autodesk account
+SERVER_SESSION_SECRET="<secret-phrase>" # secret phrase used to encrypt/decrypt server session cookies
+```
+
+
+
+:::caution
+
+Étant donné que le fichier '.env' contient des informations sensibles, assurez-vous qu’il n’est **pas** inclus dans git !
+Cela peut être assuré en ajoutant la ligne '.env' au fichier [.gitignore](https://git-scm.com/docs/gitignore).
+
+
+:::
+
+
+
+Maintenant, afin de pouvoir exécuter et déboguer notre application à partir de Visual Studio Code, nous devons créer
+a [configuration de lancement](https://code.visualstudio.com/docs/editor/debugging#_launch-configurations).
+Utilisez _Run > Ajouter Configuration_ dans le menu pour créer une nouvelle configuration et lorsque vous y êtes invité
+Pour l’environnement spécifique, choisissez _Node.js_. Cela créera une nouvelle _.vscode_
+de votre projet avec un fichier _launch.json_ dans lequel vous pouvez définir différents
+Lancez les configurations. Remplacez le contenu du fichier par ce qui suit :
+
+```json title=".vscode/launch.json"
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Server",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "start"
+            ],
+            "skipFiles": [
+                "<node_internals>/**/*.js"
+            ]
+        }
+    ]
+}
+```
+
+Nous définissons une configuration de lancement unique appelée _Launch Server_ qui permettra simplement
+Démarrez notre application à l’aide de la commande 'npm start'.

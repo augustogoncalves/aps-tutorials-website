@@ -1,0 +1,23 @@
+import NodeJsVsCodeTokens from './_shared/nodejs-vscode/auth/tokens.mdx';
+import NodeJsVsCodeEndpoints from './_shared/nodejs-vscode/auth/endpoints.mdx';
+import NodeJsVsCodeTest from './_shared/nodejs-vscode/auth/test.mdx';
+
+# Autenticación
+
+En este paso, vamos a extender la implementación del servidor para que pueda autenticarse
+a la plataforma APS, guíe al usuario a través de un [flujo de trabajo OAuth de 3 patas](https://aps.autodesk.com/en/docs/oauth/v2/tutorials/get-3-legged-token),
+y generar tokens de acceso para diversas necesidades.
+
+## Tokens de acceso
+
+<NodeJsVsCodeTokens />
+
+## Puntos de conexión del servidor
+
+Ahora vamos a exponer esta funcionalidad a través de una colección de puntos finales en nuestro servidor.
+
+<NodeJsVsCodeEndpoints />
+
+## Pruébalo
+
+<NodeJsVsCodeTest />

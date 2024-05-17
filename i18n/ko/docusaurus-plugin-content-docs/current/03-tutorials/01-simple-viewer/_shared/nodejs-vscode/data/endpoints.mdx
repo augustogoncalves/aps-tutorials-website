@@ -1,0 +1,93 @@
+다음 코드를 사용하여 'routes' 하위 폴더 아래에 'models.js' 파일을 만듭니다.
+
+```js title="routes/models.js"
+const express = require('express');
+const formidable = require('express-formidable');
+const { listObjects, uploadObject, translateObject, getManifest, urnify } = require('../services/aps.js');
+let router = express.Router();
+router.get('/api/models', async function (req, res, next) {
+    try {
+        const objects = await listObjects();
+        res.json(objects.map(o => ({
+            name: o.objectKey,
+            urn: urnify(o.objectId)
+        })));
+    } catch (err) {
+        next(err);
+    }
+});
+router.get('/api/models/:urn/status', async function (req, res, next) {
+    try {
+        const manifest = await getManifest(req.params.urn);
+        if (manifest) {
+            let messages = [];
+            if (manifest.derivatives) {
+                for (const derivative of manifest.derivatives) {
+                    messages = messages.concat(derivative.messages || []);
+                    if (derivative.children) {
+                        for (const child of derivative.children) {
+                            messages.concat(child.messages || []);
+                        }
+                    }
+                }
+            }
+            res.json({ status: manifest.status, progress: manifest.progress, messages });
+        } else {
+            res.json({ status: 'n/a' });
+        }
+    } catch (err) {
+        next(err);
+    }
+});
+router.post('/api/models', formidable({ maxFileSize: Infinity }), async function (req, res, next) {
+    const file = req.files['model-file'];
+    if (!file) {
+        res.status(400).send('The required field ("model-file") is missing.');
+        return;
+    }
+    try {
+        const obj = await uploadObject(file.name, file.path);
+        await translateObject(urnify(obj.objectId), req.fields['model-zip-entrypoint']);
+        res.json({
+            name: obj.objectKey,
+            urn: urnify(obj.objectId)
+        });
+    } catch (err) {
+        next(err);
+    }
+});
+module.exports = router;
+```
+
+
+
+:::info
+
+'POST' 요청 핸들러에 사용되는 'formidable()' 미들웨어는
+요청과 함께 제공되는 'multipart/form-data' 컨텐츠가 구문 분석되어 'req.files'에서 사용할 수 있습니다.
+및 'req.fields' 속성을 사용합니다.
+
+
+:::
+
+
+
+그리고 'server.js'를 수정하여 라우터를 서버 응용 프로그램에 마운트합니다.
+
+```js title="server.js"
+const express = require('express');
+const { PORT } = require('./config.js');
+let app = express();
+app.use(express.static('wwwroot'));
+app.use(require('./routes/auth.js'));
+// highlight-start
+app.use(require('./routes/models.js'));
+// highlight-end
+app.listen(PORT, function () { console.log(`Server listening on port ${PORT}...`); });
+```
+
+라우터는 3가지 유형의 요청을 처리합니다.
+
+- 'GET /api/models' - 클라이언트가 볼 수 있는 모든 모델 목록을 가져오려는 경우
+- 'GET /api/models/:urn/status' - 전환 상태를 확인하는 데 사용됩니다(있는 경우 오류 메시지 포함).
+- 'POST /api/models' - 클라이언트가 새 모델을 업로드하고 번역을 시작하려는 경우

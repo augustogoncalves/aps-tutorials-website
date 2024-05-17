@@ -1,0 +1,16 @@
+A to je vše! Vaše aplikace je nyní připravena k akci. Spusťte jej z příkazového řádku jako obvykle:
+
+```bash
+export APS_CLIENT_ID=your-own-aps-client-id
+export APS_CLIENT_SECRET=your-own-aps-client-secret
+export APS_BUCKET=optional-custom-bucket-name
+dotnet run
+```
+
+A poté v prohlížeči přejděte na [http://localhost:8080](http://localhost:8080). Měla bys být
+prezentováno s jednoduchým uživatelským rozhraním s rozevíracím seznamem v pravém horním rohu, který se nakonec naplní
+se všemi modely dostupnými ve vašem nakonfigurovaném segmentu a s tlačítkem pro nahrávání nových modelů.
+A jakmile vyberete jednu z možností z rozevíracího seznamu, načte se odpovídající model
+v prohlížeči, který zabírá zbytek webové stránky.
+
+![Final App](./final-app.webp)

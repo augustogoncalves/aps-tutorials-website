@@ -1,0 +1,71 @@
+import Image from '@theme/IdealImage';
+
+
+
+:::caution
+
+BIM 360アカウントへの_admin_アクセス権があることを確認してください。
+
+
+:::
+
+
+
+1. BIM 360アカウントにログインし、[_Account Admin_
+
+2. _Account Admin_ページで、_Settings_に移動し、[_Custom Integrations_]タブに移動します
+
+<Image img={require('./custom-integrations.jpeg')} />
+
+3.左側の[カスタムIntegration__Add]ボタンを使用して、簡単なウィザードを開始します
+それはあなたをプロセスを通してあなたを導きます
+
+4. [_Select Access_] ページで、両方の _BIM 360 アカウント Administration_を保持します。
+_Document Management_オプションをオンにして、_Next_ボタンを押します
+
+<Image img={require('../select-access.jpeg')} />
+
+5.ウィザードの次のページで、_I developer_オプションを選択し、
+_Next_ボタン
+
+<Image img={require('../i-am-developer.jpeg')} />
+
+
+
+:::info
+
+ここでは、_account admin_が APS アプリケーションの所有者でもあると仮定します。
+そうでない場合は、アカウント管理者が_Invite developer_を使用できます
+オプションを選択し、招待された開発者は後でAPSアプリケーションの詳細を入力します。
+
+
+:::
+
+
+
+6. 次の最後のページで、_BIM 360 アカウントID_をメモし、
+チェックボックスをオンにして、[_Client ID_] フィールドと [_App Name_] フィールドに入力します
+https://aps.autodesk.com/myapps 上のアプリケーションのページに表示されるとおり
+
+<Image img={require('../bim360-info.jpeg')} />
+
+
+
+:::tip
+
+クライアント ID を_App Description_のどこかに保存することを検討してください。クライアントIDは_ない_
+は、作成後にカスタム統合に表示され、統合の数
+あなたのアカウントで成長し始めると、これはあなたがすぐに識別するのに役立ちます APS アプリケーション
+各カスタム統合はに関連付けられています。
+
+
+:::
+
+
+
+7.準備ができたら、下にスクロールして_保存_ボタンを押します
+
+以上です。これで、アプリケーションは次のようなさまざまな APS サービスを使用できます。
+[データ管理API](https://aps.autodesk.com/en/docs/data/v2/developers_guide/overview)
+または [BIM 360 API](https://aps.autodesk.com/en/docs/bim360/v1/overview/introduction)
+をクリックして、この BIM 360 アカウントのすべてのプロジェクトの情報にアクセスします。

@@ -1,0 +1,59 @@
+Vytvořte novou složku pro váš projekt, přejděte do ní v příkazovém řádku,
+a inicializujte nový projekt Node.js:
+
+```bash
+npm init -y
+```
+
+Dále nainstalujte všechny Node.js závislosti, které budeme používat. V tomto případě to bude [dotenv](https://www.npmjs.com/package/dotenv)
+(utilita pro inicializaci proměnných prostředí ze souboru), [Express.js](https://expressjs.com) (webový framework),
+a [cookie-session](https://www.npmjs.com/package/cookie-session) pro zpracování relací založených na souborech cookie a nakonec nezbytná sada APS SDK včetně:
+- [@aps_sdk/autodesk-sdkmanager](https://www.npmjs.com/package/@aps_sdk/autodesk-sdkmanager),
+- [@aps_sdk/ověřování](https://www.npmjs.com/package/@aps_sdk/authentication),
+- [@aps_sdk/správa-dat](https://www.npmjs.com/package/@aps_sdk/data-management),
+- [@aps_sdk/správce-účtu](https://www.npmjs.com/package/@aps_sdk/account-admin):
+
+
+
+
+:::caution
+
+Od dubna 2024 je APS SDK pro Node.js v beta verzi, což znamená, že veřejnost 
+Rozhraní se mohou stále měnit. Abyste se vyhnuli případným problémům, doporučujeme nainstalovat 
+konkrétní verze těchto balíčků, jak je uvedeno níže.
+
+
+:::
+
+
+
+```bash
+npm install --save dotenv express cookie-session 
+npm install --save @aps_sdk/autodesk-sdkmanager@0.0.7-beta.1 
+npm install --save @aps_sdk/authentication@0.1.0-beta.1 
+npm install --save @aps_sdk/data-management@0.1.0-beta.1 
+npm install --save @aps_sdk/account-admin@0.1.0-beta.1
+```
+
+'"závislosti"' ve vašem souboru 'package.json' by nyní měly vypadat nějak takto
+(případně s mírně odlišnými čísly verzí):
+
+```json
+// ...
+  "dependencies": {
+    "@aps_sdk/authentication": "^0.1.0-beta.1",
+    "@aps_sdk/autodesk-sdkmanager": "^0.0.7-beta.1",
+    "@aps_sdk/data-management": "^0.1.0-beta.1",
+    "@aps_sdk/account-admin": "^0.1.0-beta.1",
+    "cookie-session": "^2.1.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
+  },
+// ...
+```
+
+Nakonec vytvoříme ve složce projektu několik dalších podsložek, které budeme potřebovat později:
+
+- 'wwwroot' - to je místo, kam umístíme všechny prostředky na straně klienta (HTML, CSS, JavaScript, obrázky atd.)
+- 'routes' - zde budeme implementovat všechny koncové body serveru
+- "Služby" – tady zachováme veškerou logiku na straně serveru, kterou mohou sdílet různé koncové body

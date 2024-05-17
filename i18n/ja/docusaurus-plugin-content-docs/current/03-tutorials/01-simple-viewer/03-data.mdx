@@ -1,0 +1,120 @@
+import EnvTabs from '@site/src/components/EnvTabs.js';
+
+import NodeJsVsCodeData from './_shared/nodejs-vscode/data/data.mdx';
+import NodeJsVsCodeDerivatives from './_shared/nodejs-vscode/data/derivatives.mdx';
+import NodeJsVsCodeEndpoints from './_shared/nodejs-vscode/data/endpoints.mdx';
+
+import DotNetData from './_shared/dotnet/data/data.mdx';
+import DotNetDerivatives from './_shared/dotnet/data/derivatives.mdx';
+import DotNetEndpoints from './_shared/dotnet/data/endpoints.mdx';
+
+# データとデリバティブ
+
+このステップでは、サーバーを拡張して、モデルを一覧表示し、アップロードできるようにします。
+そして、それらを視聴する準備をします。
+
+## データ管理
+
+まず、アプリケーションのデータ管理サービスにバケットがあることを確認しましょう
+をクリックしてファイルを保存します。通常、バケットはプロビジョニングの一部として一度だけ作成されます
+ステップですが、このサンプルでは、バケットが
+が使用可能であり、Server アプリケーションの他の部分で使用します。
+
+バケットを作成するときは、アプリケーションでバケットに格納されているオブジェクトの保持ポリシーを設定する必要があります。これは後で変更できません。バケットの保持ポリシーは、バケット内に保存されているすべてのオブジェクトに適用されます。バケットを作成するときは、**policyKey** を **transient**、**temporary**、または **persistent** に設定します。
+
+
+
+:::info
+
+**データ保持ポリシー**
+
+**一時的** - 24 時間以上経過したオブジェクトは自動的に削除されます。
+
+**一時的** - オブジェクトが 30 日経過すると削除されます。
+
+**永続的** - ユーザーがオブジェクトを削除するまで使用できます。
+
+
+:::
+
+
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeData} DotNetVsCode={DotNetData} DotNetVs2022={DotNetData} />
+
+
+
+:::caution
+
+データ管理サービスでは、バケット名が**グローバルに一意**である必要があることに注意してください。
+また、すでに使用されている名前でバケットを作成しようとすると、「409 Conflict」で失敗します。
+[ドキュメント](https://aps.autodesk.com/en/docs/data/v2/reference/http/buckets-POST)を参照してください。
+を参照してください。
+
+
+:::
+
+
+
+## デリバティブ
+
+次に、さまざまなタイプの情報を派生/抽出するいくつかのヘルパー関数を実装します
+アップロードされたファイル(2D図面、3Dジオメトリ、メタデータなど)から、後で読み込むことができます
+をウェブページのビューアに挿入します。そのためには、新しい変換ジョブを開始する必要があります
+[モデル派生](https://aps.autodesk.com/en/docs/model-derivative/v2/developers_guide/overview)
+サービス、および変換のステータスの確認を行います。
+
+モデル派生サービスでは、API呼び出しで使用するすべてのIDを[base64](https://wikipedia.org/wiki/Base64)エンコードする必要があります。
+そのため、それに役立つ小さなユーティリティ関数が含まれています。
+
+
+
+:::info
+
+Base64 でエンコードされた ID は _URN_ と呼ばれます。
+
+
+:::
+
+
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeDerivatives} DotNetVsCode={DotNetDerivatives} DotNetVs2022={DotNetDerivatives} />
+
+## サーバーエンドポイント
+
+次に、別の機能を介してクライアントが新しい機能を利用できるようにしましょう
+エンドポイントのセット。
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeEndpoints} DotNetVsCode={DotNetEndpoints} DotNetVs2022={DotNetEndpoints} />
+
+## 試してみる
+
+通常どおりアプリを起動(または再起動)し、[http://localhost:8080/api/models](http://localhost:8080/api/models)に移動します
+ブラウザで。サーバーは、すべてのオブジェクトの名前と URN を含む JSON リストで応答する必要があります
+設定したバケットで使用できます。
+
+
+
+:::info
+
+APS を初めて使用する場合は、JSON 応答が返される場合があります
+を空の配列 ('[]') で置き換えます。以下のスクリーンショットでは、次のことができます
+過去にバケットにアップロードされたファイルがいくつかあることをすでに確認しています。
+
+
+:::
+
+
+
+
+
+:::tip
+
+Google Chromeをお使いの場合は、[JSON Formatter](https://chrome.google.com/webstore/detail/json-formatter/bcjindcccaagfpapjjmafapmmgkkhgoa?hl=en)のインストールをご検討ください
+または同様の拡張機能を使用して、JSON 応答を自動的に書式設定します。
+
+
+:::
+
+
+
+![Server Response](./_shared/data-response.webp)

@@ -1,0 +1,24 @@
+import ResponsiveVideo from "@site/src/components/ResponsiveVideo.js";
+import PreviewUrl from "@site/static/videos/define-activity.mp4";
+import ActivityNet6 from "./_shared/dotnet-vs2022/setup/activity.mdx";
+import ActivityNodeJs from "./_shared/nodejs-vscode/setup/activity.mdx";
+import EnvTabs from "@site/src/components/EnvTabs.js";
+
+# Définir l’activité
+
+L’activité est la spécification d’une action qui peut être exécutée à l’aide d’un moteur spécifié. Il spécifie le nombre de fichiers d’entrée et de sortie, ainsi que l’AppBundle et le point d’entrée à utiliser.
+
+Dans cet exemple de didacticiel, l’activité comporte 2 entrées (fichier et données JSON) et 1 sortie (fichier).
+
+<EnvTabs
+  NodeJsVsCode={ActivityNodeJs}
+  DotNetVsCode={ActivityNet6}
+  DotNetVs2022={ActivityNet6}
+/>
+
+Vous pouvez maintenant cliquer sur Configurer (en haut à droite), sélectionner l’AppBundle, sélectionner le moteur
+et cliquez sur Définir l’activité, qui doit définir et télécharger l’appbundle et définir
+l’activité. Le panneau des résultats (à gauche) affiche les identifiants respectifs. Tous les autres boutons
+ne fonctionnent pas encore... Allons de l’avant.
+
+<ResponsiveVideo src={PreviewUrl} />

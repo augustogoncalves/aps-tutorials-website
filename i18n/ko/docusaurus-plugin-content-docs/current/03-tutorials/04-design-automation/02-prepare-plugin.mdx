@@ -1,0 +1,59 @@
+import ActivityBundleConfigureImg from "./_shared/_images/activity-bundle-configure.webp";
+import VsCodeFolderExplorerImg from "./_shared/_images/vscode_nodejsfs.webp";
+import BundleNet6 from "./_shared/dotnet-vs2022/setup/upload-bundle.mdx";
+import BundleNodeJS from "./_shared/nodejs-vscode/setup/upload-bundle.mdx";
+import AutoCADPlugin from "./_shared/_plugins/autocad-plugin.mdx";
+import InventorPlugin from "./_shared/_plugins/inventor-plugin.mdx";
+import RevitPlugin from "./_shared/_plugins/revit-plugin.mdx";
+import MaxPlugin from "./_shared/_plugins/max-plugin.mdx";
+import EngineTabs from "@site/src/components/EngineTabs.js";
+import EnvTabs from "@site/src/components/EnvTabs.js";
+
+# 플러그인 생성
+
+Design Automation은 [Autodesk App Store](https://www.autodesk.com/developer-network/app-store)와 마찬가지로 '.bundle'을 사용하므로 DLL (및 기타 필수 파일)을 사용하여 PackageContents.xml 및 ZIP을 작성해야합니다. 작성 방법에 대한 자세한 내용은 Autodesk App Store 개발자 센터를 참조하십시오.
+
+이 섹션에서는 너비 및 높이 매개변수를 업데이트하고 결과 파일을 저장하는 기본 플러그인을 만듭니다. 또한 지원 파일(PackageContents.xml)과 이를 배치할 폴더 구조도 있습니다. 마지막으로 Design Automation에 업로드할 .ZIP 파일을 만듭니다.
+
+루트 폴더에 'bundles' 폴더를 만듭니다.
+
+<img src={VsCodeFolderExplorerImg} style={{ width: 300 }} />
+
+### 전제 조건
+
+- 7zip: 번들 파일로 .ZIP 생성할 때 사용하시는데, 여기에서 설치해주세요. 이 자습서에서는 7zip이 기본 폴더인 'C:\Program Files\7-Zip\7z.exe'에 설치되어 있다고 가정합니다.
+
+### 추가 전제 조건
+
+다음 세션에서는 사전 빌드 플러그인을 사용할 수 있습니다. 또는 구축하기로 결정한 경우 다음이 필요합니다.
+
+- **Visual Studio**: Visual Studio 2019 이상이 필요하며, [이 링크](https://visualstudio.microsoft.com/vs/)를 방문하세요.
+
+- **AutoCAD, Inventor, Revit 또는 3ds Max**: 설계 자동화 플러그인을 개발, 테스트 및 디버그하려면: [AutoCAD](https://www.autodesk.com/products/autocad/overview) | [발명가](https://www.autodesk.com/products/inventor/overview) | [레빗](https://www.autodesk.com/products/revit/overview) | [3ds 맥스](https://www.autodesk.com/products/3ds-max/overview).
+
+---
+
+다음 단계에서는 플러그인이 실행될 Autodesk 응용프로그램인 **엔진**을 선택합니다. 로컬에서 컴파일, 디버그 및 테스트하기 위해 해당 응용 프로그램을 설치해야 합니다.
+
+### 엔진 선택
+
+<EngineTabs
+  AutoCAD={AutoCADPlugin}
+  Inventor={InventorPlugin}
+  Revit={RevitPlugin}
+  Max={MaxPlugin}
+/>
+
+### 플러그인 번들 업로드
+
+이제 ZIP 번들이 준비되었으니 Design Automation에 업로드해 보겠습니다.
+
+<EnvTabs
+  NodeJsVsCode={BundleNodeJS}
+  DotNetVsCode={BundleNet6}
+  DotNetVs2022={BundleNet6}
+/>
+
+지금 웹앱을 실행하고 구성(오른쪽 상단)을 클릭하면 AppBundle과 사용 가능한 모든 엔진 목록이 표시됩니다. 버튼이 아직 작동하지 않습니다... 앞으로 나아갑시다.
+
+<img src={ActivityBundleConfigureImg} style={{ width: 800 }} />

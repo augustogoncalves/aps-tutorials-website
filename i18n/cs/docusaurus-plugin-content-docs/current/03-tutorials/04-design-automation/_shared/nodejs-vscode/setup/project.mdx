@@ -1,0 +1,29 @@
+Vytvořte novou složku pro projekt, přejděte do ní v příkazovém řádku a inicializujte novou složku
+Node.js projektu:
+
+```bash
+mkdir designAutomationSample
+cd designAutomationSample
+npm init -y
+```
+
+Dále nainstalujte všechny Node.js závislosti, které budeme používat. V tomto případě to bude
+Rámec [Express.js](https://expressjs.com), Express.js [middleware](https://expressjs.com/en/guide/using-middleware.html)
+pro zpracování požadavků 'multipart/form-data' a nakonec [APS SDK](https://www.npmjs.com/package/forge-apis):
+
+```bash
+npm install --save express express-formidable forge-apis
+```
+
+'"závislosti"' ve vašem souboru 'package.json' by nyní měly vypadat nějak takto
+(případně s mírně odlišnými čísly verzí):
+
+```json
+// ...
+"dependencies": {
+    "express": "^4.17.1",
+    "express-formidable": "^1.2.0",
+    "forge-apis": "^0.9.1"
+}
+// ...
+```

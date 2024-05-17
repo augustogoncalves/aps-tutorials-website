@@ -1,0 +1,33 @@
+
+import NodeJsVsCodeProject from './_shared/nodejs-vscode/setup/project.mdx';
+import NodeJsVsCodeConfig from './_shared/nodejs-vscode/setup/config.mdx';
+import NodeJsVsCodeServer from './_shared/nodejs-vscode/setup/server.mdx';
+import NodeJsVsCodeTest from './_shared/nodejs-vscode/setup/test.mdx';
+
+# Nastavení aplikace
+
+Začněme vytvořením nového projektu, instalací požadovaných závislostí a nastavením
+základní serverová aplikace.
+
+## Vytvořit projekt
+
+<NodeJsVsCodeProject />
+
+## Konfigurace aplikace
+
+Naše aplikace bude ke správnému fungování potřebovat několik konfiguračních parametrů, například
+přihlašovací údaje naší aplikace APS pro komunikaci se službami Autodesk Platform Services nebo adresa URL zpětného volání
+kam budou naši uživatelé přesměrováni během [3-legged authentication workflow](https://aps.autodesk.com/en/docs/oauth/v2/tutorials/get-3-legged-token/).
+Tyto parametry předáme serverové aplikaci pomocí proměnných prostředí.
+
+<NodeJsVsCodeConfig />
+
+## Vytvoření základního serveru
+
+Dále nastavíme základní serverovou aplikaci.
+
+<NodeJsVsCodeServer />
+
+## Vyzkoušejte si to
+
+<NodeJsVsCodeTest />

@@ -1,0 +1,41 @@
+import EnvTabs from "@site/src/components/EnvTabs.js";
+import ResponsiveVideo from "@site/src/components/ResponsiveVideo.js";
+import PreviewUrl from "@site/static/videos/ngrok-setup.mp4";
+import DotNetVS2022Setup from "./_shared/dotnet-vs2022/setup/project.mdx";
+import DotnetVS2022Config from "./_shared/dotnet-vs2022/setup/config.mdx";
+import DotNetVsCodeSetup from "./_shared/dotnet-vscode/setup/project.mdx";
+import DotNetVsCodeConfig from "./_shared/dotnet-vscode/setup/config.mdx";
+import NodeJsVsCodeSetup from "./_shared/nodejs-vscode/setup/project.mdx";
+import NodeJsVsCodeConfig from "./_shared/nodejs-vscode/setup/config.mdx";
+import NodeJsVsCodeServer from "./_shared/nodejs-vscode/setup/server.mdx";
+import DotnetVS2022Server from "./_shared/dotnet-vs2022/setup/server.mdx";
+
+# 创建服务器
+
+您的“客户ID”和“机密”应受到保护并保密，因为您的所有文件都将绑定到您的帐户。对于 Web 应用程序，请将其保留在服务器上。本节演示如何准备创建本地开发服务器。
+
+请查看 [环境设置](../../setup/） 部分。
+
+## 设置项目
+
+<EnvTabs
+  NodeJsVsCode={NodeJsVsCodeSetup}
+  DotNetVsCode={DotNetVsCodeSetup}
+  DotNetVs2022={DotNetVS2022Setup}
+/>
+
+### 应用程序配置
+
+<EnvTabs
+  NodeJsVsCode={NodeJsVsCodeConfig}
+  DotNetVsCode={DotNetVsCodeConfig}
+  DotNetVs2022={DotnetVS2022Config}
+/>
+
+### 服务器设置
+
+<EnvTabs
+  NodeJsVsCode={NodeJsVsCodeServer}
+  DotNetVsCode={DotnetVS2022Server}
+  DotNetVs2022={DotnetVS2022Server}
+/>

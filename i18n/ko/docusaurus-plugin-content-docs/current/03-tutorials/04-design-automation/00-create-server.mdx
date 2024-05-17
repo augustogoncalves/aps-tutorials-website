@@ -1,0 +1,41 @@
+import EnvTabs from "@site/src/components/EnvTabs.js";
+import ResponsiveVideo from "@site/src/components/ResponsiveVideo.js";
+import PreviewUrl from "@site/static/videos/ngrok-setup.mp4";
+import DotNetVS2022Setup from "./_shared/dotnet-vs2022/setup/project.mdx";
+import DotnetVS2022Config from "./_shared/dotnet-vs2022/setup/config.mdx";
+import DotNetVsCodeSetup from "./_shared/dotnet-vscode/setup/project.mdx";
+import DotNetVsCodeConfig from "./_shared/dotnet-vscode/setup/config.mdx";
+import NodeJsVsCodeSetup from "./_shared/nodejs-vscode/setup/project.mdx";
+import NodeJsVsCodeConfig from "./_shared/nodejs-vscode/setup/config.mdx";
+import NodeJsVsCodeServer from "./_shared/nodejs-vscode/setup/server.mdx";
+import DotnetVS2022Server from "./_shared/dotnet-vs2022/setup/server.mdx";
+
+# 서버 생성
+
+귀하의 '클라이언트 ID' 및 '비밀'은 모든 파일이 귀하의 계정에 바인딩되므로 보호되고 기밀로 유지되어야 합니다. 웹 응용 프로그램의 경우 서버에 보관합니다. 이 섹션에서는 로컬 개발 서버 생성을 준비하는 방법을 보여줍니다.
+
+[환경 설정](../../setup/) 섹션에 필요합니다.
+
+## 프로젝트 설정
+
+<EnvTabs
+  NodeJsVsCode={NodeJsVsCodeSetup}
+  DotNetVsCode={DotNetVsCodeSetup}
+  DotNetVs2022={DotNetVS2022Setup}
+/>
+
+### 응용 프로그램 구성
+
+<EnvTabs
+  NodeJsVsCode={NodeJsVsCodeConfig}
+  DotNetVsCode={DotNetVsCodeConfig}
+  DotNetVs2022={DotnetVS2022Config}
+/>
+
+### 서버 설정
+
+<EnvTabs
+  NodeJsVsCode={NodeJsVsCodeServer}
+  DotNetVsCode={DotnetVS2022Server}
+  DotNetVs2022={DotnetVS2022Server}
+/>

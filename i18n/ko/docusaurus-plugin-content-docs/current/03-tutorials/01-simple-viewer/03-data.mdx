@@ -1,0 +1,120 @@
+import EnvTabs from '@site/src/components/EnvTabs.js';
+
+import NodeJsVsCodeData from './_shared/nodejs-vscode/data/data.mdx';
+import NodeJsVsCodeDerivatives from './_shared/nodejs-vscode/data/derivatives.mdx';
+import NodeJsVsCodeEndpoints from './_shared/nodejs-vscode/data/endpoints.mdx';
+
+import DotNetData from './_shared/dotnet/data/data.mdx';
+import DotNetDerivatives from './_shared/dotnet/data/derivatives.mdx';
+import DotNetEndpoints from './_shared/dotnet/data/endpoints.mdx';
+
+# 데이터 및 파생 상품
+
+이 단계에서는 모델을 나열하고 업로드 할 수 있도록 서버를 확장합니다.
+그리고 볼 수 있도록 준비합니다.
+
+## 데이터 관리
+
+먼저 애플리케이션의 Data Management 서비스에 버킷이 있는지 확인하겠습니다
+파일을 저장합니다. 일반적으로 버킷은 프로비저닝의 일부로 한 번만 생성됩니다
+단계 그러나 샘플에서는 버킷이
+을 사용할 수 있으며 Server 앱의 다른 부분에서 사용할 수 있습니다.
+
+버킷을 생성할 때 애플리케이션은 버킷에 저장된 객체에 대한 보존 정책을 설정해야 합니다. 나중에 변경할 수 없습니다. 버킷의 보존 정책은 그 안에 저장된 모든 객체에 적용됩니다. 버킷을 생성할 때 **policyKey** 를 **transient**, **temporary** 또는 **persistent** 로 구체적으로 설정해야 합니다.
+
+
+
+:::info
+
+**데이터 보존 정책**
+
+**일시적** - 24시간이 지난 개체는 자동으로 제거됩니다.
+
+**임시** - 30일이 지난 개체가 삭제된다.
+
+**영구** - 사용자가 개체를 삭제할 때까지 사용할 수 있습니다.
+
+
+:::
+
+
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeData} DotNetVsCode={DotNetData} DotNetVs2022={DotNetData} />
+
+
+
+:::caution
+
+데이터 관리 서비스를 사용하려면 버킷 이름이 **전역적으로 고유해야 합니다**.
+이미 사용된 이름으로 버킷을 생성하려는 시도는 '409 충돌'과 함께 실패합니다.
+[문서](https://aps.autodesk.com/en/docs/data/v2/reference/http/buckets-POST)를 참조하십시오.
+자세한 내용은.
+
+
+:::
+
+
+
+## 파생상품
+
+다음으로 다양한 유형의 정보를 파생/추출하는 몇 가지 도우미 함수를 구현합니다
+업로드된 파일(예: 2D 도면, 3D 형상 및 메타데이터)에서 나중에 로드할 수 있습니다
+우리 웹 페이지의 뷰어로. 이렇게 하려면 새 변환 작업을 시작해야 합니다
+[모델 미분](https://aps.autodesk.com/en/docs/model-derivative/v2/developers_guide/overview)
+서비스 및 변환 상태 확인.
+
+모델 파생 서비스를 사용하려면 API 호출에 사용하는 모든 ID가 [base64](https://wikipedia.org/wiki/Base64)로 인코딩되어야 합니다.
+그래서 우리는 그것을 도울 작은 유틸리티 함수를 포함합니다.
+
+
+
+:::info
+
+Base64로 인코딩된 ID를 _URN_이라고 합니다.
+
+
+:::
+
+
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeDerivatives} DotNetVsCode={DotNetDerivatives} DotNetVs2022={DotNetDerivatives} />
+
+## 서버 엔드포인트
+
+이제 다른 기능을 통해 클라이언트에서 새 기능을 사용할 수 있도록 해 보겠습니다.
+끝점 집합입니다.
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeEndpoints} DotNetVsCode={DotNetEndpoints} DotNetVs2022={DotNetEndpoints} />
+
+## 사용해 보기
+
+평소와 같이 앱을 시작(또는 다시 시작)하고 [http://localhost:8080/api/models](http://localhost:8080/api/models)로 이동합니다.
+브라우저에서. 서버는 모든 개체의 이름과 URN이 포함된 JSON 목록으로 응답해야 합니다
+구성된 버킷에서 사용할 수 있습니다.
+
+
+
+:::info
+
+APS로 처음 작업하는 경우 JSON 응답을 받을 수 있습니다
+예상되는 빈 배열 ( '[]')을 사용합니다. 아래 스크린 샷에서 다음을 수행 할 수 있습니다.
+과거에 버킷에 업로드된 몇 개의 파일을 이미 볼 수 있습니다.
+
+
+:::
+
+
+
+
+
+:::tip
+
+Google Chrome을 사용하는 경우 [JSON 포맷터](https://chrome.google.com/webstore/detail/json-formatter/bcjindcccaagfpapjjmafapmmgkkhgoa?hl=en)를 설치하는 것이 좋습니다.
+또는 JSON 응답의 형식을 자동으로 지정하는 유사한 확장입니다.
+
+
+:::
+
+
+
+![Server Response](./_shared/data-response.webp)

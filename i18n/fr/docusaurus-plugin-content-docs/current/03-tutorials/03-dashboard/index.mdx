@@ -1,0 +1,57 @@
+import ResponsiveVideo from '@site/src/components/ResponsiveVideo.js';
+import PreviewUrl from '@site/static/videos/aps-dashboards.mp4';
+
+# Tableau de bord
+
+## Présentation
+
+Dans ce tutoriel, nous allons améliorer le [Simple Viewer](.. /simple-viewer)
+avec une fonctionnalité de type tableau de bord, par exemple, la récupération et l’agrégation d’informations
+à partir de nos métadonnées de conception, en affichant les résultats dans des graphiques et des grilles de données, et en contrôlant
+l’état du spectateur en fonction de l’interaction avec ces nouveaux visuels.
+
+All the functionality in this tutorial is implemented as viewer extensions, and will only use
+the viewer UI, so you're free to use any APS application you want as your starting point.
+Note however that the names of folders, and the way you import JavaScript files into your
+web application, might be a little bit different.
+
+
+
+:::caution
+
+Certaines parties du code de ce tutoriel supposent que vos éléments de conception contiennent des propriétés spécifiques
+tels que _Volume_, _Level_ ou _Price_. Si vous avez un design spécifique avec lequel vous souhaitez travailler, vous pouvez
+Bien sûr, modifiez le code pour utiliser d’autres propriétés, sinon nous vous recommandons d’utiliser l’une des propriétés officielles
+[Exemples de fichiers de projet Revit 2022](https://knowledge.autodesk.com/support/revit/getting-started/caas/CloudHelp/cloudhelp/2022/ENU/Revit-GetStarted/files/GUID-61EF2F22-3A1F-4317-B925-1E85F138BE88-htm.html)
+où ces propriétés sont toujours présentes.
+
+
+:::
+
+
+
+<ResponsiveVideo src={PreviewUrl} />
+
+Nous utiliserons le [Viewer](https://aps.autodesk.com/en/docs/viewer/v7/developers_guide/overview)
+API et ses différentes fonctionnalités telles que :
+
+- Création et chargement d’extensions de visionneuse
+- Interrogation des métadonnées des modèles chargés
+- Réagir aux événements des spectateurs
+- Contrôle de l’état de la visionneuse
+- Personnalisation de la barre d’outils de la visionneuse
+- Création d’éléments d’interface utilisateur personnalisés
+
+
+
+:::tip
+
+L’implémentation complète de ce tutoriel est disponible dans le [tableau de bord](https://github.com/autodesk-platform-services/aps-simple-viewer-nodejs/tree/dashboards)
+branche de https://github.com/autodesk-platform-services/aps-simple-viewer-nodejs.
+
+
+:::
+
+
+
+Très bien, commençons !

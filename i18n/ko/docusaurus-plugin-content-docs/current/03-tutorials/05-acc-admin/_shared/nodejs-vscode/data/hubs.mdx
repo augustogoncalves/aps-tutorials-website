@@ -1,0 +1,47 @@
+개별 허브, 프로젝트를 탐색하기 위한 논리를 구현해 보겠습니다.
+
+First, let's include the Data Management SDK, add the `@aps_sdk/data-management` library, and also create an instance of
+SDK client of `DataManagementClient` at the beginning of `services/aps.js` file:
+```js title="services/aps.js"
+const { SdkManagerBuilder } = require('@aps_sdk/autodesk-sdkmanager');
+const { AuthenticationClient, Scopes, ResponseType } = require('@aps_sdk/authentication');
+// highlight-start
+const { DataManagementClient } = require('@aps_sdk/data-management');
+// highlight-end
+const { APS_CLIENT_ID, APS_CLIENT_SECRET, APS_CALLBACK_URL } = require('../config.js');
+const service = module.exports = {};
+const sdk = SdkManagerBuilder.create().build();
+const authenticationClient = new AuthenticationClient(sdk);
+// highlight-start
+const dataManagementClient = new DataManagementClient(sdk);
+// highlight-end
+```
+
+그런 다음 'services/aps.js' 파일의 끝에 다음 코드를 추가합니다.
+
+```js title="services/aps.js"
+// Data Management APIs
+service.getHubs = async (token) => {
+    const resp = await dataManagementClient.getHubs(token.access_token);
+    return resp.data.filter((item)=>{
+        return item.id.startsWith('b.');
+    })
+};
+service.getProjects = async (hubId, token) => {
+    const resp = await dataManagementClient.getHubProjects(token.access_token, hubId);
+    return resp.data.filter( (item)=>{
+        return item.attributes.extension.data.projectType == 'ACC';
+    } )
+};
+```
+
+
+:::tip
+
+dataManagementClient.getHubProjects() 메소드는 다음과 같은 프로젝트를 반환합니다. 
+현재 사용자가 관련되어 있으며 ACC Admin GET Projects API와 다릅니다. 
+사용자가 참여하지 않은 프로젝트를 포함하여 모든 프로젝트를 반환합니다.
+
+
+:::
+

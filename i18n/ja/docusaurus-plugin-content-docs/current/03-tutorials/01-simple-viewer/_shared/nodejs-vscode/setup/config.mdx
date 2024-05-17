@@ -1,0 +1,89 @@
+プロジェクト フォルダーのルートに 'config.js' ファイルを作成し、次のコードを追加します。
+
+```js title="config.js"
+require('dotenv').config();
+let { APS_CLIENT_ID, APS_CLIENT_SECRET, APS_BUCKET, PORT } = process.env;
+if (!APS_CLIENT_ID || !APS_CLIENT_SECRET) {
+    console.warn('Missing some of the environment variables.');
+    process.exit(1);
+}
+APS_BUCKET = APS_BUCKET || `${APS_CLIENT_ID.toLowerCase()}-basic-app`;
+PORT = PORT || 8080;
+module.exports = {
+    APS_CLIENT_ID,
+    APS_CLIENT_SECRET,
+    APS_BUCKET,
+    PORT
+};
+```
+
+'dotenv' ライブラリは、ローカルの _.env_ ファイル (存在する場合) から環境変数を初期化します。
+次に、「process.env」から環境変数を読み取って、アプリケーションを終了します
+必要なプロパティのいずれかが欠落している場合はすぐに。また、バケット名が指定されていない場合
+デザインを保存する場所については、「-basic-app」サフィックスを追加して生成します
+をアプリケーションのクライアントIDに。
+
+
+
+:::caution
+
+データ管理サービスでは、バケット名が**グローバルに一意**である必要があることに注意してください。
+また、すでに使用されている名前でバケットを作成しようとすると、「409 Conflict」で失敗します。
+[ドキュメント](https://forge.autodesk.com/en/docs/data/v2/reference/http/buckets-POST)を参照してください。
+を参照してください。
+
+
+:::
+
+
+
+Next, let's create the _.env_ file in the project folder, and populate it with the required
+environment variables (replacing `<client-id>` and `<client-secret>` with your APS Client ID
+and Client Secret):
+
+``` title=".env"
+APS_CLIENT_ID="<client-id>"
+APS_CLIENT_SECRET="<client-secret>"
+```
+
+
+
+:::caution
+
+「.env」ファイルには機密情報が含まれているため、gitに含まれていないことを確認してください。
+これは、[.gitignore](https://git-scm.com/docs/gitignore)ファイルに '.env'行を追加することで保証できます。
+
+
+:::
+
+
+
+ここで、Visual Studio Code からアプリケーションを実行およびデバッグできるようにするには、
+[起動設定](https://code.visualstudio.com/docs/editor/debugging#_launch-configurations)。
+メニュー_Run > [Configuration_の追加] を使用して新しい構成を作成し、プロンプトが表示されたら
+特定の環境では、[_Node.js_] を選択します。これにより、新しい '.vscode' が作成されます
+サブフォルダに 'launch.json' ファイルがあり、そこでさまざまな定義を行うことができます
+起動設定。ファイルの内容を次のように置き換えます。
+
+```json title=".vscode/launch.json"
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Server",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "start"
+            ],
+            "skipFiles": [
+                "<node_internals>/**/*.js"
+            ]
+        }
+    ]
+}
+```
+
+_Launch Server_ という 1 つの起動設定を定義しています。
+「npm start」コマンドを使用してアプリケーションを起動します。

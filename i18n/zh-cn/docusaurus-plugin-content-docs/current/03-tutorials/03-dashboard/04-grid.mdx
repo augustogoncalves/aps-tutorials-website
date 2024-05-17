@@ -1,0 +1,266 @@
+# 数据网格
+
+在最后一步中，我们将构建一个查看器扩展，该扩展将提供数据网格视图
+使用开源 [Tabulator](http://tabulator.info） 库的设计元素属性。
+
+## 扩展骨架
+
+像往常一样，让我们在“extensions”子文件夹下创建一个新文件，将其命名为“DataGridExtension.js”，
+并使用以下代码填充它：
+
+```js title="wwwroot/extensions/DataGridExtension.js"
+import { BaseExtension } from './BaseExtension.js';
+class DataGridExtension extends BaseExtension {
+    constructor(viewer, options) {
+        super(viewer, options);
+    }
+    async load() {
+        super.load();
+        await Promise.all([
+            this.loadScript('https://unpkg.com/tabulator-tables@4.9.3/dist/js/tabulator.min.js', 'Tabulator'),
+            this.loadStylesheet('https://unpkg.com/tabulator-tables@4.9.3/dist/css/tabulator.min.css')
+        ]);
+        console.log('DataGridExtension loaded.');
+        return true;
+    }
+    unload() {
+        super.unload();
+        console.log('DataGridExtension unloaded.');
+        return true;
+    }
+}
+Autodesk.Viewing.theExtensionManager.registerExtension('DataGridExtension', DataGridExtension);
+```
+
+这一次，我们还加载了制表器库所需的多个依赖项。
+
+Now let's import the JavaScript file to our application, and pass the extension ID to the viewer
+constructor:
+
+```js
+import './extensions/LoggerExtension.js';
+import './extensions/SummaryExtension.js';
+import './extensions/HistogramExtension.js';
+// highlight-start
+import './extensions/DataGridExtension.js';
+// highlight-end
+```
+
+```js
+const config = {
+    extensions: [
+        'LoggerExtension',
+        'SummaryExtension',
+        'HistogramExtension',
+        // highlight-start
+        'DataGridExtension',
+        // highlight-end
+    ]
+};
+const viewer = new Autodesk.Viewing.GuiViewer3D(container, config);
+```
+
+## 工具栏
+
+接下来，让我们更新“DataGridExtension”类，以便它向查看器添加一个新按钮
+加载扩展时的工具栏：
+
+```js title="wwwroot/extensions/DataGridExtension.js"
+import { BaseExtension } from './BaseExtension.js';
+class DataGridExtension extends BaseExtension {
+    constructor(viewer, options) {
+        super(viewer, options);
+        // highlight-start
+        this._button = null;
+        // highlight-end
+    }
+    async load() {
+        super.load();
+        await Promise.all([
+            this.loadScript('https://unpkg.com/tabulator-tables@4.9.3/dist/js/tabulator.min.js', 'Tabulator'),
+            this.loadStylesheet('https://unpkg.com/tabulator-tables@4.9.3/dist/css/tabulator.min.css')
+        ]);
+        console.log('DataGridExtension loaded.');
+        return true;
+    }
+    unload() {
+        super.unload();
+        // highlight-start
+        if (this._button) {
+            this.removeToolbarButton(this._button);
+            this._button = null;
+        }
+        // highlight-end
+        console.log('DataGridExtension unloaded.');
+        return true;
+    }
+    // highlight-start
+    onToolbarCreated() {
+        this._button = this.createToolbarButton('dashboard-datagrid-button', 'https://img.icons8.com/small/32/activity-grid.png', 'Show Data Grid');
+        this._button.onClick = () => {
+            // TODO
+        };
+    }
+    // highlight-end
+}
+Autodesk.Viewing.theExtensionManager.registerExtension('DataGridExtension', DataGridExtension);
+```
+
+## 数据网格
+
+现在，让我们创建一个自定义停靠面板，该面板将托管实际的制表器网格。创造
+“DataGridExtension.js”所在的同一文件夹中的“DataGridPanel.js”文件，以及
+将以下代码添加到其中：
+
+```js title="wwwroot/extensions/DataGridPanel.js"
+const DATAGRID_CONFIG = {
+    requiredProps: ['name', 'Volume', 'Level'], // Which properties should be requested for each object
+    columns: [ // Definition of individual grid columns (see http://tabulator.info for more details)
+        { title: 'ID', field: 'dbid' },
+        { title: 'Name', field: 'name', width: 150 },
+        { title: 'Volume', field: 'volume', hozAlign: 'left', formatter: 'progress' },
+        { title: 'Level', field: 'level' }
+    ],
+    groupBy: 'level', // Optional column to group by
+    createRow: (dbid, name, props) => { // Function generating grid rows based on recieved object properties
+        const volume = props.find(p => p.displayName === 'Volume')?.displayValue;
+        const level = props.find(p => p.displayName === 'Level' && p.displayCategory === 'Constraints')?.displayValue;
+        return { dbid, name, volume, level };
+    },
+    onRowClick: (row, viewer) => {
+        viewer.isolate([row.dbid]);
+        viewer.fitToView([row.dbid]);
+    }
+};
+export class DataGridPanel extends Autodesk.Viewing.UI.DockingPanel {
+    constructor(extension, id, title, options) {
+        super(extension.viewer.container, id, title, options);
+        this.extension = extension;
+        this.container.style.left = (options.x || 0) + 'px';
+        this.container.style.top = (options.y || 0) + 'px';
+        this.container.style.width = (options.width || 500) + 'px';
+        this.container.style.height = (options.height || 400) + 'px';
+        this.container.style.resize = 'none';
+    }
+    initialize() {
+        this.title = this.createTitleBar(this.titleLabel || this.container.id);
+        this.initializeMoveHandlers(this.title);
+        this.container.appendChild(this.title);
+        this.content = document.createElement('div');
+        this.content.style.height = '350px';
+        this.content.style.backgroundColor = 'white';
+        this.content.innerHTML = `<div class="datagrid-container" style="position: relative; height: 350px;"></div>`;
+        this.container.appendChild(this.content);
+        // See http://tabulator.info
+        this.table = new Tabulator('.datagrid-container', {
+            height: '100%',
+            layout: 'fitColumns',
+            columns: DATAGRID_CONFIG.columns,
+            groupBy: DATAGRID_CONFIG.groupBy,
+            rowClick: (e, row) => DATAGRID_CONFIG.onRowClick(row.getData(), this.extension.viewer)
+        });
+    }
+    update(model, dbids) {
+        model.getBulkProperties(dbids, { propFilter: DATAGRID_CONFIG.requiredProps }, (results) => {
+            this.table.replaceData(results.map((result) => DATAGRID_CONFIG.createRow(result.dbId, result.name, result.properties)));
+        }, (err) => {
+            console.error(err);
+        });
+    }
+}
+```
+
+
+
+:::info
+
+为了简单起见，“DataGridPanel”类目前正在对网格列进行硬编码
+仅显示设计元数据的几个特定属性（特别是对象 ID、
+对象名称，以及“Volume”和“Level”属性）。根据您将要进行的设计类型
+加载到您的应用程序中，您可能需要更改这些内容。
+
+
+:::
+
+
+
+最后，将新面板添加到我们的扩展中：
+
+```js title="wwwroot/extensions/DataGridExtension.js"
+import { BaseExtension } from './BaseExtension.js';
+// highlight-start
+import { DataGridPanel } from './DataGridPanel.js';
+// highlight-end
+class DataGridExtension extends BaseExtension {
+    constructor(viewer, options) {
+        super(viewer, options);
+        this._button = null;
+        // highlight-start
+        this._panel = null;
+        // highlight-end
+    }
+    async load() {
+        super.load();
+        await Promise.all([
+            this.loadScript('https://unpkg.com/tabulator-tables@4.9.3/dist/js/tabulator.min.js', 'Tabulator'),
+            this.loadStylesheet('https://unpkg.com/tabulator-tables@4.9.3/dist/css/tabulator.min.css')
+        ]);
+        console.log('DataGridExtension loaded.');
+        return true;
+    }
+    unload() {
+        super.unload();
+        if (this._button) {
+            this.removeToolbarButton(this._button);
+            this._button = null;
+        }
+        // highlight-start
+        if (this._panel) {
+            this._panel.setVisible(false);
+            this._panel.uninitialize();
+            this._panel = null;
+        }
+        // highlight-end
+        console.log('DataGridExtension unloaded.');
+        return true;
+    }
+    onToolbarCreated() {
+        // highlight-start
+        this._panel = new DataGridPanel(this, 'dashboard-datagrid-panel', 'Data Grid', { x: 10, y: 10 });
+        // highlight-end
+        this._button = this.createToolbarButton('dashboard-datagrid-button', 'https://img.icons8.com/small/32/activity-grid.png', 'Show Data Grid');
+        this._button.onClick = () => {
+            // highlight-start
+            this._panel.setVisible(!this._panel.isVisible());
+            this._button.setState(this._panel.isVisible() ? Autodesk.Viewing.UI.Button.State.ACTIVE : Autodesk.Viewing.UI.Button.State.INACTIVE);
+            if (this._panel.isVisible() && this.viewer.model) {
+                this.update();
+            }
+            // highlight-end
+        };
+    }
+    // highlight-start
+    onModelLoaded(model) {
+        super.onModelLoaded(model);
+        if (this._panel && this._panel.isVisible()) {
+            this.update();
+        }
+    }
+    // highlight-end
+    // highlight-start
+    async update() {
+        const dbids = await this.findLeafNodes(this.viewer.model);
+        this._panel.update(this.viewer.model, dbids);
+    }
+    // highlight-end
+}
+Autodesk.Viewing.theExtensionManager.registerExtension('DataGridExtension', DataGridExtension);
+```
+
+## 试一试
+
+单击新建工具栏按钮以调出 datagrid 面板。网格应列出选定的
+所有设计元素的属性，单击网格中的任何一行都应隔离特定的
+查看器中的设计元素。
+
+![Grid Result](data-grid-final-app.webp)

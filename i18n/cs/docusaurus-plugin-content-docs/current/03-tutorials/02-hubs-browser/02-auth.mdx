@@ -1,0 +1,44 @@
+import EnvTabs from '@site/src/components/EnvTabs.js';
+
+import NodeJsVsCodeTokens from './_shared/nodejs-vscode/auth/tokens.mdx';
+import NodeJsVsCodeEndpoints from './_shared/nodejs-vscode/auth/endpoints.mdx';
+import NodeJsVsCodeTest from './_shared/nodejs-vscode/auth/test.mdx';
+
+import DotNetTokens from './_shared/dotnet/auth/tokens.mdx';
+import DotNetEndpoints from './_shared/dotnet/auth/endpoints.mdx';
+import DotNetVsCodeTest from './_shared/dotnet-vscode/auth/test.mdx';
+import DotNetVs2022Test from './_shared/dotnet-vs2022/auth/test.mdx';
+
+# Ověřování
+
+V tomto kroku rozšíříme implementaci serveru tak, aby se mohl sám ověřit
+k platformě APS, provést uživatele [3nohým pracovním postupem OAuth](https://aps.autodesk.com/en/docs/oauth/v2/tutorials/get-3-legged-token),
+a generování přístupových tokenů pro různé potřeby.
+
+
+
+:::tip
+
+Osvědčeným postupem je vygenerovat "interní" token s více možnostmi (například
+umožňující vlastníkovi vytvářet nebo odstraňovat soubory ve službě Správa dat), které budou použity pouze
+serverem a "veřejný" token s menším počtem funkcí, se kterými lze bezpečně sdílet
+logika na straně klienta.
+
+
+:::
+
+
+
+## Přístupové tokeny
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeTokens} DotNetVsCode={DotNetTokens} DotNetVs2022={DotNetTokens} />
+
+## Koncové body serveru
+
+Teď si tuto funkci zpřístupníme prostřednictvím kolekce koncových bodů na našem serveru.
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeEndpoints} DotNetVsCode={DotNetEndpoints} DotNetVs2022={DotNetEndpoints} />
+
+## Vyzkoušejte si to
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeTest} DotNetVsCode={DotNetVsCodeTest} DotNetVs2022={DotNetVs2022Test} />

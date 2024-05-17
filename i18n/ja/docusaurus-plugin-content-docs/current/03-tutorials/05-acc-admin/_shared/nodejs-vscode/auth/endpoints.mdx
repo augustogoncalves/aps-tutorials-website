@@ -1,0 +1,52 @@
+「routes」サブフォルダの下に、次の内容の「auth.js」ファイルを作成します。
+
+```js title="routes/auth.js"
+const express = require('express');
+const { getAuthorizationUrl, authCallbackMiddleware, authRefreshMiddleware, getUserProfile } = require('../services/aps.js');
+let router = express.Router();
+router.get('/api/auth/login', function (req, res) {
+    res.redirect(getAuthorizationUrl());
+});
+router.get('/api/auth/logout', function (req, res) {
+    req.session = null;
+    res.redirect('/');
+});
+router.get('/api/auth/callback', authCallbackMiddleware, function (req, res) {
+    res.redirect('/');
+});
+router.get('/api/auth/profile', authRefreshMiddleware, async function (req, res, next) {
+    try {
+        const profile = await getUserProfile(req.oAuthToken);
+        res.json({ name: `${profile.name}` });
+    } catch (err) {
+        next(err);
+    }
+});
+module.exports = router;
+```
+
+ここでは、新しい Express.js [router](http://expressjs.com/en/4x/api.html#router) を実装します。
+は、すべての認証関連のエンドポイントを処理します。ルーターをサーバーに「マウント」しましょう
+'server.js' を変更してアプリケーション:
+
+```js title="server.js"
+const express = require('express');
+const session = require('cookie-session');
+const { PORT, SERVER_SESSION_SECRET } = require('./config.js');
+let app = express();
+app.use(express.static('wwwroot'));
+app.use(session({ secret: SERVER_SESSION_SECRET, maxAge: 24 * 60 * 60 * 1000 }));
+// highlight-start
+app.use(require('./routes/auth.js'));
+// highlight-end
+app.listen(PORT, () => console.log(`Server listening on port ${PORT}...`));
+```
+
+ルーターは、次の要求を処理します。
+
+- 「GET /api/auth/login」は、ユーザをオートデスクのログインページにリダイレクトします。
+- 「GET /api/auth/callback」は、ログインに成功した後にユーザーがリダイレクトされるURLです。
+そして、ユーザーのために新しいトークンのセットを生成する場所です
+- 「GET /api/auth/logout」は、特定のユーザーのCookieベースのセッションデータを効果的に削除します
+アプリケーションからユーザーをログアウトする
+- 'GET /api/auth/profile' は、ログインしたユーザーに関する追加情報を含む単純な JSON を返します。

@@ -1,0 +1,29 @@
+为项目创建一个新文件夹，在命令行中导航到该文件夹，然后初始化一个新的
+Node.js项目：
+
+```bash
+mkdir designAutomationSample
+cd designAutomationSample
+npm init -y
+```
+
+接下来，安装我们将要使用的所有Node.js依赖项。在这种情况下，它将是
+[Express.js](https://expressjs.com） 框架，Express.js [中间件](https://expressjs.com/en/guide/using-middleware.html）
+用于处理“multipart/form-data”请求，最后是 [APS SDK](https://www.npmjs.com/package/forge-apis）：
+
+```bash
+npm install --save express express-formidable forge-apis
+```
+
+“package.json”文件中的“依赖项”现在应该如下所示
+（版本号可能略有不同）：
+
+```json
+// ...
+"dependencies": {
+    "express": "^4.17.1",
+    "express-formidable": "^1.2.0",
+    "forge-apis": "^0.9.1"
+}
+// ...
+```

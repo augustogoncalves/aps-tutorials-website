@@ -1,0 +1,97 @@
+应将以下方法添加到“DesignAutomationController”类中。
+
+- 引擎属性
+
+要定义活动，我们需要可执行文件和默认文件扩展名。此帮助程序函数提供它（来自引擎名称）。
+
+```cs
+/// <summary>
+/// Helps identify the engine
+/// </summary>
+private dynamic EngineAttributes(string engine)
+{
+    if (engine.Contains("3dsMax")) return new { commandLine = "$(engine.path)\\3dsmaxbatch.exe -sceneFile \"$(args[inputFile].path)\" $(settings[script].path)", extension = "max", script = "da = dotNetClass(\"Autodesk.Forge.Sample.DesignAutomation.Max.RuntimeExecute\")\nda.ModifyWindowWidthHeight()\n" };
+    if (engine.Contains("AutoCAD")) return new { commandLine = "$(engine.path)\\accoreconsole.exe /i \"$(args[inputFile].path)\" /al \"$(appbundles[{0}].path)\" /s $(settings[script].path)", extension = "dwg", script = "UpdateParam\n" };
+    if (engine.Contains("Inventor")) return new { commandLine = "$(engine.path)\\inventorcoreconsole.exe /i \"$(args[inputFile].path)\" /al \"$(appbundles[{0}].path)\"", extension = "ipt", script = string.Empty };
+    if (engine.Contains("Revit")) return new { commandLine = "$(engine.path)\\revitcoreconsole.exe /i \"$(args[inputFile].path)\" /al \"$(appbundles[{0}].path)\"", extension = "rvt", script = string.Empty };
+    throw new Exception("Invalid engine");
+}
+```
+
+- 创建活动
+
+使用输入文件、输入数据 （JSON） 和输出文件定义新活动。
+
+```cs
+/// <summary>
+/// Define a new activity
+/// </summary>
+[HttpPost]
+[Route("api/aps/designautomation/activities")]
+public async Task<IActionResult> CreateActivity([FromBody]JObject activitySpecs)
+{
+    // basic input validation
+    string zipFileName = activitySpecs["zipFileName"].Value<string>();
+    string engineName = activitySpecs["engine"].Value<string>();
+    // standard name for this sample
+    string appBundleName = zipFileName + "AppBundle";
+    string activityName = zipFileName + "Activity";
+    //
+    Page<string> activities = await _designAutomation.GetActivitiesAsync();
+    string qualifiedActivityId = string.Format("{0}.{1}+{2}", NickName, activityName, Alias);
+    if (!activities.Data.Contains(qualifiedActivityId))
+    {
+        // define the activity
+        // ToDo: parametrize for different engines...
+        dynamic engineAttributes = EngineAttributes(engineName);
+        string commandLine = string.Format(engineAttributes.commandLine, appBundleName);
+        Activity activitySpec = new Activity()
+        {
+            Id = activityName,
+            Appbundles = new List<string>() { string.Format("{0}.{1}+{2}", NickName, appBundleName, Alias) },
+            CommandLine = new List<string>() { commandLine },
+            Engine = engineName,
+            Parameters = new Dictionary<string, Parameter>()
+            {
+                { "inputFile", new Parameter() { Description = "input file", LocalName = "$(inputFile)", Ondemand = false, Required = true, Verb = Verb.Get, Zip = false } },
+                { "inputJson", new Parameter() { Description = "input json", LocalName = "params.json", Ondemand = false, Required = false, Verb = Verb.Get, Zip = false } },
+                { "outputFile", new Parameter() { Description = "output file", LocalName = "outputFile." + engineAttributes.extension, Ondemand = false, Required = true, Verb = Verb.Put, Zip = false } }
+            },
+            Settings = new Dictionary<string, ISetting>()
+            {
+                { "script", new StringSetting(){ Value = engineAttributes.script } }
+            }
+        };
+        Activity newActivity = await _designAutomation.CreateActivityAsync(activitySpec);
+        // specify the alias for this Activity
+        Alias aliasSpec = new Alias() { Id = Alias, Version = 1 };
+        Alias newAlias = await _designAutomation.CreateActivityAliasAsync(activityName, aliasSpec);
+        return Ok(new { Activity = qualifiedActivityId });
+    }
+    // as this activity points to a AppBundle "dev" alias (which points to the last version of the bundle),
+    // there is no need to update it (for this sample), but this may be extended for different contexts
+    return Ok(new { Activity = "Activity already defined" });
+}
+```
+
+- GetDefined活动
+
+我们还需要一种方法来返回所有定义的活动。请注意，仅返回您定义的那些（我们使用 APS 客户端 ID 作为昵称，然后显示为前缀）。
+
+```cs
+/// <summary>
+/// Get all Activities defined for this account
+/// </summary>
+[HttpGet]
+[Route("api/aps/designautomation/activities")]
+public async Task<List<string>> GetDefinedActivities()
+{
+    // filter list of
+    Page<string> activities = await _designAutomation.GetActivitiesAsync();
+    List<string> definedActivities = new List<string>();
+    foreach (string activity in activities.Data)
+        if (activity.StartsWith(NickName) && activity.IndexOf("$LATEST") == -1)
+            definedActivities.Add(activity.Replace(NickName + ".", String.Empty));
+    return definedActivities;
+}
+```

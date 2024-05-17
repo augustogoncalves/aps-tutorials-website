@@ -1,0 +1,68 @@
+import EnvTabs from '@site/src/components/EnvTabs.js';
+
+import NodeJsVsCodeHubs from './_shared/nodejs-vscode/data/hubs.mdx';
+import NodeJsVsCodeEndpoints from './_shared/nodejs-vscode/data/endpoints.mdx';
+
+import DotNetHubs from './_shared/dotnet/data/hubs.mdx';
+import DotNetEndpoints from './_shared/dotnet/data/endpoints.mdx';
+
+# 数据浏览
+
+在此步骤中，我们将扩展服务器，以便我们可以浏览其他基于 APS 的内容
+应用程序，例如 BIM 360 Docs 或 Autodesk Docs。我们基本上会遵循数据管理
+服务的中心、项目、文件夹、项目和版本的层次结构：
+
+![Data Management structure](./_shared/dm-structure.webp)
+
+## 浏览中心
+
+首先，让我们添加一些帮助程序方法，用于浏览中心、项目、
+文件夹、项目和版本：
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeHubs} DotNetVsCode={DotNetHubs} DotNetVs2022={DotNetHubs} />
+
+## 服务器端点
+
+接下来，让我们通过另一个将新功能公开给客户端代码
+终结点集。
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeEndpoints} DotNetVsCode={DotNetEndpoints} DotNetVs2022={DotNetEndpoints} />
+
+## 试一试
+
+服务器端就是这样。是时候尝试一下了！
+
+像往常一样从 Visual Studio Code 启动（或重启）应用，然后导航到
+[http://localhost:8080/api/hubs](http://localhost:8080/api/hubs） 在浏览器中。
+服务器应使用您有权访问的所有中心的 JSON 列表进行响应。
+尝试复制其中一个集线器的 ID，并将其用于另一个地址：http://localhost:8080/api/hubs/your-hub-id/projects。
+在这种情况下，服务器应用程序应使用所有项目的 JSON 列表进行响应
+在指定的中心下可用。
+
+
+
+:::info
+
+如果跳过了上一步中的登录过程，或重新启动了服务器应用程序，
+您可能需要转到 [http://localhost:8080/api/auth/login](http://localhost:8080/api/auth/login）
+再次确保在测试之前，所有身份验证数据都在 cookie 中可用
+“/api/hubs”终结点。
+
+
+:::
+
+
+
+
+
+:::tip
+
+如果您使用的是 Google Chrome，请考虑安装 [JSON 格式化程序](https://chrome.google.com/webstore/detail/json-formatter/bcjindcccaagfpapjjmafapmmgkkhgoa?hl=en）
+或类似的扩展程序来自动格式化 JSON 响应。
+
+
+:::
+
+
+
+![Hubs Response](./_shared/hubs-response.webp)

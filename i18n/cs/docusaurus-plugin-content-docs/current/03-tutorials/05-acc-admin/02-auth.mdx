@@ -1,0 +1,23 @@
+import NodeJsVsCodeTokens from './_shared/nodejs-vscode/auth/tokens.mdx';
+import NodeJsVsCodeEndpoints from './_shared/nodejs-vscode/auth/endpoints.mdx';
+import NodeJsVsCodeTest from './_shared/nodejs-vscode/auth/test.mdx';
+
+# Ověřování
+
+V tomto kroku rozšíříme implementaci serveru tak, aby se mohl sám ověřit
+k platformě APS, provést uživatele [3nohým pracovním postupem OAuth](https://aps.autodesk.com/en/docs/oauth/v2/tutorials/get-3-legged-token),
+a generování přístupových tokenů pro různé potřeby.
+
+## Přístupové tokeny
+
+<NodeJsVsCodeTokens />
+
+## Koncové body serveru
+
+Teď si tuto funkci zpřístupníme prostřednictvím kolekce koncových bodů na našem serveru.
+
+<NodeJsVsCodeEndpoints />
+
+## Vyzkoušejte si to
+
+<NodeJsVsCodeTest />

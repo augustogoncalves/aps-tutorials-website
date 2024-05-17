@@ -1,0 +1,27 @@
+アプリケーションがまだ実行中の場合は、再起動します (たとえば、_Run > Restart Debugging_ を使用します。
+または緑色の再起動アイコンをクリックする)、それ以外の場合は再起動します([スタート]Debugging_を使用して_Run >
+または「F5」を押す)。
+
+[http://localhost:8080/api/auth/login](http://localhost:8080/api/auth/login)
+ブラウザで、オートデスクのログインページにリダイレクトされ、ログイン後、
+アプリケーションにリダイレクトされますが、今のところは単に「Cannot GET /」と表示されます。
+これは、'GET /' エンドポイントをまだ実装していないため、想定されることです。ただし、
+ブラウザ開発ツールを使用し、ブラウザによって保存された「localhost」オリジンのCookieを探索します。
+アプリケーションが既に認証データをそこに保存していることに気付くでしょう。
+
+
+
+:::info
+
+ここでは、さまざまなブラウザでWebサイトのCookieを見つけることができます。
+- [クローム](https://developer.chrome.com/docs/devtools/storage/sessionstorage/)
+- [Firefoxの](https://developer.mozilla.org/en-US/docs/Tools/Storage_Inspector/Cookies)
+- [エッジ](https://docs.microsoft.com/en-us/microsoft-edge/devtools-guide-chromium/storage/cookies)
+- [サファリ](https://developer.apple.com/safari/tools/)
+
+
+:::
+
+
+
+![Empty Response](./empty-response.webp)

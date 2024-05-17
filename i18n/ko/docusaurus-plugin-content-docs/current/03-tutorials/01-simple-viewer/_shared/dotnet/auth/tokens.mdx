@@ -1,0 +1,114 @@
+'Models' 하위 폴더 아래에 'APS.cs' 파일을 만듭니다. 그것이 우리가 구현할 곳입니다
+서버 응용 프로그램의 다른 영역에서 사용될 모든 APS 관련 논리. 하자
+먼저 파일에 다음 코드를 추가합니다.
+
+```csharp title="Models/APS.cs"
+using Autodesk.SDKManager;
+public partial class APS
+{
+    private readonly SDKManager _sdkManager;
+    private readonly string _clientId;
+    private readonly string _clientSecret;
+    private readonly string _bucket;
+    public APS(string clientId, string clientSecret, string bucket = null)
+    {
+        _sdkManager = SdkManagerBuilder.Create().Build();
+        _clientId = clientId;
+        _clientSecret = clientSecret;
+        _bucket = string.IsNullOrEmpty(bucket) ? string.Format("{0}-basic-app", _clientId.ToLower()) : bucket;
+    }
+}
+```
+
+'APS' 클래스는 'partial'로 선언됩니다. 우리는 그것을 확장 할 것입니다
+나중에 다른 '*.cs' 파일에서. 그러면 'APS' 싱글톤이 서버에 제공됩니다
+ASP. NET의 [종속성 주입](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/dependency-injection?view=aspnetcore-6.0).
+
+그런 다음 동일한 'Models'하위 폴더에 다른 파일을 만들고 'APS. Auth.cs'입니다.
+여기에서 모든 인증 논리를 구현합니다. 다음 코드로 파일을 채웁니다.
+
+```csharp title="Models/APS.Auth.cs"
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Autodesk.Authentication;
+using Autodesk.Authentication.Model;
+public record Token(string AccessToken, DateTime ExpiresAt);
+public partial class APS
+{
+    private Token _internalTokenCache;
+    private Token _publicTokenCache;
+    private async Task<Token> GetToken(List<Scopes> scopes)
+    {
+        var authenticationClient = new AuthenticationClient(_sdkManager);
+        var auth = await authenticationClient.GetTwoLeggedTokenAsync(_clientId, _clientSecret, scopes);
+        return new Token(auth.AccessToken, DateTime.UtcNow.AddSeconds((double)auth.ExpiresIn));
+    }
+    public async Task<Token> GetPublicToken()
+    {
+        if (_publicTokenCache == null || _publicTokenCache.ExpiresAt < DateTime.UtcNow)
+            _publicTokenCache = await GetToken(new List<Scopes> { Scopes.ViewablesRead });
+        return _publicTokenCache;
+    }
+    private async Task<Token> GetInternalToken()
+    {
+        if (_internalTokenCache == null || _internalTokenCache.ExpiresAt < DateTime.UtcNow)
+            _internalTokenCache = await GetToken(new List<Scopes> { Scopes.BucketCreate, Scopes.BucketRead, Scopes.DataRead, Scopes.DataWrite, Scopes.DataCreate });
+        return _internalTokenCache;
+    }
+}
+```
+
+'APS'클래스의이 부분은 두 가지 도우미 메소드 (하나는 내부 사용)를 제공합니다
+(Data Management 버킷 및 객체에 대한 읽기/쓰기 액세스 권한 부여) 및 공용
+(Model Derivative 서비스의 번역 출력에 대한 액세스만 허용).
+
+다음으로 'Startup.cs' 파일을 업데이트하여 'APS' 클래스의 싱글톤 인스턴스를 만들어 보겠습니다
+서버 응용 프로그램에서 사용 가능:
+
+```csharp title="Startup.cs"
+using System;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+public class Startup
+{
+    public Startup(IConfiguration configuration)
+    {
+        Configuration = configuration;
+    }
+    public IConfiguration Configuration { get; }
+    // This method gets called by the runtime. Use this method to add services to the container.
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services.AddControllers();
+        var clientID = Configuration["APS_CLIENT_ID"];
+        var clientSecret = Configuration["APS_CLIENT_SECRET"];
+        var bucket = Configuration["APS_BUCKET"]; // Optional
+        if (string.IsNullOrEmpty(clientID) || string.IsNullOrEmpty(clientSecret))
+        {
+            throw new ApplicationException("Missing required environment variables APS_CLIENT_ID or APS_CLIENT_SECRET.");
+        }
+        // highlight-start
+        services.AddSingleton<APS>(new APS(clientID, clientSecret, bucket));
+        // highlight-end
+    }
+    // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        if (env.IsDevelopment())
+        {
+            app.UseDeveloperExceptionPage();
+        }
+        app.UseDefaultFiles();
+        app.UseStaticFiles();
+        app.UseRouting();
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.MapControllers();
+        });
+    }
+}
+```

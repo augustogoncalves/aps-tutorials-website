@@ -1,0 +1,57 @@
+import NodeJsVsCodeHubs from './_shared/nodejs-vscode/data/hubs.mdx';
+import NodeJsVsCodeEndpoints from './_shared/nodejs-vscode/data/endpoints.mdx';
+
+# Navigation dans les projets
+
+Dans cette étape, nous allons étendre notre serveur afin de pouvoir parcourir les projets d’Autodesk Construction Cloud. 
+Nous obtiendrons essentiellement la hiérarchie des hubs, des projets utilisant des API de gestion des données :
+
+## Naviguer dans les hubs
+
+Tout d’abord, ajoutons quelques méthodes d’aide pour parcourir les hubs, les projets :
+
+<NodeJsVsCodeHubs />
+
+## Points de terminaison du serveur
+
+Ensuite, exposons la nouvelle fonctionnalité au code côté client via un autre
+ensemble de points de terminaison.
+
+<NodeJsVsCodeEndpoints />
+
+## Essayez-le
+
+Démarrez (ou redémarrez) l’application à partir de Visual Studio Code comme d’habitude, puis accédez à
+[http://localhost:8080/api/hubs](http://localhost:8080/api/hubs) dans le navigateur.
+Le serveur doit répondre avec une liste JSON de tous les hubs auxquels vous avez accès.
+Essayez de copier l’ID de l’un des hubs et utilisez-le à une autre adresse : http://localhost:8080/api/hubs/your-hub-id/projects.
+Dans ce cas, l’application serveur doit répondre avec une liste JSON de tous les projets
+disponible sous le hub spécifié.
+
+
+
+:::info
+
+Si vous avez ignoré la procédure de connexion à l’étape précédente ou redémarré votre application serveur,
+Vous devrez peut-être vous rendre à [http://localhost:8080/api/auth/login](http://localhost:8080/api/auth/login)
+Encore une fois pour s’assurer que toutes les données d’authentification sont disponibles dans les cookies avant de tester
+le point de terminaison '/api/hubs'.
+
+
+:::
+
+
+
+
+
+:::tip
+
+Si vous utilisez Google Chrome, envisagez d’installer [JSON Formatter](https://chrome.google.com/webstore/detail/json-formatter/bcjindcccaagfpapjjmafapmmgkkhgoa?hl=en)
+ou une extension similaire pour formater automatiquement les réponses JSON.
+
+
+:::
+
+
+
+![Hubs Response](./_shared/hubs-response.webp)

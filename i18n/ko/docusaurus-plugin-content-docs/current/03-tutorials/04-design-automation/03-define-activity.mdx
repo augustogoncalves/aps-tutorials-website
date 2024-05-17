@@ -1,0 +1,24 @@
+import ResponsiveVideo from "@site/src/components/ResponsiveVideo.js";
+import PreviewUrl from "@site/static/videos/define-activity.mp4";
+import ActivityNet6 from "./_shared/dotnet-vs2022/setup/activity.mdx";
+import ActivityNodeJs from "./_shared/nodejs-vscode/setup/activity.mdx";
+import EnvTabs from "@site/src/components/EnvTabs.js";
+
+# 활동 정의
+
+활동은 지정된 엔진을 사용하여 실행할 수 있는 작업의 사양입니다. 입력 및 출력 파일의 수와 사용할 AppBundle 및 진입점을 지정합니다.
+
+이 자습서 샘플에서 활동에는 2개의 입력(파일 및 JSON 데이터)과 1개의 출력(파일)이 있습니다.
+
+<EnvTabs
+  NodeJsVsCode={ActivityNodeJs}
+  DotNetVsCode={ActivityNet6}
+  DotNetVs2022={ActivityNet6}
+/>
+
+이제 구성(오른쪽 상단)을 클릭하고 AppBundle을 선택한 다음 엔진을 선택할 수 있습니다.
+Define Activity를 클릭하면 appbundle을 정의하고 업로드하고 정의해야 합니다.
+활동. 결과 패널(왼쪽)에는 해당 ID가 표시됩니다. 다른 모든 버튼
+아직 작동하지 않습니다 ... 앞으로 나아갑시다.
+
+<ResponsiveVideo src={PreviewUrl} />

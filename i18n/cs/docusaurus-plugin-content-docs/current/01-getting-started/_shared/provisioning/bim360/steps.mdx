@@ -1,0 +1,71 @@
+import Image from '@theme/IdealImage';
+
+
+
+:::caution
+
+Ujistěte se, že máte _admin_ přístup k účtu BIM 360.
+
+
+:::
+
+
+
+1. Přihlaste se ke svému účtu BIM 360 a přejděte do _Account Admin_
+
+2. Na stránce _Account Admin_ přejděte na _Nastavení_ přejděte na kartu _Custom Integrations_
+
+<Image img={require('./custom-integrations.jpeg')} />
+
+3. Pomocí tlačítka _Add Vlastní Integration_ na levé straně spusťte jednoduchého průvodce
+který vás provede celým procesem
+
+4. Na stránce _Select Access_ si ponechte oba Administration_ účtu _BIM 360
+a _Document Management_ možnosti zaškrtnuty a stiskněte tlačítko _Další_
+
+<Image img={require('../select-access.jpeg')} />
+
+5. Na další stránce průvodce vyberte možnost _I'm the developer_ a stiskněte tlačítko
+tlačítko _Další_
+
+<Image img={require('../i-am-developer.jpeg')} />
+
+
+
+:::info
+
+Zde předpokládáme, že _account admin_ je zároveň vlastníkem aplikace APS.
+Pokud tomu tak není, může správce účtu použít _Invite developer_
+a pozvaný vývojář zadá podrobnosti o aplikaci APS později.
+
+
+:::
+
+
+
+6. Na další a poslední stránce si poznamenejte ID_ účtu _BIM 360, zkontrolujte
+zaškrtávací políčko vedle něj a vyplňte pole _Client ID_ a _App Name_
+přesně tak, jak se zobrazují na stránce vaší aplikace na https://aps.autodesk.com/myapps
+
+<Image img={require('../bim360-info.jpeg')} />
+
+
+
+:::tip
+
+Zvažte uložení ID klienta někam do _App Description_. ID klienta _nebude_
+se objeví ve vlastní integraci po jejím vytvoření, a pokud je počet integrací
+ve vašem účtu začne růst, pomůže vám to rychle identifikovat aplikaci APS
+Každá vlastní integrace je přidružená s.
+
+
+:::
+
+
+
+7. Až budete připraveni, přejděte dolů a stiskněte tlačítko _Uložit_
+
+A to je vše. Nyní může vaše aplikace používat různé služby APS, jako jsou
+[Rozhraní API pro správu dat](https://aps.autodesk.com/en/docs/data/v2/developers_guide/overview)
+nebo [BIM 360 API](https://aps.autodesk.com/en/docs/bim360/v1/overview/introduction)
+pro přístup k informacím ze všech projektů pod tímto účtem BIM 360.

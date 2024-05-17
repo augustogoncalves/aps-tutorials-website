@@ -1,0 +1,60 @@
+Cree una nueva carpeta para el proyecto, navegue hasta ella en la línea de comandos e inicialice una nueva carpeta
+Node.js proyecto:
+
+```bash
+npm init -y
+```
+
+A continuación, instalamos todas las dependencias Node.js que vamos a utilizar. En este caso será
+[dotenv](https://www.npmjs.com/package/dotenv) (utilidad para inicializar variables de entorno desde un archivo),
+[Express.js](https://expressjs.com) (framework web), un Express.js [middleware](https://expressjs.com/en/guide/using-middleware.html)
+para gestionar las solicitudes 'multipart/form-data' y, por último, los distintos paquetes del SDK oficial de APS:
+
+
+
+:::caution
+
+A partir de abril de 2024, el SDK de APS para Node.js está en versión beta, lo que significa que las interfaces públicas aún pueden cambiar.
+Para evitar posibles problemas, recomendamos instalar las versiones específicas de estos paquetes como se muestra a continuación.
+
+
+:::
+
+
+
+```bash
+npm install --save dotenv express express-formidable
+npm install --save @aps_sdk/autodesk-sdkmanager@0.0.7-beta.1
+npm install --save @aps_sdk/authentication@0.1.0-beta.1
+npm install --save @aps_sdk/oss@0.1.0-beta.1
+npm install --save @aps_sdk/model-derivative@0.1.0-beta.1
+```
+
+Las ''dependencias'' en su archivo 'package.json' ahora deberían verse así:
+(potencialmente con números de versión ligeramente diferentes):
+
+```json
+// ...
+  "dependencies": {
+    "@aps_sdk/authentication": "0.1.0-beta.1",
+    "@aps_sdk/autodesk-sdkmanager": "0.0.7-beta.1",
+    "@aps_sdk/model-derivative": "0.1.0-beta.1",
+    "@aps_sdk/oss": "0.1.0-beta.1",
+    "dotenv": "^16.4.1",
+    "express": "^4.18.2",
+    "express-formidable": "^1.2.0"
+  },
+// ...
+```
+
+Finalmente, vamos a crear un par de subcarpetas más en la carpeta del proyecto que vamos a hacer
+Para necesitar más adelante:
+
+- 'wwwroot': aquí es donde vamos a poner todos los activos del lado del cliente (HTML, CSS, JavaScript, imágenes, etc.)
+- 'routes': aquí es donde vamos a implementar todos los puntos finales del servidor
+- 'services' - aquí vamos a mantener toda la lógica del lado del servidor que pueden compartir los diferentes puntos finales
+
+Ahora, al abrir la carpeta del proyecto en Visual Studio Code por primera vez, la estructura de carpetas
+debería tener un aspecto similar al siguiente:
+
+![Folder Structure](folder-structure.webp)

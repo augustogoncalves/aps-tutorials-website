@@ -1,0 +1,36 @@
+import Image from '@theme/IdealImage';
+
+
+
+:::caution
+
+Autodesk Construction Cloud (略して ACC)アカウントへの _admin_ アクセス権があることを確認します
+
+
+:::
+
+
+
+1. ACCアカウントにログインし、[_Account Administration_]に移動します。
+  - プロジェクトの概要から
+
+<Image img={require('./project-list.jpeg')} />
+
+- 特定のプロジェクトのユーザーインターフェースから
+
+<Image img={require('./project-detail.jpeg')} />
+
+2. _Account Admin_ページで [_Custom Integrations_] に移動し、上部の [_Add Custom Integration_] ボタンを使用してカスタム統合を追加します。
+
+<Image img={require('./account-admin.jpeg')} />
+
+3. _Addカスタムintegration_ダイアログページで、[_Client ID_]、[_Custom統合name_]、および[_Description_]フィールドに入力します。
+
+<Image img={require('./custom-integration.jpeg')} />
+
+4.準備ができたら、_Add_ボタンを押します
+
+プロセスが完了すると、アプリケーションはさまざまな APS サービスを使用できるようになります
+[データ管理API](https://aps.autodesk.com/en/docs/data/v2/developers_guide/overview)など
+または [ACC API](https://aps.autodesk.com/en/docs/acc/v1/overview/introduction)
+をクリックすると、このACCアカウントのすべてのプロジェクトの情報にアクセスできます。

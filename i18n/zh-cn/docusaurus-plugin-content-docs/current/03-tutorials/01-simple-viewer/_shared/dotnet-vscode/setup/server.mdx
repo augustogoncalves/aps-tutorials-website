@@ -1,0 +1,60 @@
+将“Program.cs”的内容替换为以下内容：
+
+```csharp title="Program.cs"
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        CreateHostBuilder(args).Build().Run();
+    }
+    public static IHostBuilder CreateHostBuilder(string[] args) =>
+        Host.CreateDefaultBuilder(args)
+            .ConfigureWebHostDefaults(webBuilder =>
+            {
+                webBuilder.UseStartup<Startup>();
+            });
+}
+```
+
+使用此代码，我们的 .NET 应用程序将启动具有配置的 ASP.NET 服务器
+在“Startup”类中定义。
+
+最后，让我们更新“属性”文件夹下的“launchSettings.json”文件，使
+确保我们的服务器应用程序使用默认协议 （HTTP） 和端口 （8080）
+将在整个教程中使用。更新默认值的“applicationUrl”属性
+将配置文件启动到“http://localhost:8080”：
+
+```json
+{
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:38524",
+      "sslPort": 44323
+    }
+  },
+  "profiles": {
+    "my_aps_app": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      // highlight-start
+      "applicationUrl": "http://localhost:8080",
+      // highlight-end
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+    "IIS Express": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
+```

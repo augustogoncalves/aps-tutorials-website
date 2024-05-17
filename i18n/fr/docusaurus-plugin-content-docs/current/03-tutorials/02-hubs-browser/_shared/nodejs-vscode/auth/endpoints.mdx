@@ -1,0 +1,57 @@
+Créez un fichier 'auth.js' dans le sous-dossier 'routes' avec le contenu suivant :
+
+```js title="routes/auth.js"
+const express = require('express');
+const { getAuthorizationUrl, authCallbackMiddleware, authRefreshMiddleware, getUserProfile } = require('../services/aps.js');
+let router = express.Router();
+router.get('/api/auth/login', function (req, res) {
+    res.redirect(getAuthorizationUrl());
+});
+router.get('/api/auth/logout', function (req, res) {
+    req.session = null;
+    res.redirect('/');
+});
+router.get('/api/auth/callback', authCallbackMiddleware, function (req, res) {
+    res.redirect('/');
+});
+router.get('/api/auth/token', authRefreshMiddleware, function (req, res) {
+    res.json(req.publicOAuthToken);
+});
+router.get('/api/auth/profile', authRefreshMiddleware, async function (req, res, next) {
+    try {
+        const profile = await getUserProfile(req.internalOAuthToken.access_token);
+        res.json({ name: `${profile.name}` });
+    } catch (err) {
+        next(err);
+    }
+});
+module.exports = router;
+```
+
+Ici, nous implémentons un nouveau Express.js [routeur](http://expressjs.com/en/4x/api.html#router) qui
+gère tous les points de terminaison liés à l’authentification. « Montons » le routeur sur notre serveur
+en modifiant 'server.js' :
+
+```js title="server.js"
+const express = require('express');
+const session = require('cookie-session');
+const { PORT, SERVER_SESSION_SECRET } = require('./config.js');
+let app = express();
+app.use(express.static('wwwroot'));
+app.use(session({ secret: SERVER_SESSION_SECRET, maxAge: 24 * 60 * 60 * 1000 }));
+// highlight-start
+app.use(require('./routes/auth.js'));
+// highlight-end
+app.listen(PORT, () => console.log(`Server listening on port ${PORT}...`));
+```
+
+Le routeur traitera désormais les requêtes suivantes :
+
+- « GET /api/auth/login » redirige l’utilisateur vers la page de connexion Autodesk
+- 'GET /api/auth/callback' est l’URL vers laquelle notre utilisateur sera redirigé après s’être connecté avec succès,
+et c’est là que nous allons générer un nouvel ensemble de jetons pour l’utilisateur
+- 'GET /api/auth/logout' supprimera toutes les données de session basées sur les cookies pour l’utilisateur donné, efficacement
+déconnecter l’utilisateur de notre application
+- 'GET /api/auth/token' générera un jeton d’accès public qui sera ensuite utilisé par le Viewer
+pour charger nos designs
+- 'GET /api/auth/profile' renverra un simple JSON avec des informations supplémentaires sur l’utilisateur connecté

@@ -1,0 +1,24 @@
+import ResponsiveVideo from "@site/src/components/ResponsiveVideo.js";
+import PreviewUrl from "@site/static/videos/define-activity.mp4";
+import ActivityNet6 from "./_shared/dotnet-vs2022/setup/activity.mdx";
+import ActivityNodeJs from "./_shared/nodejs-vscode/setup/activity.mdx";
+import EnvTabs from "@site/src/components/EnvTabs.js";
+
+# Definovat aktivitu
+
+Aktivita je specifikace akce, kterou lze provést pomocí zadaného modulu. Určuje počet vstupních a výstupních souborů a sadu prostředků AppBundle a vstupní bod, které se mají použít.
+
+V této ukázce kurzu má aktivita 2 vstupy (soubor & data JSON) a 1 výstup (soubor).
+
+<EnvTabs
+  NodeJsVsCode={ActivityNodeJs}
+  DotNetVsCode={ActivityNet6}
+  DotNetVs2022={ActivityNet6}
+/>
+
+Teď můžete kliknout na Konfigurovat (vpravo nahoře), vybrat AppBundle, vybrat modul
+a klikněte na Definovat aktivitu, která by měla definovat a nahrát appbundle a definovat
+činnosti. Na panelu výsledků (vlevo) se zobrazují příslušná ID. Všechna ostatní tlačítka
+zatím nefungují... Pojďme dál.
+
+<ResponsiveVideo src={PreviewUrl} />

@@ -1,0 +1,89 @@
+Créez un fichier 'config.js' à la racine de votre dossier de projet et ajoutez le code suivant :
+
+```js title="config.js"
+require('dotenv').config();
+let { APS_CLIENT_ID, APS_CLIENT_SECRET, APS_BUCKET, PORT } = process.env;
+if (!APS_CLIENT_ID || !APS_CLIENT_SECRET) {
+    console.warn('Missing some of the environment variables.');
+    process.exit(1);
+}
+APS_BUCKET = APS_BUCKET || `${APS_CLIENT_ID.toLowerCase()}-basic-app`;
+PORT = PORT || 8080;
+module.exports = {
+    APS_CLIENT_ID,
+    APS_CLIENT_SECRET,
+    APS_BUCKET,
+    PORT
+};
+```
+
+La bibliothèque 'dotenv' initialise les variables d’environnement à partir d’un fichier _.env_ local (s’il y en a un).
+Nous lisons ensuite simplement les variables d’environnement à partir de 'process.env' et quittons l’application
+immédiatement si l’une des propriétés requises est manquante. Et si aucun nom de compartiment n’est fourni
+Pour l’endroit où nos conceptions doivent être stockées, nous en générons une en ajoutant le suffixe '-basic-app'
+à notre ID client de l’application.
+
+
+
+:::caution
+
+Notez que le service de gestion des données nécessite que les noms de compartiment soient **globalement uniques**,
+et les tentatives de création d’un compartiment avec un nom déjà utilisé échoueront avec « Conflit 409 ».
+Voir la [documentation](https://forge.autodesk.com/en/docs/data/v2/reference/http/buckets-POST)
+pour plus de détails.
+
+
+:::
+
+
+
+Next, let's create the _.env_ file in the project folder, and populate it with the required
+environment variables (replacing `<client-id>` and `<client-secret>` with your APS Client ID
+and Client Secret):
+
+``` title=".env"
+APS_CLIENT_ID="<client-id>"
+APS_CLIENT_SECRET="<client-secret>"
+```
+
+
+
+:::caution
+
+Étant donné que le fichier '.env' contient des informations sensibles, assurez-vous qu’il n’est **pas** inclus dans git !
+Cela peut être assuré en ajoutant la ligne '.env' au fichier [.gitignore](https://git-scm.com/docs/gitignore).
+
+
+:::
+
+
+
+Maintenant, afin de pouvoir exécuter et déboguer notre application à partir de Visual Studio Code, nous devons créer
+a [configuration de lancement](https://code.visualstudio.com/docs/editor/debugging#_launch-configurations).
+Utilisez _Run > Ajouter Configuration_ dans le menu pour créer une nouvelle configuration et lorsque vous y êtes invité
+Pour l’environnement spécifique, choisissez _Node.js_. Cela créera un nouveau '.vscode'
+de votre projet avec un fichier 'launch.json' où vous pouvez définir différents
+Lancez les configurations. Remplacez le contenu du fichier par ce qui suit :
+
+```json title=".vscode/launch.json"
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Server",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "start"
+            ],
+            "skipFiles": [
+                "<node_internals>/**/*.js"
+            ]
+        }
+    ]
+}
+```
+
+Nous définissons une configuration de lancement unique appelée _Launch Server_ qui permettra simplement
+Démarrez notre application à l’aide de la commande 'npm start'.

@@ -1,0 +1,36 @@
+디자인을 보기 위해 변환하고 상태를 확인하기 위한 로직을 구현해 보겠습니다.
+변환. 'services/aps.js' 파일의 끝에 다음 코드를 추가합니다.
+
+```js title="services/aps.js"
+service.translateObject = async (urn, rootFilename) => {
+    const { access_token } = await service.getInternalToken();
+    const job = await modelDerivativeClient.startJob(access_token, {
+        input: {
+            urn,
+            compressedUrn: !!rootFilename,
+            rootFilename
+        },
+        output: {
+            formats: [{
+                views: [View._2d, View._3d],
+                type: Type.Svf
+            }]
+        }
+    });
+    return job.result;
+};
+service.getManifest = async (urn) => {
+    const { access_token } = await service.getInternalToken();
+    try {
+        const manifest = await modelDerivativeClient.getManifest(access_token, urn);
+        return manifest;
+    } catch (err) {
+        if (err.axiosError.response.status === 404) {
+            return null;
+        } else {
+            throw err;
+        }
+    }
+};
+service.urnify = (id) => Buffer.from(id).toString('base64').replace(/=/g, '');
+```

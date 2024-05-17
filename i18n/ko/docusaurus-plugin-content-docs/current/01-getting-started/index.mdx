@@ -1,0 +1,118 @@
+---
+slug: /
+---
+
+import Image from '@theme/IdealImage';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import AccProvisioningSteps from './_shared/provisioning/acc/steps.mdx';
+import Bim360ProvisioningSteps from './_shared/provisioning/bim360/steps.mdx';
+
+# 시작하기
+
+다음은 첫 번째 빌드를 빌드하기 전에 수행해야 할 몇 가지 작업입니다
+[Autodesk 플랫폼 서비스](https://aps.autodesk.com) 신청.
+
+## 계정 만들기
+
+아직 APS 계정이 없는 경우 https://aps.autodesk.com 에서 계정에 가입하십시오.
+
+
+
+:::tip
+
+3개월 동안 유효한 평가판 구독을 활용할 수 있습니다.
+
+
+:::
+
+
+
+<Image img={require('./_shared/developer-portal-logged-out.png')} />
+
+## 앱 자격 증명 만들기
+
+APS 플랫폼에 자신을 인증하려면 다음을 생성해야 합니다.
+_app credentials_ (특히 _client ID_ 및 _client secret_)을 사용합니다.
+개발자 포털에 로그인한 후 오른쪽 상단 모서리에 있는 프로필 메뉴로 이동합니다.
+_Applications_를 클릭합니다.
+
+<Image img={require('./_shared/developer-portal-logged-in.png')} />
+
+그런 다음 _Create application_ 버튼을 클릭합니다.
+
+<Image img={require('./_shared/my-apps.png')} />
+
+응용 프로그램의 이름을 입력합니다. 적용되는 응용 프로그램 유형을 선택하고 _Create_ 버튼을 클릭합니다.
+
+<Image img={require('./_shared/create-app.png')} />
+
+이제 응용 프로그램이 준비되었습니다. _Client ID_ 보관하고 _Client Secret_
+자격 증명은 곧 필요할 것입니다!
+
+<Image img={require('./_shared/app-overview.png')} />
+
+마지막으로 _General Settings_ 아래의 _Callback URL_ 'http://localhost:8080/api/auth/callback'로 설정합니다.
+응용 프로그램에서 액세스할 수 있는 API를 사용하도록 설정합니다. 특별한 사유가 없는 한
+다른 서비스에 대한 응용 프로그램의 액세스를 제한하려면 모든 것을 사용하도록 설정합니다.
+
+<Image img={require('./_shared/apis.png')} />
+
+
+
+:::caution
+
+_Callback URL_에 세심한 주의를 기울이십시오. 이것은 응용 프로그램의 주소입니다.
+사용자는 Autodesk 자격 증명으로 로그인한 후 리디렉션됩니다. 그것은 될 수 있습니다
+임의의 URL이지만 서버 응용 프로그램이 예상하는 URL과 정확히 일치해야합니다.
+튜토리얼에서는 항상 동일한 주소인 'http://localhost:8080/api/auth/callback'를 사용합니다.
+
+
+:::
+
+
+
+마지막으로 _Save changes_ 버튼을 클릭하여 응용 프로그램을 업데이트하면 모든 설정이 완료됩니다!
+
+<Image img={require('./_shared/save-changes.png')} />
+
+## 다른 제품에서 액세스 제공
+
+경우에 따라 애플리케이션이 다른 APS 기반 제품과 통합될 수 있습니다
+[Autodesk Construction Cloud](https://construction.autodesk.com)와 같은
+또는 [Autodesk BIM 360](https://www.autodesk.com/bim-360)을 클릭합니다. 우리는 이 기능을 다음과 같이 활용합니다.
+디자인 액세스에 대해 배울 수 있는 [Hubs Browser](./tutorials/hubs-browser) 및 [ACC Administrator](./tutorials/acc-admin) 자습서
+[Autodesk Docs](https://www.autodesk.com/products/autodesk-docs/overview)에서
+[BIM 360 문서](https://www.autodesk.com/bim-360/construction-document-management-software/),
+또는 [Fusion Teams](https://www.autodesk.com/products/fusion-360/overview)를 클릭합니다.
+
+그러나 이러한 제품 중 일부는 특정 APS 애플리케이션에 _provision access_해야 합니다
+클라이언트 ID를 기반으로 합니다. 원하는 특정 제품에 대해 아래 단계를 따르십시오.
+응용 프로그램을 통합합니다.
+
+
+
+:::info
+
+현재 응용 프로그램을 다른 제품과 통합할 계획이 _없음_ 경우,
+이 페이지의 나머지 부분을 건너뛰고 나중에 필요할 때 다시 돌아올 수 있습니다.
+
+
+:::
+
+
+
+<Tabs groupId="access-provisioning">
+    <TabItem value="acc" label="Autodesk Construction Cloud" default>
+        <AccProvisioningSteps />
+    </TabItem>
+    <TabItem value="bim360" label="Autodesk BIM 360">
+        <Bim360ProvisioningSteps />
+    </TabItem>
+<TabItem value="fusion360" label="Autodesk Fusion Team">
+
+프로비저닝 단계가 필요하지 않습니다. APS 응용 프로그램은 자동으로 액세스 할 수 있습니다.
+이 제품에서 인증된 사용자의 데이터입니다.
+
+</TabItem>
+</Tabs>

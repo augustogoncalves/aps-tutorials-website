@@ -1,0 +1,80 @@
+在项目的根文件夹中创建一个包含以下内容的“Startup.cs”文件：
+
+```csharp title="Startup.cs"
+using System;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+public class Startup
+{
+    public Startup(IConfiguration configuration)
+    {
+        Configuration = configuration;
+    }
+    public IConfiguration Configuration { get; }
+    // This method gets called by the runtime. Use this method to add services to the container.
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services.AddControllers();
+        var clientID = Configuration["APS_CLIENT_ID"];
+        var clientSecret = Configuration["APS_CLIENT_SECRET"];
+        var callbackURL = Configuration["APS_CALLBACK_URL"];
+        if (string.IsNullOrEmpty(clientID) || string.IsNullOrEmpty(clientSecret) || string.IsNullOrEmpty(callbackURL))
+        {
+            throw new ApplicationException("Missing required environment variables APS_CLIENT_ID, APS_CLIENT_SECRET, or APS_CALLBACK_URL.");
+        }
+    }
+    // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        if (env.IsDevelopment())
+        {
+            app.UseDeveloperExceptionPage();
+        }
+        app.UseDefaultFiles();
+        app.UseStaticFiles();
+        app.UseRouting();
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.MapControllers();
+        });
+    }
+}
+```
+
+'Startup' 类负责配置我们的服务器及其“中间件”（例如，
+提供静态文件），以及从环境变量中检索配置 INTPU
+（或来自其他 [配置提供程序](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-6.0#configuration-providers））
+供以后使用。
+
+Now, to pass actual configuration values to our application for debugging purposes,
+we will modify the _appsettings.Development.json_ file in our project folder
+(or create one of it does not exist) with the following content, replacing
+`<client-id>` and `<client-secret>` with your APS Client ID and Client Secret:
+
+```json
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "APS_CLIENT_ID": "<client-id>",
+  "APS_CLIENT_SECRET": "<client-secret>",
+  "APS_CALLBACK_URL": "http://localhost:8080/api/auth/callback"
+}
+```
+
+
+
+:::caution
+
+自_appsettings以来。Development.json_ 文件包含敏感信息，请确保它不包含在 git 中！
+这可以通过添加“appsettings.Development.json' 行添加到 [.gitignore](https://git-scm.com/docs/gitignore） 文件。
+
+
+:::
+

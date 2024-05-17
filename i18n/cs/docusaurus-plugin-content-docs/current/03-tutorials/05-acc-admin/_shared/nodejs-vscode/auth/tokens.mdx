@@ -1,0 +1,64 @@
+Vytvořte soubor 'aps.js' ve složce 'services'. To je místo, kde budeme realizovat
+veškerou logiku APS, která bude použita v různých oblastech naší serverové aplikace. Začněme
+přidáním následujícího kódu do souboru:
+
+```js title="services/aps.js"
+const { SdkManagerBuilder } = require('@aps_sdk/autodesk-sdkmanager');
+const { AuthenticationClient, Scopes, ResponseType } = require('@aps_sdk/authentication');
+const { APS_CLIENT_ID, APS_CLIENT_SECRET, APS_CALLBACK_URL } = require('../config.js');
+const service = module.exports = {};
+const sdk = SdkManagerBuilder.create().build();
+const authenticationClient = new AuthenticationClient(sdk);
+service.getAuthorizationUrl = () => authenticationClient.authorize(APS_CLIENT_ID, ResponseType.Code, APS_CALLBACK_URL, [
+    Scopes.DataRead,
+    Scopes.AccountRead,
+    Scopes.AccountWrite
+]);
+service.authCallbackMiddleware = async (req, res, next) => {
+    const credentials = await authenticationClient.getThreeLeggedToken(APS_CLIENT_ID, req.query.code, APS_CALLBACK_URL,{clientSecret:APS_CLIENT_SECRET});
+    req.session.token = credentials.access_token;
+    req.session.refresh_token = credentials.refresh_token;
+    req.session.expires_at = Date.now() + credentials.expires_in * 1000;
+    next();
+};
+service.authRefreshMiddleware = async (req, res, next) => {
+    const { refresh_token, expires_at } = req.session;
+    if (!refresh_token) {
+        res.status(401).end();
+        return;
+    }
+    if (expires_at < Date.now()) {
+        const credentials = await authenticationClient.getRefreshToken(APS_CLIENT_ID, refresh_token, {
+            clientSecret: APS_CLIENT_SECRET,
+            scopes: [
+                Scopes.DataRead,
+                Scopes.AccountRead,
+                Scopes.AccountWrite
+            ]
+        });
+        req.session.token = credentials.access_token;
+        req.session.refresh_token = credentials.refresh_token;
+        req.session.expires_at = Date.now() + credentials.expires_in * 1000;
+    }
+    req.oAuthToken = {
+        access_token: req.session.token,
+        expires_in: Math.round((req.session.expires_at - Date.now()) / 1000)
+    };
+    next();
+};
+service.getUserProfile = async (token) => {
+    const resp = await authenticationClient.getUserInfo(token.access_token);
+    return resp;
+};
+```
+
+Kód poskytuje několik pomocných funkcí:
+
+- funkce getAuthorizationUrl vygeneruje adresu URL, na kterou budou naši uživatelé přesměrováni, když
+Zahájení pracovního postupu 3-legged autentizace
+- funkci authCallbackMiddleware lze použít jako middleware Express.js
+když se uživatel úspěšně přihlásí a je přesměrován zpět do naší aplikace
+- funkce authRefreshMiddleware se pak používá jako middleware Express.js pro všechny požadavky
+které budou muset využívat přístupové tokeny APS
+- funkce getUserProfile vrací další podrobnosti o ověřeném uživateli na základě
+existující přístupový token

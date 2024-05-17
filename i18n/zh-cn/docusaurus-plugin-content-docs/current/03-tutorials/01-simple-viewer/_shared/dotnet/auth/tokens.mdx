@@ -1,0 +1,114 @@
+在“Models”子文件夹下创建一个“APS.cs”文件。这就是我们将要实施的地方
+所有特定于 APS 的逻辑，这些逻辑将用于我们服务器应用程序的不同区域。让我们
+首先将以下代码添加到文件中：
+
+```csharp title="Models/APS.cs"
+using Autodesk.SDKManager;
+public partial class APS
+{
+    private readonly SDKManager _sdkManager;
+    private readonly string _clientId;
+    private readonly string _clientSecret;
+    private readonly string _bucket;
+    public APS(string clientId, string clientSecret, string bucket = null)
+    {
+        _sdkManager = SdkManagerBuilder.Create().Build();
+        _clientId = clientId;
+        _clientSecret = clientSecret;
+        _bucket = string.IsNullOrEmpty(bucket) ? string.Format("{0}-basic-app", _clientId.ToLower()) : bucket;
+    }
+}
+```
+
+请注意，“APS”类声明为“部分”。我们将扩展它
+在以后的其他“*.cs”文件中。然后，将向我们的服务器提供“APS”单例
+通过 ASP。NET的[依赖注入](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/dependency-injection?view=aspnetcore-6.0）。
+
+然后在同一个“Models”子文件夹中创建另一个文件，并将其命名为“APS.Auth.cs'。
+在这里，我们将实现所有身份验证逻辑。使用以下代码填充文件：
+
+```csharp title="Models/APS.Auth.cs"
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Autodesk.Authentication;
+using Autodesk.Authentication.Model;
+public record Token(string AccessToken, DateTime ExpiresAt);
+public partial class APS
+{
+    private Token _internalTokenCache;
+    private Token _publicTokenCache;
+    private async Task<Token> GetToken(List<Scopes> scopes)
+    {
+        var authenticationClient = new AuthenticationClient(_sdkManager);
+        var auth = await authenticationClient.GetTwoLeggedTokenAsync(_clientId, _clientSecret, scopes);
+        return new Token(auth.AccessToken, DateTime.UtcNow.AddSeconds((double)auth.ExpiresIn));
+    }
+    public async Task<Token> GetPublicToken()
+    {
+        if (_publicTokenCache == null || _publicTokenCache.ExpiresAt < DateTime.UtcNow)
+            _publicTokenCache = await GetToken(new List<Scopes> { Scopes.ViewablesRead });
+        return _publicTokenCache;
+    }
+    private async Task<Token> GetInternalToken()
+    {
+        if (_internalTokenCache == null || _internalTokenCache.ExpiresAt < DateTime.UtcNow)
+            _internalTokenCache = await GetToken(new List<Scopes> { Scopes.BucketCreate, Scopes.BucketRead, Scopes.DataRead, Scopes.DataWrite, Scopes.DataCreate });
+        return _internalTokenCache;
+    }
+}
+```
+
+“APS”类的这一部分提供了两个帮助程序方法 - 一个供内部使用
+（授予我们对数据管理存储桶和对象的读/写访问权限），以及一个供公众使用
+（仅允许访问模型导数服务的翻译输出）。
+
+接下来，让我们更新“Startup.cs”文件，以创建“APS”类的单例实例
+适用于我们的服务器应用程序：
+
+```csharp title="Startup.cs"
+using System;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+public class Startup
+{
+    public Startup(IConfiguration configuration)
+    {
+        Configuration = configuration;
+    }
+    public IConfiguration Configuration { get; }
+    // This method gets called by the runtime. Use this method to add services to the container.
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services.AddControllers();
+        var clientID = Configuration["APS_CLIENT_ID"];
+        var clientSecret = Configuration["APS_CLIENT_SECRET"];
+        var bucket = Configuration["APS_BUCKET"]; // Optional
+        if (string.IsNullOrEmpty(clientID) || string.IsNullOrEmpty(clientSecret))
+        {
+            throw new ApplicationException("Missing required environment variables APS_CLIENT_ID or APS_CLIENT_SECRET.");
+        }
+        // highlight-start
+        services.AddSingleton<APS>(new APS(clientID, clientSecret, bucket));
+        // highlight-end
+    }
+    // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        if (env.IsDevelopment())
+        {
+            app.UseDeveloperExceptionPage();
+        }
+        app.UseDefaultFiles();
+        app.UseStaticFiles();
+        app.UseRouting();
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.MapControllers();
+        });
+    }
+}
+```

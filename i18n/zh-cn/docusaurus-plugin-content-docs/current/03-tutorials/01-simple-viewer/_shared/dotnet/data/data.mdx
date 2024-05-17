@@ -1,0 +1,75 @@
+创建一个“APS.Oss.cs“文件。这是将实现的地方
+所有OSS（【对象存储服务】（https://aps.autodesk.com/en/docs/data/v2/developers_guide/basics/#object-storage-service-oss））
+我们的服务器应用程序的逻辑。使用以下代码填充新文件：
+
+```csharp title="Models/APS.Oss.cs"
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
+using Autodesk.Oss;
+using Autodesk.Oss.Model;
+public partial class APS
+{
+    private async Task EnsureBucketExists(string bucketKey)
+    {
+        const string region = "US";
+        var auth = await GetInternalToken();
+        var ossClient = new OssClient(_sdkManager);
+        try
+        {
+            await ossClient.GetBucketDetailsAsync(bucketKey, accessToken: auth.AccessToken);
+        }
+        catch (OssApiException ex)
+        {
+            if (ex.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                var payload = new CreateBucketsPayload
+                {
+                    BucketKey = bucketKey,
+                    PolicyKey = "Persistent"
+                };
+                await ossClient.CreateBucketAsync(region, payload, auth.AccessToken);
+            }
+            else
+            {
+                throw;
+            }
+        }
+    }
+    public async Task<ObjectDetails> UploadModel(string objectName, string pathToFile)
+    {
+        await EnsureBucketExists(_bucket);
+        var auth = await GetInternalToken();
+        var ossClient = new OssClient(_sdkManager);
+        var objectDetails = await ossClient.Upload(_bucket, objectName, pathToFile, auth.AccessToken, new System.Threading.CancellationToken());
+        return objectDetails;
+    }
+    public async Task<IEnumerable<ObjectDetails>> GetObjects()
+    {
+        await EnsureBucketExists(_bucket);
+        var auth = await GetInternalToken();
+        var ossClient = new OssClient(_sdkManager);
+        const int PageSize = 64;
+        var results = new List<ObjectDetails>();
+        var response = await ossClient.GetObjectsAsync(_bucket, PageSize, accessToken: auth.AccessToken);
+        results.AddRange(response.Items);
+        while (!string.IsNullOrEmpty(response.Next))
+        {
+            var queryParams = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(new Uri(response.Next).Query);
+            response = await ossClient.GetObjectsAsync(_bucket, PageSize, startAt: queryParams["startAt"], accessToken: auth.AccessToken);
+            results.AddRange(response.Items);
+        }
+        return results;
+    }
+}
+```
+
+“EnsureBucketExists”方法将只是尝试请求其他信息
+关于特定存储桶，如果来自 APS 的响应为“404 Not Found”，它将
+尝试使用该名称创建新存储桶。如果未通过以下方式提供存储桶名称
+环境变量，我们通过将“-basic-app”后缀附加到我们的
+应用程序的客户端 ID。
+
+'GetObjects' 方法对存储桶中的所有对象进行分页，并返回其名称和 URN
+（base64 编码的 ID，稍后将与模型派生服务通信时使用）。

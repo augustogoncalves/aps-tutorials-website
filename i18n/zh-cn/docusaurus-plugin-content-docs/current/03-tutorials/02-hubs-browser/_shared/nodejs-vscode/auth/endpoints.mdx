@@ -1,0 +1,57 @@
+在“routes”子文件夹下创建一个包含以下内容的“auth.js”文件：
+
+```js title="routes/auth.js"
+const express = require('express');
+const { getAuthorizationUrl, authCallbackMiddleware, authRefreshMiddleware, getUserProfile } = require('../services/aps.js');
+let router = express.Router();
+router.get('/api/auth/login', function (req, res) {
+    res.redirect(getAuthorizationUrl());
+});
+router.get('/api/auth/logout', function (req, res) {
+    req.session = null;
+    res.redirect('/');
+});
+router.get('/api/auth/callback', authCallbackMiddleware, function (req, res) {
+    res.redirect('/');
+});
+router.get('/api/auth/token', authRefreshMiddleware, function (req, res) {
+    res.json(req.publicOAuthToken);
+});
+router.get('/api/auth/profile', authRefreshMiddleware, async function (req, res, next) {
+    try {
+        const profile = await getUserProfile(req.internalOAuthToken.access_token);
+        res.json({ name: `${profile.name}` });
+    } catch (err) {
+        next(err);
+    }
+});
+module.exports = router;
+```
+
+在这里，我们实现了一个新的Express.js [路由器](http://expressjs.com/en/4x/api.html#router）
+将处理所有与身份验证相关的终结点。让我们将路由器“挂载”到我们的服务器上
+通过修改“server.js”来应用：
+
+```js title="server.js"
+const express = require('express');
+const session = require('cookie-session');
+const { PORT, SERVER_SESSION_SECRET } = require('./config.js');
+let app = express();
+app.use(express.static('wwwroot'));
+app.use(session({ secret: SERVER_SESSION_SECRET, maxAge: 24 * 60 * 60 * 1000 }));
+// highlight-start
+app.use(require('./routes/auth.js'));
+// highlight-end
+app.listen(PORT, () => console.log(`Server listening on port ${PORT}...`));
+```
+
+路由器现在将处理以下请求：
+
+- “GET /api/auth/login”会将用户重定向到 Autodesk 登录页面
+- 'GET /api/auth/callback' 是我们的用户成功登录后将被重定向到 URL，
+在这里，我们将为用户生成一组新的令牌
+- “GET /api/auth/logout”将有效地删除给定用户的任何基于cookie的会话数据
+将用户注销我们的应用程序
+- 'GET /api/auth/token' 将生成一个公共访问令牌，稍后将由查看器使用
+加载我们的设计
+- 'GET /api/auth/profile' 将返回一个简单的 JSON，其中包含有关登录用户的其他信息

@@ -1,0 +1,89 @@
+import Image from '@theme/IdealImage';
+import VSCodeFolderStructure from "../../_images/vscode-dotnet-folderStructure.png";
+
+プロジェクト内の '*.csproj'ファイルは次のようになります (バージョン番号が若干異なる可能性があり、追加の .NET 設定があります)。
+
+```xml
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Autodesk.Forge" Version="1.9.7" />
+    <PackageReference Include="Autodesk.Forge.DesignAutomation" Version="5.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.11" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson" Version="6.0.11" />
+  </ItemGroup>
+</Project>
+```
+
+これで、Visual Studio Code で初めてプロジェクト フォルダーを開くと、.NET 開発用にプロジェクトを設定するように求められます。プロンプトを受け入れると、エディターは、既定の [起動構成](https://code.visualstudio.com/docs/editor/debugging#_launch-configurations) などの追加の .NET 固有の設定を含む '.vscode' サブフォルダーを自動的に作成します。
+エディタのフォルダ構造は次のようになります。
+
+<Image img={VSCodeFolderStructure} style={{ width: '20em', padding: '1em' }} />
+
+.vscodeフォルダからlaunch.json」を開き、「env」オブジェクトに以下の環境を設定します。
+
+
+
+:::note
+
+「.vscode」フォルダが自動的に作成されない場合は、[Run & Debug]サイドパネルから作成できます
+
+
+:::
+
+
+
+'.vscode' フォルダーを作成するには、左側のサイドパネルで *実行とデバッグ ツールをクリックし>launch.json ファイルを作成します > を選択します。NET5+ & .NET Core*です。
+
+```batch
+ASPNETCORE_URLS: use http://localhost:8080
+APS_CLIENT_ID: use your id here
+APS_CLIENT_SECRET: use your secret here
+```
+
+launch.jsonは次のようになります。
+
+```json title=launch.json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      // Use IntelliSense to find out which attributes exist for C# debugging
+      // Use hover for the description of the existing attributes
+      // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
+      "name": ".NET Core Launch (web)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      // If you have changed target frameworks, make sure to update the program path.
+      "program": "${workspaceFolder}/bin/x64/Debug/net6.0/designAutomationSample.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "stopAtEntry": false,
+      // Enable launching a web browser when ASP.NET Core starts. For more information: https://aka.ms/VSCode-CS-LaunchJson-WebBrowser
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+      },
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "http://localhost:8080",
+        "APS_CLIENT_ID": "Uo1RYupnCnPb2WidtW9AqGMzjN6Z41M5",
+        "APS_CLIENT_SECRET": "blahblah"
+      },
+      "sourceFileMap": {
+        "/Views": "${workspaceFolder}/Views"
+      }
+    },
+    {
+      "name": ".NET Core Attach",
+      "type": "coreclr",
+      "request": "attach"
+    }
+  ]
+}
+```

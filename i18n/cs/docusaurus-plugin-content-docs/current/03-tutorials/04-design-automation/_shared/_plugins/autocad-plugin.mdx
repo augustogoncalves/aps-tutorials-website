@@ -1,0 +1,159 @@
+Tento krok vám pomůže vytvořit základní plugin AutoCADu pro automatizaci návrhu. Další informace naleznete ve výukovém programu [My First AutoCAD Plugin](https://knowledge.autodesk.com/support/autocad/learn-explore/caas/simplecontent/content/my-first-autocad-plug-overview.html).
+
+> Můžete si [stáhnout soubor ZIP sady](https://github.com/autodesk-platform-services/aps-design-automation-dotnet/blob/master/designAutomationSample/wwwroot/bundles/UpdateDWGParam.zip) do složky "bundles/" (Node.js) nebo "/designAutomationSample/wwwroot/bundles" (.NET 6) a [přeskočit na **Upload Plugin Bundle** část](#upload-plugin-bundle).
+
+### Vytvoření nového projektu
+
+- Klikněte pravým tlačítkem myši na řešení, **Přidat** >> **Nový projekt**.
+- Vyberte **Windows Desktop**, pak **Knihovna tříd** a nakonec ji pojmenujte UpdateDWGParam.
+- Poté klikněte pravým tlačítkem myši na projekt, přejděte na **Spravovat balíčky NuGet...**, v části **Prohlížeč** můžete vyhledat **AutoCAD.NET** a nainstalovat "AutoCAD.NET.Core" (který také nainstaluje "AutoCAD.NET.Model").
+- Pak vyhledejte a nainstalujte soubor Newtonsoft.Json (který se používá k analýze vstupních dat ve formátu JSON).
+
+> Vyberte prosím .NET Framework 4.8. Pokud není uvedeno, [nainstalujte prosím vývojový balíček](https://dotnet.microsoft.com/download/dotnet-framework/net48).
+
+![](../_images/_autocad/new_project.gif)
+
+V důsledku toho by soubor **package.config** měl vypadat takto. Tato ukázka používá verzi 20, která by měla fungovat ve všech dostupných verzích. Můžete se přizpůsobit konkrétní verzi.
+
+Projekt by měl obsahovat třídu 'Class1.cs', přejmenujme soubor na 'Commands.cs' (kvůli konzistenci).
+
+```cs title=Commands.cs
+using Autodesk.AutoCAD.ApplicationServices.Core;
+using Autodesk.AutoCAD.DatabaseServices;
+using Autodesk.AutoCAD.Runtime;
+using Newtonsoft.Json;
+using System.IO;
+[assembly: CommandClass(typeof(UpdateDWGParam.Commands))]
+[assembly: ExtensionApplication(null)]
+namespace UpdateDWGParam
+{
+    public class Commands
+    {
+        [CommandMethod("UpdateParam", CommandFlags.Modal)]
+        public static void UpdateParam()
+        {
+            //Get active document of drawing with Dynamic block
+            var doc = Application.DocumentManager.MdiActiveDocument;
+            var db = doc.Database;
+            // read input parameters from JSON file
+            InputParams inputParams = JsonConvert.DeserializeObject<InputParams>(File.ReadAllText("params.json"));
+            using (Transaction t = db.TransactionManager.StartTransaction())
+            {
+                var bt = t.GetObject(db.BlockTableId, OpenMode.ForRead) as BlockTable;
+                foreach (ObjectId btrId in bt)
+                {
+                    //get the blockDef and check if is anonymous
+                    BlockTableRecord btr = (BlockTableRecord)t.GetObject(btrId, OpenMode.ForRead);
+                    if (btr.IsDynamicBlock)
+                    {
+                        //get all anonymous blocks from this dynamic block
+                        ObjectIdCollection anonymousIds = btr.GetAnonymousBlockIds();
+                        ObjectIdCollection dynBlockRefs = new ObjectIdCollection();
+                        foreach (ObjectId anonymousBtrId in anonymousIds)
+                        {
+                            //get the anonymous block
+                            BlockTableRecord anonymousBtr = (BlockTableRecord)t.GetObject(anonymousBtrId, OpenMode.ForRead);
+                            //and all references to this block
+                            ObjectIdCollection blockRefIds = anonymousBtr.GetBlockReferenceIds(true, true);
+                            foreach (ObjectId id in blockRefIds)
+                            {
+                                dynBlockRefs.Add(id);
+                            }
+                        }
+                        if (dynBlockRefs.Count > 0)
+                        {
+                            //Get the first dynamic block reference, we have only one Dyanmic Block reference in Drawing
+                            var dBref = t.GetObject(dynBlockRefs[0], OpenMode.ForWrite) as BlockReference;
+                            UpdateDynamicProperties(dBref, inputParams);
+                        }
+                    }
+                }
+                t.Commit();
+            }
+            LogTrace("Saving file...");
+            db.SaveAs("outputFile.dwg", DwgVersion.Current);
+        }
+        /// <summary>
+        /// This updates the Dyanmic Blockreference with given Width and Height
+        /// The initial parameters of Dynamic Blockrefence, Width =20.00 and Height =40.00
+        /// </summary>
+        /// <param Editor="ed"></param>
+        /// <param BlockReference="br"></param>
+        /// <param String="name"></param>
+        private static void UpdateDynamicProperties(BlockReference br, InputParams inputParams)
+        {
+            // Only continue is we have a valid dynamic block
+            if (br != null && br.IsDynamicBlock)
+            {
+                // Get the dynamic block's property collection
+                DynamicBlockReferencePropertyCollection pc = br.DynamicBlockReferencePropertyCollection;
+                foreach (DynamicBlockReferenceProperty prop in pc)
+                {
+                    switch (prop.PropertyName)
+                    {
+                        case "Width":
+                            prop.Value = inputParams.Width;
+                            break;
+                        case "Height":
+                            prop.Value = inputParams.Height;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+        /// <summary>
+        /// This will appear on the Design Automation output
+        /// </summary>
+        private static void LogTrace(string format, params object[] args) { Application.DocumentManager.MdiActiveDocument.Editor.WriteMessage(format, args); }
+    }
+    public class InputParams
+    {
+        public double Width { get; set; }
+        public double Height { get; set; }
+    }
+}
+```
+
+Toto je hlavní kód, který bude spuštěn s AutoCADem. Zkopírujte následující obsah do Commands.cs. Třída obsahuje jeden vlastní příkaz AutoCADu 'UpdateParam', definovaný jako metoda se stejným názvem. Tento příkaz je volán modulem Design Automation, jak bude zadáno v části Aktivita (další krok tohoto kurzu)
+
+```xml title=PackageContents.xml
+<?xml version="1.0" encoding="utf-8" ?>
+<ApplicationPackage SchemaVersion="1.0" Version="1.0" ProductCode="{F11EA57A-1E7E-4B6D-8E81-986B071E3E07}" Name="AutoCADDesignAutomation" Description="Sample Plugin for AutoCAD" Author="tutorials.autodesk.io>">
+  <CompanyDetails Name="Autodesk, Inc" Url="http://tutorials.autodesk.io" Email="forge.help@autodesk.com"/>
+  <Components>
+    <RuntimeRequirements OS="Win64" Platform="AutoCAD"/>
+    <ComponentEntry AppName="UpdateWindowParameters" ModuleName="./Contents/UpdateDWGParam.dll" AppDescription="AutoCAD .NET App to update parameters of Dynamic blockreference in AutoCAD Drawing" LoadOnCommandInvocation="True" LoadOnAutoCADStartup="True">
+      <Commands GroupName="FPDCommands">
+        <Command Global="UpdateParam" Local="UpdateParam"/>
+      </Commands>
+    </ComponentEntry>
+  </Components>
+</ApplicationPackage>
+```
+
+Vytvořte složku s názvem UpdateDWGParam.bundle a uvnitř soubor s názvem PackageContents.xml a zkopírujte do ní následující obsah. Další informace naleznete v [PackageContents.xml Format Reference](https://help.autodesk.com/view/ACD/2023/ENU/?guid=GUID-BC76355D-682B-46ED-B9B7-66C95EEF2BD0). Tento soubor definuje nový uživatelský příkaz AutoCADu 'UpdateParam', který bude volán při spuštění automatizace návrhu.
+
+Nakonec vytvořte podsložku s názvem "Obsah" a ponechte ji prázdnou. V tuto chvíli by projekt měl vypadat takto:
+
+## Událost po sestavení
+
+> Pro Node.js je nutné upravit výstupní složku ZIP sady AppBundle.
+
+Nyní musíme složku .bundle zazipovat. Klikněte pravým tlačítkem myši na projekt, vyberte **Vlastnosti**, pak otevřete **Události sestavení** a zkopírujte následující do pole **Příkazový řádek události po sestavení**, jak je znázorněno na obrázku níže.
+
+```bash
+xcopy /Y /F "$(TargetDir)*.dll" "$(ProjectDir)UpdateDWGParam.bundle\Contents\"
+del /F "$(ProjectDir)..\designAutomationSample\wwwroot\bundles\UpdateDWGParam.zip"
+"C:\Program Files\7-Zip\7z.exe" a -tzip "$(ProjectDir)../designAutomationSample/wwwroot/bundles/UpdateDWGParam.zip" "$(ProjectDir)UpdateDWGParam.bundle\" -xr0!*.pdb
+```
+
+This will copy the DLL from `/bin/debug/` into `.bundle/Contents` folder, then use [7zip](https://www.7-zip.org/) to create a zip, then finally copy the ZIP into `/bundles` folders of the webapp.
+![](../_images/_autocad/post_build.png)
+
+> Všimněte si, jak událost **Po sestavení** používá názvy projektů a složek, takže se ujistěte, že používáte tyto názvy.
+
+Pokud teď sestavíte projekt UpdateDWGParam, mělo by se v okně **Output** zobrazit něco podobného. Všimněte si 2 složek a 3 souborů zazipovaných. Soubor ZIP se vytvoří přímo ve složce /wwwroot/bundles. To znamená, že si vedete skvěle!
+
+![](../_images/_autocad/build_output.png)

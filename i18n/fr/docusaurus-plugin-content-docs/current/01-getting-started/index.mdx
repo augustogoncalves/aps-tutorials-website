@@ -1,0 +1,118 @@
+---
+slug: /
+---
+
+import Image from '@theme/IdealImage';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import AccProvisioningSteps from './_shared/provisioning/acc/steps.mdx';
+import Bim360ProvisioningSteps from './_shared/provisioning/bim360/steps.mdx';
+
+# Pour commencer
+
+Voici quelques choses que vous voulez faire avant de créer votre premier
+[Services de plate-forme Autodesk](https://aps.autodesk.com) Application.
+
+## Créer un compte
+
+Si vous n’avez pas encore de compte APS, inscrivez-vous sur https://aps.autodesk.com.
+
+
+
+:::tip
+
+Vous pouvez profiter d’un abonnement d’essai valable 3 mois.
+
+
+:::
+
+
+
+<Image img={require('./_shared/developer-portal-logged-out.png')} />
+
+## Créer des informations d’identification d’application
+
+Afin de nous authentifier auprès de la plateforme APS, nous devrons générer
+_app credentials_ (plus précisément, un _client ID_ et un _client secret_) pour notre application.
+Après vous être connecté au portail des développeurs, accédez au menu de votre profil dans le coin supérieur droit,
+et cliquez sur _Applications_ :
+
+<Image img={require('./_shared/developer-portal-logged-in.png')} />
+
+Ensuite, cliquez sur le bouton _Create application_ :
+
+<Image img={require('./_shared/my-apps.png')} />
+
+Entrez le nom de votre application. Sélectionnez le type d’application qui s’applique à vous, puis cliquez sur le bouton _Créer_ :
+
+<Image img={require('./_shared/create-app.png')} />
+
+Et votre application est maintenant prête. Stockons vos _Client ID_ et vos _Client Secret_
+des informations d’identification car nous en aurons bientôt besoin !
+
+<Image img={require('./_shared/app-overview.png')} />
+
+Enfin, réglez le _Callback URL_ sous _General Settings_ sur 'http://localhost:8080/api/auth/callback',
+et activez les API auxquelles vous souhaitez que votre application ait accès. Sauf si vous avez une raison spécifique
+Pour limiter l’accès de votre application aux différents services, activez tout.
+
+<Image img={require('./_shared/apis.png')} />
+
+
+
+:::caution
+
+Portez une attention particulière aux _Callback URL_. Il s’agit de l’adresse de votre application
+les utilisateurs seront redirigés vers après s’être connectés avec leurs informations d’identification Autodesk. Il peut s’agir
+toute URL arbitraire, mais elle doit correspondre exactement à l’URL attendue par votre application serveur.
+Dans nos tutoriels, nous utiliserons toujours la même adresse : 'http://localhost:8080/api/auth/callback'.
+
+
+:::
+
+
+
+Enfin, mettez à jour l’application en cliquant sur le bouton _Save changes_, et le tour est joué !
+
+<Image img={require('./_shared/save-changes.png')} />
+
+## Provisionner l’accès dans d’autres produits
+
+Dans certains cas, il est possible pour votre application de s’intégrer à d’autres produits basés sur APS
+tels que [Autodesk Construction Cloud](https://construction.autodesk.com),
+ou [Autodesk BIM 360](https://www.autodesk.com/bim-360). Nous tirons parti de cette capacité dans
+les tutoriels [Hubs Browser](./tutorials/hubs-browser) et [ACC Administrator](./tutorials/acc-admin) où vous pouvez en savoir plus sur l’accès aux conceptions
+à partir de [Autodesk Docs](https://www.autodesk.com/products/autodesk-docs/overview),
+[BIM 360 Docs](https://www.autodesk.com/bim-360/construction-document-management-software/),
+ou [Équipes de fusion](https://www.autodesk.com/products/fusion-360/overview).
+
+Cependant, certains de ces produits doivent _provision access_ pour une application APS spécifique
+en fonction de son identifiant client. Suivez les étapes ci-dessous pour tout produit spécifique que vous souhaitez
+pour intégrer votre application.
+
+
+
+:::info
+
+Si vous ne prévoyez _pas_ d’intégrer votre application à d’autres produits pour le moment,
+Vous pouvez ignorer le reste de cette page et y revenir plus tard si nécessaire.
+
+
+:::
+
+
+
+<Tabs groupId="access-provisioning">
+    <TabItem value="acc" label="Autodesk Construction Cloud" default>
+        <AccProvisioningSteps />
+    </TabItem>
+    <TabItem value="bim360" label="Autodesk BIM 360">
+        <Bim360ProvisioningSteps />
+    </TabItem>
+<TabItem value="fusion360" label="Autodesk Fusion Team">
+
+Aucune étape de provisionnement n’est nécessaire. Votre application APS peut accéder automatiquement à
+les données de vos utilisateurs authentifiés dans ce produit.
+
+</TabItem>
+</Tabs>

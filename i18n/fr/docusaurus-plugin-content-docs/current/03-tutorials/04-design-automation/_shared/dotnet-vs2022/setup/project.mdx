@@ -1,0 +1,30 @@
+import ResponsiveVideo from "@site/src/components/ResponsiveVideo.js";
+import PreviewUrl from "@site/static/videos/vs2022-proj-setup.mp4";
+
+- Lancez Visual Studio 2022, sélectionnez « Créer un nouveau projet »
+- Entrez « ASP.NET Core Empty » dans la barre de recherche des modèles. Sélectionnez et Suivant.
+- Dans la boîte de dialogue suivante, nommons-la 'designAutomationSample', Suivant.
+- Dans la boîte de dialogue suivante, assurez-vous que .NET 6.0 (Long Term Support) est sélectionné, décochez « Configurer pour HTTPS ».
+- Désactivez l’utilisation des instructions de niveau supérieur en cochant la case « Ne pas utiliser d’instructions de niveau supérieur », puis cliquez sur « Créer ».
+- Installer le package NuGet Autodesk Forge : cliquez avec le bouton droit sur le projet (Explorateur de solutions), sélectionnez Gérer le package NuGet, puis sur Parcourir, recherchez Autodesk.Forge et installez Autodesk.Forge. Cela sera utilisé pour télécharger les résultats d’entrée et de sortie dans les [compartiments OSS](https://aps.autodesk.com/en/docs/data/v2/developers_guide/basics/).
+- Veuillez également installer la version compatible .NET 6 des packages suivants :
+
+
+
+:::note
+
+Au moment de la rédaction de cette documentation, le tutoriel utilise la version spécifiée à côté du nom du package.
+
+
+:::
+
+
+
+```bash
+Autodesk.Forge v1.9.7
+Autodesk.Forge.DesignAutomation v5.1.1
+Microsoft.AspNetCore.Mvc.NewtonsoftJson v6.0.16
+Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson v6.0.16
+```
+
+<ResponsiveVideo src={PreviewUrl} />

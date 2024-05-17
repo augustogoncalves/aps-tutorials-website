@@ -1,0 +1,26 @@
+import IndexHtmlForNode from "./_shared/nodejs-vscode/ui/index.mdx";
+import DAJSForNode from "./_shared/nodejs-vscode/ui/design-automation.mdx";
+import IndexHtmlForNET from "./_shared/dotnet-vs2022/ui/index.mdx";
+import DAJSForNET from "./_shared/dotnet-vs2022/ui/design-automation.mdx";
+import EnvTabs from "@site/src/components/EnvTabs.js";
+
+# Základní uživatelské rozhraní
+
+Rozhraní je založeno na vanilla HTML5 a 'JavaScriptu'. V podstatě je to stejné pro všechny na straně serveru, ale existuje několik rozdílů: implementace protokolu Websocket používá socket.io ('Node.js') nebo SignalR ('.NET 6').
+Začněme soubory uživatelského rozhraní (HTML a JavaScript). Ve složce wwwroot vytvořte soubor index.html s následujícím obsahem:
+
+<EnvTabs
+  NodeJsVsCode={IndexHtmlForNode}
+  DotNetVsCode={IndexHtmlForNET}
+  DotNetVs2022={IndexHtmlForNET}
+/>
+
+## ApsDesignAutomation.js
+
+Vytvořte složku "js" ve složce "wwwroot". Pak ve složce wwwroot/js vytvořte soubor ApsDesignAutomation.js s následujícím obsahem:
+
+<EnvTabs
+  NodeJsVsCode={DAJSForNode}
+  DotNetVsCode={DAJSForNET}
+  DotNetVs2022={DAJSForNET}
+/>

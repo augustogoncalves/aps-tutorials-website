@@ -1,0 +1,57 @@
+import ResponsiveVideo from '@site/src/components/ResponsiveVideo.js';
+import PreviewUrl from '@site/static/videos/aps-dashboards.mp4';
+
+# Přístrojová deska
+
+## Úvod
+
+V tomto tutoriálu vylepšíme [Simple Viewer](../simple-viewer)
+s funkcemi podobnými řídicímu panelu, například načítáním a agregací informací
+z našich návrhových metadat, zobrazení výsledků v grafech a datových mřížkách a ovládání
+stav diváka na základě interakce s těmito novými vizuály.
+
+All the functionality in this tutorial is implemented as viewer extensions, and will only use
+the viewer UI, so you're free to use any APS application you want as your starting point.
+Note however that the names of folders, and the way you import JavaScript files into your
+web application, might be a little bit different.
+
+
+
+:::caution
+
+Některé části kódu tohoto kurzu předpokládají, že prvky návrhu obsahují konkrétní vlastnosti
+například _Volume_, _Level_ nebo _Price_. Pokud máte konkrétní návrh, se kterým chcete pracovat, můžete
+Samozřejmě upravte kód tak, aby používal jiné vlastnosti, v opačném případě doporučujeme použít některou z oficiálních
+[Ukázkové soubory projektu Revit 2022] Fotografie (https://knowledge.autodesk.com/support/revit/getting-started/caas/CloudHelp/cloudhelp/2022/ENU/Revit-GetStarted/files/GUID-61EF2F22-3A1F-4317-B925-1E85F138BE88-htm.html)
+kde jsou tyto vlastnosti vždy přítomny.
+
+
+:::
+
+
+
+<ResponsiveVideo src={PreviewUrl} />
+
+Budeme používat [Prohlížeč](https://aps.autodesk.com/en/docs/viewer/v7/developers_guide/overview)
+API a jeho různé funkce, jako jsou:
+
+- Vytváření a načítání rozšíření prohlížečů
+- Dotazování na metadata načtených modelů
+- Reakce na události diváků
+- Ovládání stavu prohlížeče
+- Přizpůsobení panelu nástrojů prohlížeče
+- Vytváření vlastních prvků uživatelského rozhraní
+
+
+
+:::tip
+
+Kompletní implementace tohoto kurzu je k dispozici v [dashboard](https://github.com/autodesk-platform-services/aps-simple-viewer-nodejs/tree/dashboards)
+pobočka https://github.com/autodesk-platform-services/aps-simple-viewer-nodejs.
+
+
+:::
+
+
+
+Dobře, začněme!

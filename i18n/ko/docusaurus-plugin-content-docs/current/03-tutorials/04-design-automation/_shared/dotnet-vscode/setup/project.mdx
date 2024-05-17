@@ -1,0 +1,32 @@
+import ResponsiveVideo from "@site/src/components/ResponsiveVideo.js";
+import PreviewUrl from "@site/static/videos/vscode-proj-dotnet-setup.mp4";
+
+- 터미널 또는 명령 프롬프트 실행
+- 프로젝트를 만들려는 디렉터리로 이동합니다.
+- .NET 6 SDK가 설치되어 있는지 확인합니다. [환경]을 참조하십시오(../../../../../../설정/)
+
+```bash title="setup.bat"
+dotnet --version
+dotnet new web -n designAutomationSample
+cd designAutomationSample
+dotnet add package Autodesk.Forge --version 1.9.7
+dotnet add package Autodesk.Forge.DesignAutomation --version 5.1.0
+dotnet add package Microsoft.AspNetCore.Mvc.NewtonsoftJson --version 6.0.11
+dotnet add package Microsoft.AspNetCore.Mvc.NewtonsoftJson --version 6.0.11
+dotnet add package Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson --version 6.0.11
+dotnet build
+code .
+```
+
+
+
+:::tip
+
+batch/bash 파일을 만들고 위의 'dotnet' 문을 복사하여 한 번에 실행합니다.
+
+
+:::
+
+
+
+<ResponsiveVideo src={PreviewUrl} />

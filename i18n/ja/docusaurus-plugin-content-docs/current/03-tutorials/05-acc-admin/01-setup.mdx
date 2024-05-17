@@ -1,0 +1,33 @@
+
+import NodeJsVsCodeProject from './_shared/nodejs-vscode/setup/project.mdx';
+import NodeJsVsCodeConfig from './_shared/nodejs-vscode/setup/config.mdx';
+import NodeJsVsCodeServer from './_shared/nodejs-vscode/setup/server.mdx';
+import NodeJsVsCodeTest from './_shared/nodejs-vscode/setup/test.mdx';
+
+# アプリケーションのセットアップ
+
+新しいプロジェクトを作成し、必要な依存関係をインストールし、セットアップすることから始めましょう
+基本的なサーバー アプリケーション。
+
+## プロジェクトの作成
+
+<NodeJsVsCodeProject />
+
+## アプリケーション設定
+
+アプリケーションを適切に実行するには、いくつかの構成パラメーターが必要です。
+Autodesk Platform Services と通信するための APS アプリの資格情報、またはコールバック URL
+[3-legged authentication workflow](https://aps.autodesk.com/en/docs/oauth/v2/tutorials/get-3-legged-token/)中にユーザーがリダイレクトされる場所。
+これらのパラメーターは、環境変数を使用してサーバー アプリに渡します。
+
+<NodeJsVsCodeConfig />
+
+## 基本サーバの作成
+
+次に、基本的なサーバー アプリケーションをセットアップします。
+
+<NodeJsVsCodeServer />
+
+## 試してみる
+
+<NodeJsVsCodeTest />

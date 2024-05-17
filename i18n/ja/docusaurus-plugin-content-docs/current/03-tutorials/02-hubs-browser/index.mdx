@@ -1,0 +1,43 @@
+import Image from '@theme/IdealImage';
+import PreviewUrl from '@site/static/videos/hubs-browser.gif';
+
+# Hubsブラウザ
+
+## イントロダクション
+
+このチュートリアルでは、コンテンツを閲覧できるAPSアプリケーションを構築します
+[BIM 360 Docs](https://www.autodesk.com/bim-360/construction-document-management-software/)などの他のAPSベースのアプリケーションで認証されたユーザーの割合
+[オートデスクドキュメント](https://www.autodesk.com/products/autodesk-docs/overview)、または[Fusion Team](https://www.autodesk.com/products/fusion-360/overview)です。
+
+
+
+:::note
+
+必ず [アクセスのプロビジョニング](../../01-getting-started/index.mdx#provision-access-in-other-products)をACCまたはBIM360アカウントの1つに追加します
+これにより、アプリケーションはプロジェクト、フォルダー、およびドキュメントを参照できます。
+
+
+:::
+
+
+
+<Image img={PreviewUrl} />
+
+プラットフォームの次のコンポーネントを使用します。
+
+- [認証](https://aps.autodesk.com/en/docs/oauth/v2/developers_guide/overview)
+- [データ管理](https://aps.autodesk.com/en/docs/data/v2/developers_guide/overview)
+- [ビューア](https://aps.autodesk.com/en/docs/viewer/v7/developers_guide/overview)
+
+
+
+:::tip
+
+アプリケーションをゼロから構築することに興味がなく、試してみたい場合
+ローカルで実行すると、完全な実装がGitHubで入手できます。
+- https://github.com/autodesk-platform-services/aps-hubs-browser-nodejs
+- https://github.com/autodesk-platform-services/aps-hubs-browser-dotnet
+
+
+:::
+

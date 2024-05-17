@@ -1,0 +1,118 @@
+---
+slug: /
+---
+
+import Image from '@theme/IdealImage';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import AccProvisioningSteps from './_shared/provisioning/acc/steps.mdx';
+import Bim360ProvisioningSteps from './_shared/provisioning/bim360/steps.mdx';
+
+# Začínáme
+
+Zde je několik věcí, které byste měli udělat, než postavíte svůj první
+[Služby platformy Autodesk](https://aps.autodesk.com) Žádost.
+
+## Vytvořte si účet
+
+Pokud ještě nemáte účet APS, zaregistrujte si jej na https://aps.autodesk.com.
+
+
+
+:::tip
+
+Můžete využít zkušební předplatné, které je platné po dobu 3 měsíců.
+
+
+:::
+
+
+
+<Image img={require('./_shared/developer-portal-logged-out.png')} />
+
+## Vytvoření přihlašovacích údajů aplikace
+
+Abychom se mohli autentizovat na platformě APS, budeme muset vygenerovat
+_app credentials_ (konkrétně _client ID_ a _client secret_) pro naši aplikaci.
+Po přihlášení do portálu pro vývojáře přejděte do nabídky svého profilu v pravém horním rohu,
+a klikněte na _Aplikace_:
+
+<Image img={require('./_shared/developer-portal-logged-in.png')} />
+
+Dále klikněte na tlačítko _Create application_:
+
+<Image img={require('./_shared/my-apps.png')} />
+
+Zadejte název aplikace. Vyberte typ aplikace, který se vás týká, a klikněte na tlačítko _Vytvořit_ :
+
+<Image img={require('./_shared/create-app.png')} />
+
+A vaše aplikace je nyní připravena. Uložme vaše _Client ID_ a _Client Secret_
+pověření, protože je budeme brzy potřebovat!
+
+<Image img={require('./_shared/app-overview.png')} />
+
+Nakonec nastavte _Callback URL_ pod _General Settings_ na "http://localhost:8080/api/auth/callback",
+a povolte rozhraní API, ke kterým má mít vaše aplikace přístup. Pokud nemáte žádný konkrétní důvod
+Pokud chcete omezit přístup vaší aplikace k různým službám, povolte všechno.
+
+<Image img={require('./_shared/apis.png')} />
+
+
+
+:::caution
+
+Věnujte zvýšenou pozornost _Callback URL_. Toto je adresa vaší aplikace
+uživatelé budou přesměrováni na po přihlášení pomocí svých přihlašovacích údajů Autodesk. Může to být
+libovolná adresa URL, ale musí se přesně shodovat s adresou URL, kterou serverová aplikace očekává.
+V našich tutoriálech budeme vždy používat stejnou adresu: 'http://localhost:8080/api/auth/callback'.
+
+
+:::
+
+
+
+Nakonec aktualizujte aplikaci kliknutím na tlačítko _Save changes_ a vše je připraveno!
+
+<Image img={require('./_shared/save-changes.png')} />
+
+## Zřízení přístupu v jiných produktech
+
+V určitých případech je možné, aby se vaše aplikace integrovala s jinými produkty založenými na APS
+jako je [Autodesk Construction Cloud](https://construction.autodesk.com),
+nebo [Autodesk BIM 360](https://www.autodesk.com/bim-360). Tuto schopnost využíváme v
+výukové programy [Hubs Browser](./tutorials/hubs-browser) a [ACC Administrator](./tutorials/acc-admin), kde se můžete dozvědět o přístupu k průmyslovým vzorům
+ze služby [Autodesk Docs](https://www.autodesk.com/products/autodesk-docs/overview),
+[Dokumenty k BIM 360](https://www.autodesk.com/bim-360/construction-document-management-software/),
+nebo [Sloučené týmy](https://www.autodesk.com/products/fusion-360/overview).
+
+Některé z těchto produktů však musí _provision access_ pro konkrétní aplikaci APS
+na základě svého ID klienta. Postupujte podle níže uvedených kroků pro jakýkoli konkrétní produkt, který chcete
+, se kterou můžete aplikaci integrovat.
+
+
+
+:::info
+
+Pokud zatím _neplánujete_ integraci vaší aplikace s jinými produkty,
+Zbytek této stránky můžete přeskočit a v případě potřeby se k ní vrátit později.
+
+
+:::
+
+
+
+<Tabs groupId="access-provisioning">
+    <TabItem value="acc" label="Autodesk Construction Cloud" default>
+        <AccProvisioningSteps />
+    </TabItem>
+    <TabItem value="bim360" label="Autodesk BIM 360">
+        <Bim360ProvisioningSteps />
+    </TabItem>
+<TabItem value="fusion360" label="Autodesk Fusion Team">
+
+Nejsou potřeba žádné kroky zřizování. Vaše aplikace APS může automaticky přistupovat
+data ověřených uživatelů v tomto produktu.
+
+</TabItem>
+</Tabs>

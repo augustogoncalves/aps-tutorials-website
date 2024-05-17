@@ -1,0 +1,59 @@
+Créez un dossier pour votre projet, accédez-y dans la ligne de commande et initialisez un nouveau dossier
+ASP.NET Projet principal :
+
+```bash
+dotnet new web
+```
+
+Ensuite, nous devrons installer les dépendances. Dans ce cas, il ne s’agira que de quelques
+packages du SDK APS officiel :
+
+```bash
+dotnet add package Autodesk.SdkManager
+dotnet add package Autodesk.Authentication
+dotnet add package Autodesk.OSS
+dotnet add package Autodesk.ModelDerivative
+```
+
+Le fichier '*.csproj' de votre projet devrait maintenant ressembler à ceci (peut-être avec
+des numéros de version légèrement différents et des paramètres .NET supplémentaires) :
+
+```xml
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Autodesk.Authentication" Version="1.0.0" />
+    <PackageReference Include="Autodesk.ModelDerivative" Version="1.0.0" />
+    <PackageReference Include="Autodesk.OSS" Version="1.0.0" />
+    <PackageReference Include="Autodesk.SdkManager" Version="1.0.0" />
+  </ItemGroup>
+</Project>
+```
+
+Enfin, créons quelques sous-dossiers supplémentaires dans votre dossier de projet dont nous aurons besoin plus tard :
+
+- « Contrôleurs » - c’est là que nous allons implémenter tous les points de terminaison du serveur
+- « Modèles » - ici, nous allons conserver toute la logique côté serveur qui peut être partagée par différents points de terminaison
+- 'wwwroot' - c’est là que nous allons mettre tous les actifs côté client (HTML, CSS, JavaScript, images, etc.)
+
+Désormais, lorsque vous ouvrez votre dossier de projet dans Visual Studio Code pour la première fois, vous êtes invité à
+pour configurer votre projet pour le développement .NET. Acceptez l’invite et l’éditeur créera automatiquement
+un sous-dossier '.vscode' avec des paramètres spécifiques .NET supplémentaires tels que la [configuration de lancement](https://code.visualstudio.com/docs/editor/debugging#_launch-configurations).
+La structure des dossiers dans l’éditeur doit ressembler à ceci :
+
+![Folder Structure](folder-structure.webp)
+
+
+
+:::note
+
+Si le dossier '.vscode' n’est pas créé automatiquement, vous pouvez le créer via le panneau latéral Exécuter et déboguer
+
+
+:::
+
+
+
+Pour créer le dossier '.vscode', cliquez sur l’outil *Exécuter et déboguer dans le panneau latéral gauche > créer un fichier launch.json > Sélectionner . NET5+ et .NET Core*.

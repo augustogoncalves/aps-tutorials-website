@@ -1,0 +1,57 @@
+import Image from '@theme/IdealImage';
+import PreviewUrl from '@site/static/videos/acc-administrator.png';
+
+# ACC 管理员
+
+## 简介
+
+
+
+:::note
+
+本教程仅提供 **Node.js**。
+
+
+:::
+
+
+
+
+In this tutorial we're going to build an APS application that will let us browse Hubs and Projects
+of our authenticated user in [Autodesk Construction Cloud](https://www.autodesk.com/products/autodesk-docs/overview),
+list all the information of projects and project users, you can also export these information to a CSV
+file easily, but most important, the tutorial will show case how to import multiple projects into a selected account
+based on a template project list csv file, or import multiple users into a selected project from user list template 
+csv file.
+
+
+
+:::note
+
+确保 [预配访问权限](../../01-getting-started/index.mdx#provision-access-in-other-products） 添加到您的 ACC 帐户
+以便应用程序可以看到您的项目。
+
+
+:::
+
+
+
+<Image img={PreviewUrl} />
+
+我们将使用平台的以下组件：
+
+- [认证](https://aps.autodesk.com/en/docs/oauth/v2/developers_guide/overview）
+- [数据管理](https://aps.autodesk.com/en/docs/data/v2/developers_guide/overview）
+- [Autodesk Construction Cloud 管理员](https://aps.autodesk.com/en/docs/acc/v1/overview/field-guide/admin/）
+
+
+
+:::tip
+
+如果您对从头开始构建应用程序不感兴趣，而只想尝试
+并在本地运行，完整的实现可在 GitHub 上找到：
+- https://github.com/autodesk-platform-services/aps-acc-admin-tutorial-nodejs
+
+
+:::
+

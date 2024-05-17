@@ -1,0 +1,125 @@
+import VS2022DotnetFolderStructureImg from "../../_images/vs2022-dotnet-folderStructure.webp";
+
+次に、Program.csを開き、次の名前空間を追加します
+
+```cs
+using Autodesk.Forge.Core;
+using Autodesk.Forge.DesignAutomation;
+```
+
+次に、「Program.cs」の内容を次のように置き換えます。これにより、上記で定義した環境変数から Forge Client ID と Secret をロードするようにアプリケーションに指示します。
+
+```cs
+using Autodesk.Forge.Core;
+using Autodesk.Forge.DesignAutomation;
+using Microsoft.AspNetCore;
+namespace designAutomationSample
+{
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            CreateHostBuilder(args).ConfigureAppConfiguration(builder =>
+            {
+                builder.AddJsonFile($"appsettings.user.json", optional: true);
+                builder.AddEnvironmentVariables();
+            }).ConfigureServices((hostContext, services) =>
+            {
+                services.AddDesignAutomation(hostContext.Configuration);
+            }).Build().Run();
+        }
+        public static IWebHostBuilder CreateHostBuilder(string[] args) =>
+            WebHost.CreateDefaultBuilder(args)
+                .UseStartup<Startup>();
+    }
+}
+```
+
+次に、Startup.csを開き(必要に応じて作成し)、次の名前空間を追加します
+
+```cs
+using Microsoft.AspNetCore.Mvc;
+```
+
+次に、Startup クラスの内容を次のコードに置き換えて、クライアントへの通知のプッシュに使用される静的ファイル サーバー (HTML と JS) と SignalR を有効にします。
+
+```cs
+// This method gets called by the runtime. Use this method to add services to the container.
+// For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddMvc(options => options.EnableEndpointRouting = false).SetCompatibilityVersion(CompatibilityVersion.Version_3_0).AddNewtonsoftJson();
+    services.AddSignalR().AddNewtonsoftJsonProtocol(opt=> {
+        opt.PayloadSerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+    });
+}
+// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+{
+    app.UseFileServer();
+    app.UseMvc();
+}
+```
+
+### OAuthController.cs
+
+WebAPI コントローラーをホストする Controllers フォルダーを作成します。
+OSS バケットへの入力ファイルと出力ファイルの読み取りと書き込みには「アクセストークン」が必要です。[Controllers] フォルダーで、次の内容の 'OAuthController.cs' ファイルを作成します。
+
+```cs title=OAuthController.cs
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Autodesk.Forge;
+namespace designAutomationSample.Controllers
+{
+    [ApiController]
+    public class OAuthController : ControllerBase
+    {
+        // As both internal & public tokens are used for all visitors
+        // we don't need to request a new token on every request, so let's
+        // cache them using static variables. Note we still need to refresh
+        // them after the expires_in time (in seconds)
+        private static dynamic InternalToken { get; set; }
+        /// <summary>
+        /// Get access token with internal (write) scope
+        /// </summary>
+        public static async Task<dynamic> GetInternalAsync()
+        {
+            if (InternalToken == null || InternalToken.ExpiresAt < DateTime.UtcNow)
+            {
+                InternalToken = await Get2LeggedTokenAsync(new Scope[] { Scope.BucketCreate, Scope.BucketRead, Scope.BucketDelete, Scope.DataRead, Scope.DataWrite, Scope.DataCreate, Scope.CodeAll });
+                InternalToken.ExpiresAt = DateTime.UtcNow.AddSeconds(InternalToken.expires_in);
+            }
+            return InternalToken;
+        }
+        /// <summary>
+        /// Get the access token from Autodesk
+        /// </summary>
+        private static async Task<dynamic> Get2LeggedTokenAsync(Scope[] scopes)
+        {
+            TwoLeggedApi oauth = new TwoLeggedApi();
+            string grantType = "client_credentials";
+            dynamic bearer = await oauth.AuthenticateAsync(
+              GetAppSetting("APS_CLIENT_ID"),
+              GetAppSetting("APS_CLIENT_SECRET"),
+              grantType,
+              scopes);
+            return bearer;
+        }
+        /// <summary>
+        /// Reads appsettings from web.config
+        /// </summary>
+        public static string GetAppSetting(string settingKey)
+        {
+            return Environment.GetEnvironmentVariable(settingKey).Trim();
+        }
+    }
+}
+```
+
+プロジェクトの準備ができました!この時点で、次のようになります。
+
+<img src={VS2022DotnetFolderStructureImg} style={{ width: 300 }} />

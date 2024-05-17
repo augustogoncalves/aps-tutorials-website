@@ -1,0 +1,41 @@
+import EnvTabs from "@site/src/components/EnvTabs.js";
+import ResponsiveVideo from "@site/src/components/ResponsiveVideo.js";
+import PreviewUrl from "@site/static/videos/ngrok-setup.mp4";
+import DotNetVS2022Setup from "./_shared/dotnet-vs2022/setup/project.mdx";
+import DotnetVS2022Config from "./_shared/dotnet-vs2022/setup/config.mdx";
+import DotNetVsCodeSetup from "./_shared/dotnet-vscode/setup/project.mdx";
+import DotNetVsCodeConfig from "./_shared/dotnet-vscode/setup/config.mdx";
+import NodeJsVsCodeSetup from "./_shared/nodejs-vscode/setup/project.mdx";
+import NodeJsVsCodeConfig from "./_shared/nodejs-vscode/setup/config.mdx";
+import NodeJsVsCodeServer from "./_shared/nodejs-vscode/setup/server.mdx";
+import DotnetVS2022Server from "./_shared/dotnet-vs2022/setup/server.mdx";
+
+# Crear servidor
+
+Su "ID de cliente" y "Secreto" deben protegerse y mantenerse confidenciales, ya que todos sus archivos estarán vinculados a su cuenta. En el caso de una aplicación web, manténgala en el servidor. En esta sección se muestra cómo preparar la creación de un servidor de desarrollo local.
+
+Revise [Configuración del entorno](../../setup/) para el software requerido.
+
+## Configurar proyecto
+
+<EnvTabs
+  NodeJsVsCode={NodeJsVsCodeSetup}
+  DotNetVsCode={DotNetVsCodeSetup}
+  DotNetVs2022={DotNetVS2022Setup}
+/>
+
+### Configuración de la aplicación
+
+<EnvTabs
+  NodeJsVsCode={NodeJsVsCodeConfig}
+  DotNetVsCode={DotNetVsCodeConfig}
+  DotNetVs2022={DotnetVS2022Config}
+/>
+
+### Configuración del servidor
+
+<EnvTabs
+  NodeJsVsCode={NodeJsVsCodeServer}
+  DotNetVsCode={DotnetVS2022Server}
+  DotNetVs2022={DotnetVS2022Server}
+/>

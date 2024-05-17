@@ -1,0 +1,82 @@
+import EnvTabs from "@site/src/components/EnvTabs.js";
+import WorkitemForNet from "./_shared/dotnet-vs2022/setup/workitem.mdx";
+import WorkitemForNodejs from "./_shared/nodejs-vscode/setup/workitem.mdx";
+import DebugForNet from "./_shared/dotnet-vs2022/setup/debug.mdx";
+import DebugForNodejs from "./_shared/nodejs-vscode/setup/debug.mdx";
+import ResponsiveVideo from "@site/src/components/ResponsiveVideo.js";
+import PreviewUrl from "@site/static/videos/modify-your-models.mp4";
+
+# Ejecutar elemento de trabajo
+
+Un trabajo que ejecuta una actividad especificada, utilizando archivos de entrada especificados y generando archivos de salida adecuados.
+
+La relación entre una actividad y un elemento de trabajo se puede considerar como una "definición de función" y una "llamada de función", respectivamente. La actividad especifica los AppBundles que se van a usar, que a su vez especifican el motor que se va a usar. A continuación, se llama al Workitem para ejecutarlos.
+
+En este ejemplo de tutorial, el elemento de trabajo especifica la dirección URL del archivo de entrada, los datos JSON de entrada con los nuevos valores de parámetro y la dirección URL de destino del archivo de salida. En este ejemplo se cargará el archivo de entrada en un bucket de OSS antes de iniciar el elemento de trabajo.
+
+<EnvTabs
+  NodeJsVsCode={WorkitemForNodejs}
+  DotNetVsCode={WorkitemForNet}
+  DotNetVs2022={WorkitemForNet}
+/>
+
+¡Todo listo!
+
+## Ejecutar y depurar
+
+Ahora que la aplicación está lista, es el momento de ejecutarla. Aquí es donde podemos probar y comprobar posibles errores (a través de la depuración).
+
+## Usando la muestra
+
+En la parte superior, haga clic en **Configurar** para definir AppBundle y Actividad. Esto solo debe hacerse una vez. Especifique el nuevo 'ancho' y 'alto' en el panel izquierdo, seleccione el 'archivo de entrada' y haga clic en 'Iniciar elemento de trabajo'. El panel derecho debería mostrar los resultados.
+
+Puede encontrar [archivos de muestra aquí](https://github.com/autodesk-platform-services/aps-design-automation-dotnet/tree/master/sample%20files).
+
+
+
+:::caution
+
+Si el código del plugin cambia, entonces tienes que subir un nuevo AppBundle y aumentar la versión (por ejemplo, v1 a v2). En este ejemplo se creará una nueva versión cada vez que se cargue un nuevo AppBundle.
+
+
+:::
+
+
+
+> Tanto los archivos de entrada como los de salida se guardan en depósitos OSS, puede utilizar [Ver modelos](../simple-viewer/) para verlos.
+
+<ResponsiveVideo src={PreviewUrl} />
+
+## Solución de problemas
+
+**1. El panel de resultados no muestra toda la información**
+
+Asegúrese de que **ngrok** se está ejecutando y no ha expirado. Asegúrese de que la dirección ngrok está especificada correctamente en la variable de entorno.
+
+**2. El elemento de trabajo se ejecuta, pero el resultado no es el esperado**
+
+Considere usar el botón **Borrar cuenta**. Esto elimina todos los AppBundles y Actividades de su cuenta. A continuación, defínalos de nuevo.
+
+**3. No puedo ver mi AppBundle en el formulario de configuración**
+
+Los paquetes ZIP se copian en los 'paquetes' después de crear el complemento respectivo. Asegúrese de que el evento "Post-build" esté correctamente definido y ejecutado después de la compilación.
+
+**4. Asegurarse de que se cargó la DLL correcta**
+
+Un truco fácil para asegurarse de que se cargó la DLL correcta en Design Automation es verificar su fecha. [Esta respuesta de StackOverflow](https://stackoverflow.com/a/1600990) muestra cómo obtener la fecha del enlazador (es decir, cuándo se compiló la DLL), con la que puede mostrarla al principio de su código. Tenga en cuenta que las fechas están en la zona horaria del servidor.
+
+> plugin está escrito en 'C#' independientemente del idioma del servidor.
+
+```cs
+LogTrace("DLL {0} compiled on {1}",
+    System.IO.Path.GetFileName(System.Reflection.Assembly.GetExecutingAssembly().Location),
+    GetLinkerTime(System.Reflection.Assembly.GetExecutingAssembly()));
+```
+
+¿Listo? ¡Vamos a ejecutarlo!
+
+<EnvTabs
+  NodeJsVsCode={DebugForNodejs}
+  DotNetVsCode={DebugForNet}
+  DotNetVs2022={DebugForNet}
+/>

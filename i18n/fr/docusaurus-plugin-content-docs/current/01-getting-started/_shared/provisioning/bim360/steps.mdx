@@ -1,0 +1,71 @@
+import Image from '@theme/IdealImage';
+
+
+
+:::caution
+
+Assurez-vous que vous disposez d’un accès _admin_ à un compte BIM 360.
+
+
+:::
+
+
+
+1. Connectez-vous à votre compte BIM 360 et accédez à _Account Admin_
+
+2. Sur la page _Account Admin_, allez dans _Paramètres_ et accédez à l’onglet _Custom Integrations_
+
+<Image img={require('./custom-integrations.jpeg')} />
+
+3. Utilisez le bouton _Add Integration_ personnalisé sur le côté gauche pour lancer un assistant simple
+qui vous guidera tout au long du processus
+
+4. Sur la page _Select Access_, conservez le compte _BIM 360 Administration_
+et les options _Document Management_ cochées, et appuyez sur le bouton _Suivant_
+
+<Image img={require('../select-access.jpeg')} />
+
+5. Sur la page suivante de l’assistant, choisissez l’option _I' suis le developer_ et appuyez sur
+le bouton _Suivant_
+
+<Image img={require('../i-am-developer.jpeg')} />
+
+
+
+:::info
+
+Ici, nous supposons que le _account admin_ est également le propriétaire de l’application APS.
+Si ce n’est pas le cas, l’administrateur du compte peut utiliser le _Invite un developer_
+à la place, et le développeur invité saisira les détails de l’application APS plus tard.
+
+
+:::
+
+
+
+6. Sur la page suivante et finale, notez le compte _BIM 360 ID_, vérifiez le
+à côté de celle-ci, et remplissez les champs _Client ID_ et _App Name_
+exactement comme ils apparaissent sur la page de votre application sur https://aps.autodesk.com/myapps
+
+<Image img={require('../bim360-info.jpeg')} />
+
+
+
+:::tip
+
+Envisagez de stocker votre identifiant client quelque part dans _App Description_. L’ID client ne _pas_
+apparaissent dans l’intégration personnalisée après sa création, et si le nombre d’intégrations
+dans votre compte commence à croître, cela vous aidera à identifier rapidement l’application APS
+Chaque intégration personnalisée est associée à.
+
+
+:::
+
+
+
+7. Lorsque vous êtes prêt, faites défiler vers le bas et appuyez sur le bouton _Enregistrer_
+
+Et c’est tout. Désormais, votre application peut utiliser différents services APS tels que
+[API de gestion des données](https://aps.autodesk.com/en/docs/data/v2/developers_guide/overview)
+ou [API BIM 360](https://aps.autodesk.com/en/docs/bim360/v1/overview/introduction)
+pour accéder aux informations de tous les projets sous ce compte BIM 360.

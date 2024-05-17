@@ -1,0 +1,23 @@
+import NodeJsVsCodeTokens from './_shared/nodejs-vscode/auth/tokens.mdx';
+import NodeJsVsCodeEndpoints from './_shared/nodejs-vscode/auth/endpoints.mdx';
+import NodeJsVsCodeTest from './_shared/nodejs-vscode/auth/test.mdx';
+
+# 인증
+
+이 단계에서는 자체 인증할 수 있도록 서버 구현을 확장합니다
+APS 플랫폼에서 [3-legged OAuth 워크플로](https://aps.autodesk.com/en/docs/oauth/v2/tutorials/get-3-legged-token)를 통해 사용자를 안내합니다.
+다양한 요구 사항에 대한 액세스 토큰을 생성합니다.
+
+## 액세스 토큰
+
+<NodeJsVsCodeTokens />
+
+## 서버 엔드포인트
+
+이제 서버의 엔드포인트 컬렉션을 통해 이 기능을 노출해 보겠습니다.
+
+<NodeJsVsCodeEndpoints />
+
+## 사용해 보기
+
+<NodeJsVsCodeTest />

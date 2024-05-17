@@ -1,0 +1,32 @@
+import CliSetup from '../cli.mdx';
+import GitSetup from '../git.mdx';
+import VSCodeSetup from '../vscode.mdx';
+
+## 命令行界面
+
+<CliSetup />
+
+## 源码管理
+
+<GitSetup />
+
+## 运行时
+
+我们还需要 Node.js _runtime_ 来运行我们的代码，以及Node.js包管理器 _NPM_，
+管理第三方依赖项。您可以在 https://nodejs.org/en/download 上为您的平台获取安装程序
+这将安装两者。
+
+要确保这些工具可用，请尝试在“bash”中运行以下两个命令：
+
+```bash
+node -v
+npm -v
+```
+
+您应该看到如下内容：
+
+![Checking node in terminal](node.webp)
+
+## 编辑器
+
+<VSCodeSetup />

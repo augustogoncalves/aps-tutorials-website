@@ -1,0 +1,46 @@
+Implémentons l’OSS ([Object Storage Service](https://aps.autodesk.com/en/docs/data/v2/developers_guide/basics/#object-storage-service-oss))
+logique de notre application serveur. Ajoutez le code suivant à la fin du fichier 'services/aps.js' :
+
+```js title="services/aps.js"
+service.ensureBucketExists = async (bucketKey) => {
+    const { access_token } = await service.getInternalToken();
+    try {
+        await ossClient.getBucketDetails(access_token, bucketKey);
+    } catch (err) {
+        if (err.axiosError.response.status === 404) {
+            await ossClient.createBucket(access_token, CreateBucketXAdsRegionEnum.Us, {
+                bucketKey: bucketKey,
+                policyKey: CreateBucketsPayloadPolicyKeyEnum.Temporary
+            });
+        } else {
+            throw err;  
+        }
+    }
+};
+service.listObjects = async () => {
+    await service.ensureBucketExists(APS_BUCKET);
+    const { access_token } = await service.getInternalToken();
+    let resp = await ossClient.getObjects(access_token, APS_BUCKET, { limit: 64 });
+    let objects = resp.items;
+    while (resp.next) {
+        const startAt = new URL(resp.next).searchParams.get('startAt');
+        resp = await ossClient.getObjects(access_token, APS_BUCKET, { limit: 64, startAt });
+        objects = objects.concat(resp.items);
+    }
+    return objects;
+};
+service.uploadObject = async (objectName, filePath) => {
+    await service.ensureBucketExists(APS_BUCKET);
+    const { access_token } = await service.getInternalToken();
+    const obj = await ossClient.upload(APS_BUCKET, objectName, filePath, access_token);
+    return obj;
+};
+```
+
+La fonction 'ensureBucketExists' essaiera simplement de demander des informations supplémentaires
+à propos d’un compartiment spécifique utilisant le SDK APS, et si la réponse
+d’APS est '404 Not Found', il tentera de créer un nouveau compartiment avec ce nom.
+
+Comme vous pouvez le voir, la méthode 'getObjects' (responsable de la liste des fichiers
+dans un compartiment de gestion des données) utilise la pagination. Dans notre code, nous itérons simplement sur toutes les pages
+et renvoyer tous les fichiers du compartiment de notre application dans une seule liste.

@@ -1,0 +1,168 @@
+此步骤将帮助您创建用于 Design Automation 的基本 Revit 插件。有关详细信息，请访问 [我的第一个 Revit 插件](https://knowledge.autodesk.com/support/revit-products/learn-explore/caas/simplecontent/content/my-first-revit-plug-overview.html） 教程。
+
+> 您可以 [下载 Bundle ZIP](https://github.com/autodesk-platform-services/aps-design-automation-nodejs/tree/nodejs/bundles/UpdateRVTParam.zip） 到 'bundles/' （Node.js） 或 '/designAutomationSample/wwwroot/bundles' （.NET 6） 文件夹和 [跳到 **上传插件包** 部分](#upload-plugin-bundle）。
+
+### 创建一个新项目
+
+单击解决方案，将“**添加**”>>“新建项目**”。选择“Windows 桌面”，然后选择“类库”，最后将其命名为“UpdateRVTParam”。
+
+> 请选择 .NET Framework 4.8。如果未列出，[请安装开发包](https://dotnet.microsoft.com/download/dotnet-framework/net48）。
+
+右键单击“**参照”，然后单击“RevitAPI.dll”的“**添加参照**”和“**浏览**”（默认在“C：\Program Files\Autodesk\Revit 201x”文件夹下）。然后右键单击此 **RevitAPI** 引用，转到“**属性**”，然后将“**复制本地**”设置为“**False**”。
+
+然后右键单击项目，转到“管理 NuGet 包...”，在“浏览器”下搜索“DesignAutomation.Revit”并安装“Autodesk.Forge.DesignAutomation.Revit”（选择所需的相应 Revit 版本）。然后搜索并安装“Newtonsoft.Json”（用于解析 JSON 格式的输入数据）。
+
+![](../_images/_revit/new_project.gif)
+
+```xml title=package.config
+<?xml version="1.0" encoding="utf-8"?>
+<packages>
+  <package id="Autodesk.Forge.DesignAutomation.Revit" version="2021.0.0" targetFramework="net48" />
+  <package id="Microsoft.CSharp" version="4.5.0" targetFramework="net48" />
+  <package id="Newtonsoft.Json" version="12.0.1" targetFramework="net48" />
+</packages>
+```
+
+该项目应包含一个“Class1.cs”类，让我们将文件重命名为 Commands.cs（为了保持一致性）。
+
+此时，项目应如下所示
+
+![](../_images/_revit/project_files.png)
+
+```cs title=Commands.cs
+using Autodesk.Revit.ApplicationServices;
+using Autodesk.Revit.Attributes;
+using Autodesk.Revit.DB;
+using DesignAutomationFramework;
+using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.IO;
+namespace Autodesk.Forge.Sample.DesignAutomation.Revit
+{
+    [Transaction(TransactionMode.Manual)]
+    [Regeneration(RegenerationOption.Manual)]
+    public class Commands : IExternalDBApplication
+    {
+        //Path of the project(i.e)project where your Window family files are present
+        string OUTPUT_FILE = "OutputFile.rvt";
+        public ExternalDBApplicationResult OnStartup(ControlledApplication application)
+        {
+            DesignAutomationBridge.DesignAutomationReadyEvent += HandleDesignAutomationReadyEvent;
+            return ExternalDBApplicationResult.Succeeded;
+        }
+        private void HandleDesignAutomationReadyEvent(object sender, DesignAutomationReadyEventArgs e)
+        {
+            LogTrace("Design Automation Ready event triggered...");
+            e.Succeeded = true;
+            EditWindowParametersMethod(e.DesignAutomationData.RevitDoc);
+        }
+        private void EditWindowParametersMethod(Document doc)
+        {
+            InputParams inputParameters = JsonConvert.DeserializeObject<InputParams>(File.ReadAllText("params.json"));
+            //Modifying the window parameters
+            //Open transaction
+            using (Transaction trans = new Transaction(doc))
+            {
+                trans.Start("Update window parameters");
+                //Filter for windows
+                FilteredElementCollector WindowCollector = new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Windows).WhereElementIsNotElementType();
+                IList<ElementId> windowIds = WindowCollector.ToElementIds() as IList<ElementId>;
+                foreach (ElementId windowId in windowIds)
+                {
+                    Element Window = doc.GetElement(windowId);
+                    FamilyInstance FamInst = Window as FamilyInstance;
+                    FamilySymbol FamSym = FamInst.Symbol;
+                    SetElementParameter(FamSym, BuiltInParameter.WINDOW_HEIGHT, inputParameters.Height);
+                    SetElementParameter(FamSym, BuiltInParameter.WINDOW_WIDTH, inputParameters.Width);
+                }
+                //To save all the changes commit the transaction
+                trans.Commit();
+            }
+            //Save the updated file by overwriting the existing file
+            ModelPath ProjectModelPath = ModelPathUtils.ConvertUserVisiblePathToModelPath(OUTPUT_FILE);
+            SaveAsOptions SAO = new SaveAsOptions();
+            SAO.OverwriteExistingFile = true;
+            //Save the project file with updated window's parameters
+            LogTrace("Saving file...");
+            doc.SaveAs(ProjectModelPath, SAO);
+        }
+        public ExternalDBApplicationResult OnShutdown(ControlledApplication application)
+        {
+            return ExternalDBApplicationResult.Succeeded;
+        }
+        private void SetElementParameter(FamilySymbol FamSym, BuiltInParameter paraMeter, double parameterValue)
+        {
+            FamSym.get_Parameter(paraMeter).Set(parameterValue);
+        }
+        public class InputParams
+        {
+            public double Width { get; set; }
+            public double Height { get; set; }
+        }
+        /// <summary>
+        /// This will appear on the Design Automation output
+        /// </summary>
+        private static void LogTrace(string format, params object[] args) { System.Console.WriteLine(format, args); }
+    }
+}
+```
+
+创建一个名为 UpdateRVTParam.bundle 的文件夹，并在其中创建一个名为 PackageContents.xml 的文件，然后将以下内容复制到其中。有关详细信息，请参阅PackageContents.xml格式参考。此文件告诉 Revit 加载我们的 .addin 插件。
+
+```xml title=PackageContents.xml
+<?xml version="1.0" encoding="utf-8" ?>
+<ApplicationPackage Name="RevitDesignAutomation" Description="Sample Plugin for Revit" Author="tutorials.autodesk.io">
+  <CompanyDetails Name="Autodesk, Inc" Url="http://tutorials.autodesk.io" Email="forge.help@autodesk.com"/>
+  <Components Description="Modify window parameters">
+    <RuntimeRequirements SeriesMax="R2021" SeriesMin="R2019" Platform="Revit" OS="Win64"/>
+    <ComponentEntry LoadOnRevitStartup="True" LoadOnCommandInvocation="False" AppDescription="Modify Window Parameters" ModuleName="./Contents/Autodesk.Forge.Sample.DesignAutomation.Revit.addin" Version="1.0.0" AppName="Modify Window Parameters"/>
+  </Components>
+</ApplicationPackage>
+```
+
+#### Autodesk.Forge.Sample.DesignAutomation.Revit.addin
+
+在“UpdateRVTParam.bundle”文件夹下，创建一个名为“Contents”的子文件夹，并在此文件夹中创建一个名为“Autodesk.Forge.Sample.DesignAutomation.Revit.addin”的新文件。这会告诉 Revit 如何加载插件。
+
+```xml
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<RevitAddIns>
+  <AddIn Type="DBApplication">
+    <Name>Modify Window Parameters</Name>
+    <FullClassName>Autodesk.Forge.Sample.DesignAutomation.Revit.Commands</FullClassName>
+    <Text>Revit for Design Automation</Text>
+    <Description>Revit for Design Automation</Description>
+    <VisibilityMode>AlwaysVisible</VisibilityMode>
+    <Assembly>.\UpdateRVTParam.dll</Assembly>
+    <AddInId>000BD853-36E4-461f-9171-C5ACEDA4E723</AddInId>
+    <VendorId>ADSK</VendorId>
+    <VendorDescription>Autodesk, Inc, www.autodesk.com</VendorDescription>
+  </AddIn>
+</RevitAddIns>
+```
+
+![](../_images/_revit/bundle_folders.png)
+
+#### 构建后事件
+
+> 对于Node.js，需要调整 AppBundle ZIP 输出文件夹。
+
+现在我们需要压缩 .bundle 文件夹。右键单击项目，选择“**属性**”，然后打开“**生成事件**”，并将以下内容复制到“**生成后事件命令行**”字段中，如下图所示。
+
+```
+xcopy /Y /F "$(TargetDir)*.dll" "$(ProjectDir)UpdateRVTParam.bundle\Contents\"
+del /F "$(ProjectDir)..\designAutomationSample\wwwroot\bundles\UpdateRVTParam.zip"
+"C:\Program Files\7-Zip\7z.exe" a -tzip "$(ProjectDir)../designAutomationSample/wwwroot/bundles/UpdateRVTParam.zip" "$(ProjectDir)UpdateRVTParam.bundle\" -xr0!*.pdb
+```
+
+这会将 DLL 从“/bin/debug/”复制到“.bundle/Contents”文件夹，然后使用 [7zip](https://www.7-zip.org/） 创建一个 zip，最后将 ZIP 复制到 Web 应用程序的“/bundles”文件夹中。
+
+![](../_images/_revit/post_build.png)
+
+> 请注意 **生成后事件** 如何使用项目和文件夹名称，因此请确保使用此名称。
+
+如果您现在构建“UpdateRVTParam”项目，您应该会在 **Output** 窗口中看到类似这样的东西。请注意压缩的 2 个文件夹和 3 个文件。zip 文件直接在 /wwwroot/bundles 文件夹中创建。这意味着你做得很好！
+
+![](../_images/_revit/build_output.png)
+
+> 如果生成输出显示复制了 2 个文件夹和 5 个文件以上，请返回并确保 RevitAPI** 引用设置为“**复制本地**”:*“*False**”。您可能需要从“UpdateRVTParam.bundle/Contents/”文件夹中删除所有 DLL

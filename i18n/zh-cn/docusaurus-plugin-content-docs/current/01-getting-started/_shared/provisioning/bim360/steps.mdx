@@ -1,0 +1,71 @@
+import Image from '@theme/IdealImage';
+
+
+
+:::caution
+
+确保您对 BIM 360 帐户具有 _admin_ 访问权限。
+
+
+:::
+
+
+
+1. 登录您的 BIM 360 帐户，然后导航到_Account Admin_
+
+2. 在_Account Admin_页面上，转到“_Settings_”，然后导航到“_Custom Integrations_”选项卡
+
+<Image img={require('./custom-integrations.jpeg')} />
+
+3. 使用左侧的_Add自定义Integration_按钮启动一个简单的向导
+这将指导您完成整个过程
+
+4. 在_Select Access_页面上，同时保留 _BIM 360 帐户Administration_
+并选中_Document Management_选项，然后点击 _Next_ 按钮
+
+<Image img={require('../select-access.jpeg')} />
+
+5. 在向导的下一页上，选择“_I是developer_”选项，然后点击
+_Next_ 按钮
+
+<Image img={require('../i-am-developer.jpeg')} />
+
+
+
+:::info
+
+在这里，我们假设_account admin_也是 APS 应用程序的所有者。
+如果不是这种情况，帐户管理员可以使用_Invite developer_
+选项，受邀开发人员稍后将输入 APS 应用程序详细信息。
+
+
+:::
+
+
+
+6. 在下一页和最后一页上，记下 _BIM 360 帐户ID_，选中
+复选框，然后填写_Client ID_和_App Name_字段
+与它们在应用程序页面上显示的完全相同 https://aps.autodesk.com/myapps
+
+<Image img={require('../bim360-info.jpeg')} />
+
+
+
+:::tip
+
+请考虑将客户端 ID 存储在_App Description_的某个位置。客户端 ID 将_not_
+创建自定义集成后显示在自定义集成中，如果集成数量
+在您的帐户开始增长，这将帮助您快速识别 APS 应用程序
+每个自定义集成都与之关联。
+
+
+:::
+
+
+
+7. 准备就绪后，向下滚动并点击_保存_按钮
+
+就是这样。现在，您的应用程序可以使用不同的 APS 服务，例如
+[数据管理 API](https://aps.autodesk.com/en/docs/data/v2/developers_guide/overview）
+或 [BIM 360 API](https://aps.autodesk.com/en/docs/bim360/v1/overview/introduction）
+访问此 BIM 360 帐户下所有项目的信息。

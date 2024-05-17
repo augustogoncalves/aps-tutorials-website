@@ -1,0 +1,27 @@
+Pokud je aplikace stále spuštěna, restartujte ji (například pomocí _Run > Restartovat Debugging_,
+nebo kliknutím na zelenou ikonu restartu), v opačném případě jej znovu spusťte (pomocí _Run > Start Debugging_,
+nebo stisknutím klávesy 'F5').
+
+Když přejdete na [http://localhost:8080/api/auth/login](http://localhost:8080/api/auth/login)
+v prohlížeči byste měli být přesměrováni na přihlašovací stránku Autodesku, a po přihlášení,
+měli byste být přesměrováni zpět do své aplikace, prozatím jednoduše zobrazit 'Cannot GET /'.
+To se očekává, protože jsme ještě neimplementovali koncový bod GET /. Pokud však použijete
+nástroje pro vývoj prohlížeče a prozkoumat soubory cookie uložené vaším prohlížečem pro původ "localhost",
+Všimněte si, že aplikace už tam ukládá ověřovací data.
+
+
+
+:::info
+
+Zde najdete soubory cookie svých webových stránek v různých prohlížečích:
+- [Chrome](https://developer.chrome.com/docs/devtools/storage/sessionstorage/)
+- [Firefox](https://developer.mozilla.org/en-US/docs/Tools/Storage_Inspector/Cookies)
+- [Hrana](https://docs.microsoft.com/en-us/microsoft-edge/devtools-guide-chromium/storage/cookies)
+- [Safari](https://developer.apple.com/safari/tools/)
+
+
+:::
+
+
+
+![Empty Response](./empty-response.webp)

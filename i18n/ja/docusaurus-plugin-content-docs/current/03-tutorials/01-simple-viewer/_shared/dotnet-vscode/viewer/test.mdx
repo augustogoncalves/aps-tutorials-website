@@ -1,0 +1,16 @@
+以上です!これで、アプリケーションを動作させる準備が整いました。通常どおりコマンドラインから起動します。
+
+```bash
+export APS_CLIENT_ID=your-own-aps-client-id
+export APS_CLIENT_SECRET=your-own-aps-client-secret
+export APS_BUCKET=optional-custom-bucket-name
+dotnet run
+```
+
+次に、ブラウザで[http://localhost:8080](http://localhost:8080)に移動します。あなたはそうあるべきです
+シンプルなUIが表示され、右上隅にドロップダウンが表示され、最終的に入力されます
+設定済みのバケットで使用可能なすべてのモデルと、新しいモデルをアップロードするためのボタンが表示されます。
+また、ドロップダウンからオプションの1つを選択するとすぐに、対応するモデルが読み込まれます
+Webページの残りの部分を占めるビューアで。
+
+![Final App](./final-app.webp)

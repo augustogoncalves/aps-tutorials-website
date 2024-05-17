@@ -1,0 +1,60 @@
+プロジェクト用の新しいフォルダーを作成し、コマンドラインでそのフォルダーに移動して、新しい
+Node.jsプロジェクト:
+
+```bash
+npm init -y
+```
+
+次に、使用するNode.js依存関係をすべてインストールします。この場合、次のようになります。
+[dotenv](https://www.npmjs.com/package/dotenv)(ファイルから環境変数を初期化するためのユーティリティ)、
+[Express.js](https://expressjs.com)(Web フレームワーク)、Express.js [ミドルウェア](https://expressjs.com/en/guide/using-middleware.html)
+「multipart / form-data」リクエストを処理し、最後に公式のさまざまなパッケージを処理します APS SDK:
+
+
+
+:::caution
+
+2024 年 4 月現在、APS SDK for Node.js はベータ版であるため、パブリック インターフェイスは引き続き変更される可能性があります。
+潜在的な問題を回避するには、以下に示すように、これらのパッケージの特定のバージョンをインストールすることをお勧めします。
+
+
+:::
+
+
+
+```bash
+npm install --save dotenv express express-formidable
+npm install --save @aps_sdk/autodesk-sdkmanager@0.0.7-beta.1
+npm install --save @aps_sdk/authentication@0.1.0-beta.1
+npm install --save @aps_sdk/oss@0.1.0-beta.1
+npm install --save @aps_sdk/model-derivative@0.1.0-beta.1
+```
+
+'package.json ファイルの '"dependencies"' は次のようになります
+(バージョン番号がわずかに異なる可能性があります):
+
+```json
+// ...
+  "dependencies": {
+    "@aps_sdk/authentication": "0.1.0-beta.1",
+    "@aps_sdk/autodesk-sdkmanager": "0.0.7-beta.1",
+    "@aps_sdk/model-derivative": "0.1.0-beta.1",
+    "@aps_sdk/oss": "0.1.0-beta.1",
+    "dotenv": "^16.4.1",
+    "express": "^4.18.2",
+    "express-formidable": "^1.2.0"
+  },
+// ...
+```
+
+最後に、移動するプロジェクトフォルダーにさらにいくつかのサブフォルダーを作成しましょう
+後で必要になるには:
+
+- 'wwwroot' - クライアント側のアセット(HTML、CSS、JavaScript、画像など)をすべて配置します。
+- 'routes' - ここで、すべてのサーバーエンドポイントを実装します。
+- 'services' - ここでは、異なるエンドポイントで共有できるすべてのサーバー側のロジックを保持します
+
+これで、Visual Studio Code で初めてプロジェクト フォルダーを開くと、フォルダー構造
+次のようになります。
+
+![Folder Structure](folder-structure.webp)

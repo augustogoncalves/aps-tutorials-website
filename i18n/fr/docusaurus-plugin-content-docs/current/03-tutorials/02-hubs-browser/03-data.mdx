@@ -1,0 +1,68 @@
+import EnvTabs from '@site/src/components/EnvTabs.js';
+
+import NodeJsVsCodeHubs from './_shared/nodejs-vscode/data/hubs.mdx';
+import NodeJsVsCodeEndpoints from './_shared/nodejs-vscode/data/endpoints.mdx';
+
+import DotNetHubs from './_shared/dotnet/data/hubs.mdx';
+import DotNetEndpoints from './_shared/dotnet/data/endpoints.mdx';
+
+# Navigation dans les données
+
+Dans cette étape, nous allons étendre notre serveur afin de pouvoir parcourir le contenu d’autres applications basées sur APS
+applications telles que BIM 360 Docs ou Autodesk Docs. Nous allons essentiellement suivre la gestion des données
+Hiérarchie des hubs, projets, dossiers, éléments et versions du service :
+
+![Data Management structure](./_shared/dm-structure.webp)
+
+## Naviguer dans les hubs
+
+Tout d’abord, ajoutons quelques méthodes d’aide pour parcourir les hubs, les projets,
+Dossiers, éléments et versions :
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeHubs} DotNetVsCode={DotNetHubs} DotNetVs2022={DotNetHubs} />
+
+## Points de terminaison du serveur
+
+Ensuite, exposons la nouvelle fonctionnalité au code côté client via un autre
+ensemble de points de terminaison.
+
+<EnvTabs NodeJsVsCode={NodeJsVsCodeEndpoints} DotNetVsCode={DotNetEndpoints} DotNetVs2022={DotNetEndpoints} />
+
+## Essayez-le
+
+Et c’est tout pour le côté serveur. Il est temps de l’essayer !
+
+Démarrez (ou redémarrez) l’application à partir de Visual Studio Code comme d’habitude, puis accédez à
+[http://localhost:8080/api/hubs](http://localhost:8080/api/hubs) dans le navigateur.
+Le serveur doit répondre avec une liste JSON de tous les hubs auxquels vous avez accès.
+Essayez de copier l’ID de l’un des hubs et utilisez-le à une autre adresse : http://localhost:8080/api/hubs/your-hub-id/projects.
+Dans ce cas, l’application serveur doit répondre avec une liste JSON de tous les projets
+disponible sous le hub spécifié.
+
+
+
+:::info
+
+Si vous avez ignoré la procédure de connexion à l’étape précédente ou redémarré votre application serveur,
+Vous devrez peut-être vous rendre à [http://localhost:8080/api/auth/login](http://localhost:8080/api/auth/login)
+Encore une fois pour s’assurer que toutes les données d’authentification sont disponibles dans les cookies avant de tester
+le point de terminaison '/api/hubs'.
+
+
+:::
+
+
+
+
+
+:::tip
+
+Si vous utilisez Google Chrome, envisagez d’installer [JSON Formatter](https://chrome.google.com/webstore/detail/json-formatter/bcjindcccaagfpapjjmafapmmgkkhgoa?hl=en)
+ou une extension similaire pour formater automatiquement les réponses JSON.
+
+
+:::
+
+
+
+![Hubs Response](./_shared/hubs-response.webp)

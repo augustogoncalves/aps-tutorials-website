@@ -1,0 +1,26 @@
+V kořenovém adresáři složky projektu vytvořte soubor server.js s následujícím kódem:
+
+```js title="server.js"
+const express = require('express');
+const session = require('cookie-session');
+const { PORT, SERVER_SESSION_SECRET } = require('./config.js');
+let app = express();
+app.use(express.static('wwwroot'));
+app.use(session({ secret: SERVER_SESSION_SECRET, maxAge: 24 * 60 * 60 * 1000 }));
+app.listen(PORT, () => console.log(`Server listening on port ${PORT}...`));
+```
+
+Prozatím server toho moc nedělá, pouze obsluhuje prostředky na straně klienta z podsložky 'wwwroot',
+a přístup k datům relace uloženým v souborech cookie. Soubory cookie budou zašifrovány pomocí tajné fráze
+které budeme muset aplikaci předat prostřednictvím proměnné prostředí SERVER_SESSION_SECRET.
+
+Dále přidáme skript '"start": "node server.js"' do souboru 'package.json', abychom mohli
+Snadno spusťte naši aplikaci později:
+
+```json
+// ...
+"scripts": {
+    "start": "node server.js"
+}
+// ...
+```
